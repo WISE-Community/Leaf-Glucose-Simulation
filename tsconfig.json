@@ -1,0 +1,15 @@
+{
+    "files": [
+       "src/main.ts",
+       "src/glucose.ts"
+    ], 
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "outDir": "./dist",
+        "allowJs": true,
+        "target": "es5"
+    },
+    "include": [
+        "./src/**/*"
+    ]
+}
