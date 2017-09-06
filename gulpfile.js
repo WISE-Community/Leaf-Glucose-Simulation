@@ -7,7 +7,7 @@ var gutil = require("gulp-util");
 var paths = {
     pages: [
         "src/*.html",
-        "src/*.min.js",
+        "src/*.js",
         "src/images/*"
     ]
 };
