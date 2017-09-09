@@ -1,6 +1,10 @@
 # Leaf-Glucose-Simulation
 A simulation that demonstrates what happens inside a leaf during Photosynthesis with emphasis on glucose production/storage/usage
 
+## Demo
+
+[Basic version](https://wise-community.github.io/Leaf-Glucose-Simulation/dist/index.html)
+
 ## Screenshots
 
 ### Simulation Start
