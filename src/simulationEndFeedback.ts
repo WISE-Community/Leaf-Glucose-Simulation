@@ -1,13 +1,25 @@
+import * as SVG from "svg.js";
+
+/**
+ * SimulationEndFeedback --- Shows feedback that the simulation has ended,
+ * either by completing the entire duration, or the plant dying midway.
+ * @author Hiroki Terashima
+ * @author Geoffrey Kwan
+ */
 export class SimulationEndFeedback {
 
-    draw: any;
-    plantDiedRect: any;
-    plantDiedText: any;
+    draw: SVG;
+    plantDiedRect: SVG;
+    plantDiedText: SVG;
 
-    simulationEndedRect: any;
-    simulationEndedText: any;
+    simulationEndedRect: SVG;
+    simulationEndedText: SVG;
 
-    constructor(draw: any) {
+    /**
+     * Instantiates variables with initial values for the feedback.
+     * @param draw the SVG object where the view will be drawn on
+     */
+    constructor(draw: SVG) {
         this.draw = draw;
 
         // create the simulation ended message
@@ -44,6 +56,9 @@ export class SimulationEndFeedback {
         this.simulationEndedText.hide();
     }
 
+    /**
+     * Shows plant died feedback
+     */
     showPlantDied() {
         // move the plant died elements in front of everything
         this.plantDiedRect.front();
@@ -54,6 +69,9 @@ export class SimulationEndFeedback {
         this.plantDiedText.show();
     }
 
+    /**
+     * Shows simulation ended feedback
+     */
     showSimulationEnded() {
         // move the simulation ended elements in front of everything
         this.simulationEndedRect.front();

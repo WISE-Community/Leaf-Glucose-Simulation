@@ -1,14 +1,28 @@
+import * as SVG from "svg.js";
+
+/**
+ * PlantAnimationCorner --- Displays the animation showing photons
+ * hitting the plant.
+ * @author Hiroki Terashima
+ * @author Geoffrey Kwan
+ */
 export class PlantAnimationCorner {
-    draw: any;
-    lightBulbOn: any;
-    lightBulbOff: any;
-    allLeaves: any[];
-    leafYellow: any;
-    leafLightGreen: any;
-    leafGreen: any;
-    leafDead: any;
-    darknessOverlay: any;
-    constructor(draw: any) {
+    draw: SVG;
+    lightBulbOn: SVG;
+    lightBulbOff: SVG;
+    allLeaves: SVG[];
+    leafYellow: SVG;
+    leafLightGreen: SVG;
+    leafGreen: SVG;
+    leafDead: SVG;
+    darknessOverlay: SVG;
+
+    /**
+     * Instantiates variables with initial values for objects
+     * within the plant animation corner.
+     * @param draw An SVG draw object to paint other elements on
+     */
+    constructor(draw: SVG) {
         this.draw = draw;
 
         // draws the upper left box where the light and plant will be displayed
@@ -39,8 +53,8 @@ export class PlantAnimationCorner {
             'y': 150
         });
 
-        // store all the leaf images in a global variable
-        this.allLeaves = [this.leafDead, this.leafYellow, this.leafLightGreen, this.leafGreen];
+        // store all the leaf images in an array from liveliest -> dead
+        this.allLeaves = [this.leafGreen, this.leafLightGreen, this.leafYellow, this.leafDead];
 
         // draw the rectangle below the pot
         this.draw.rect(250,40).x(0).y(270).fill('gray').stroke({width:2});
@@ -57,35 +71,29 @@ export class PlantAnimationCorner {
             'fill': 'black'
         });
 
-        this.showLeaf(0);  // show the green healthy leaf to begin.
+        // show the green healthy leaf at the beginning
+        this.showLeaf(0);
     }
 
     /**
-     * Change the leaf based on the leaf index specified
-     * 0 = green, 1 = light green, 2 = yellow, 3 = dead brown
-     * @param glucoseCount the number of glucose stored.
+     * Change the leaf that is displayed based on the leaf index specified.
+     * 0 = green, 1 = light green, 2 = yellow, 3 = brown
+     * @param leafIndex which leaf should be shown
      */
-    showLeaf(leafIndex) {
+    showLeaf(leafIndex: number) {
         // first hide all the leaves
-        for (var l = 0; l < this.allLeaves.length; l++) {
-            var leaf = this.allLeaves[l];
-            leaf.hide();
-        }
+        this.allLeaves.map((leaf) => { leaf.hide() });
 
         // then show the appropriate leaf
-        if (leafIndex === 0) {
-            this.leafGreen.show();
-        } else if (leafIndex <= 1) {
-            this.leafLightGreen.show();
-        } else if (leafIndex <= 2) {
-            this.leafYellow.show();
-        } else {
-            this.leafDead.show();
-        }
+        this.allLeaves[leafIndex].show();
     }
 
-    turnLightOn(doTurnOn: boolean = true) {
-        if (doTurnOn) {
+    /**
+     * Turn the light on or off
+     * @param doTurnLightOn true iff the light should be turned on
+     */
+    turnLightOn(doTurnLightOn: boolean = true) {
+        if (doTurnLightOn) {
           // hide the grey light bulb
           this.lightBulbOff.hide();
 
@@ -103,7 +111,7 @@ export class PlantAnimationCorner {
           // show the grey bulb
           this.lightBulbOff.show();
 
-          // display the darkness overlay
+          // show the darkness overlay
           this.darknessOverlay.animate().attr({
               'fill-opacity': '0.3'
           });

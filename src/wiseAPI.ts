@@ -1,5 +1,8 @@
 /**
- * Class to communicate with WISE to save/retrieve data
+ * WISEAPI --- Class to communicate with WISE to save/retrieve data
+ * before/during/after the simulation.
+ * @author Hiroki Terashima
+ * @author Geoffrey Kwan
  */
 export class WISEAPI {
     // flag for whether we are using the model in WISE4
@@ -14,6 +17,9 @@ export class WISEAPI {
     // work from other components
     studentWorkFromOtherComponents: any;
 
+    /**
+     * Instantiates variables used to communicate with WISE
+     */
     constructor() {
 
       // check if the model is being used in WISE4
@@ -31,7 +37,7 @@ export class WISEAPI {
 
       // check if the model is being used in WISE5
       if (window.frameElement != null) {
-          var iframeId = window.frameElement.getAttribute('id');
+          let iframeId = window.frameElement.getAttribute('id');
 
           if (iframeId != null && iframeId.indexOf('componentApp') != -1) {
               /*
@@ -65,7 +71,7 @@ export class WISEAPI {
             // this mode is being used in WISE5
 
             // create a component state
-            var componentState = {};
+            let componentState = {};
             componentState.isAutoSave = false;
             componentState.isSubmit = false;
             componentState.studentData = trialData;
@@ -79,7 +85,7 @@ export class WISEAPI {
      * Send an event to the parent
      * @param event the event object
      */
-    saveWISE5Event(event) {
+    saveWISE5Event(event: any) {
         event.messageType = 'event';
         sendMessage(event);
     }
@@ -88,7 +94,7 @@ export class WISEAPI {
      * Send a component state to the parent
      * @param componentState the component state
      */
-    saveWISE5State(componentState) {
+    saveWISE5State(componentState: any) {
         componentState.messageType = 'studentWork';
         sendMessage(componentState);
     }
@@ -97,7 +103,7 @@ export class WISEAPI {
      * Send a message to the parent
      * @param the message to send to the parent
      */
-    sendMessage(message) {
+    sendMessage(message: string) {
         parent.postMessage(message, "*");
     }
 
@@ -105,10 +111,10 @@ export class WISEAPI {
      * Receive a message from the parent
      * @param message the message from the parent
      */
-    receiveMessage(message) {
+    receiveMessage(message: any) {
 
         if (message != null) {
-            var messageData = message.data;
+            let messageData = message.data;
 
             if (messageData != null) {
                 if (messageData.messageType == 'studentWork') {
@@ -127,7 +133,7 @@ export class WISEAPI {
                     this.studentWorkFromThisNode = messageData.studentWorkFromThisNode;
                     this.studentWorkFromOtherComponents = messageData.studentWorkFromOtherComponents;
                 } else if (messageData.messageType == 'componentStateSaved') {
-                    var componentState = messageData.componentState;
+                    let componentState = messageData.componentState;
                 }
             }
         }
@@ -139,12 +145,12 @@ export class WISEAPI {
     getStudentWork() {
 
         // make a message to request the other student work
-        var message = {
+        let message = {
             messageType: "getStudentWork"
         };
 
         // send the message to request the other student work
-        sendMessage(message);
+        this.sendMessage(message);
     }
 
     /**
@@ -155,22 +161,22 @@ export class WISEAPI {
      * the component, an object with a node id field and component id field will
      * be returned.
      */
-    getStudentWorkByNodeIdAndComponentId(nodeId, componentId) {
+    getStudentWorkByNodeIdAndComponentId(nodeId: string, componentId: string) {
 
-        var componentState = null;
+        let componentState = null;
 
         if (nodeId != null && componentId != null) {
             if (this.studentWorkFromThisNode != null) {
 
                 // loop through the component states from this node
-                for (var c = 0; c < this.studentWorkFromThisNode.length; c++) {
+                for (let c = 0; c < this.studentWorkFromThisNode.length; c++) {
 
                     // get a component state
-                    var tempComponentState = this.studentWorkFromThisNode[c];
+                    let tempComponentState = this.studentWorkFromThisNode[c];
 
                     if (tempComponentState != null) {
-                        var tempNodeId = tempComponentState.nodeId;
-                        var tempComponentId = tempComponentState.componentId;
+                        let tempNodeId = tempComponentState.nodeId;
+                        let tempComponentId = tempComponentState.componentId;
 
                         if (nodeId == tempNodeId && componentId == tempComponentId) {
                             // we have found the component state we are looking for
@@ -184,15 +190,15 @@ export class WISEAPI {
             if (studentWork == null && this.studentWorkFromOtherComponents != null) {
 
                 // loop through the component states from other nodes
-                for (var c = 0; c < this.studentWorkFromOtherComponents.length; c++) {
+                for (let c = 0; c < this.studentWorkFromOtherComponents.length; c++) {
 
                     // get a component state
-                    var tempComponentState = this.studentWorkFromOtherComponents[c];
+                    let tempComponentState = this.studentWorkFromOtherComponents[c];
 
                     if (tempComponentState != null) {
                         if (tempComponentState != null) {
-                            var tempNodeId = tempComponentState.nodeId;
-                            var tempComponentId = tempComponentState.componentId;
+                            let tempNodeId = tempComponentState.nodeId;
+                            let tempComponentId = tempComponentState.componentId;
 
                             if (nodeId == tempNodeId && componentId == tempComponentId) {
                                 // we have found the component state we are looking for

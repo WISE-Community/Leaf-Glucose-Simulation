@@ -21,7 +21,7 @@ var watchedBrowserify = watchify(browserify({
         "src/feedback.ts",
         "src/graph.ts",
         "src/main.ts",
-        "src/plantGlucoseModel.ts",
+        "src/plantGlucoseSimulation.ts",
         "src/plantAnimationCorner.ts",
         "src/simulationEndFeedback.ts",
         "src/util.ts",

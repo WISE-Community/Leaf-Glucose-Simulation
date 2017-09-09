@@ -1,11 +1,17 @@
+ /**
+  * Feedback --- Give user custom feedback based on policy specified
+  * at the start of the simulation.
+  * @author Hiroki Terashima
+  * @author Geoffrey Kwan
+  */
 export class Feedback {
-    draw: any;
-    feedbackRect: any;
+    draw: SVG;
+    feedbackRect: SVG;
     feedbackText: any[];
 
     // What feedback policy to use - options are defined experiments (currently, 2a and 2b)
     // default, or none (null works here too, indicating none).
-    feedbackPolicy = null;
+    feedbackPolicy: string = null;
 
     feedbackShowing = false;
     feedbackInstructions: string[] = ["Click start again to start your new trial."];
@@ -37,7 +43,13 @@ export class Feedback {
     templatesByFeedbackPolicy: any = {experiment2b: [[-1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]}
     templateNamesByFeedbackPolicy: any = {experiment2b:["fourWeeksOn"]};
 
-    constructor(draw: any, feedbackPolicy: string = null) {
+    /**
+     * Instantiates elements in the feedback view.
+     * @param draw the SVG object where the view will be drawn on
+     * @param feedbackPolicy A string containing the identifier
+     * of the feedback to use.
+     */
+    constructor(draw: SVG, feedbackPolicy: string = null) {
         this.draw = draw;
         this.feedbackPolicy = feedbackPolicy;
 
@@ -55,7 +67,8 @@ export class Feedback {
     }
 
     /**
-     * Called when feedback should be shown
+     * Shows the feedback based on the specified trials that were performed.
+     * @param trials An array of trial data performed by the student.
      */
     showFeedback(trials: any[]) {
 
@@ -90,20 +103,20 @@ export class Feedback {
 
         // create the message text
         this.feedbackText = [];
-        var startingYValue = 210;
-        var totalLines = feedbackMessage.length;
+        let startingYValue = 210;
+        let totalLines = feedbackMessage.length;
         if (feedbackMessage != feedbackMessageMoveOnOrAsk) {
             totalLines += feedbackInstructions.length;
         }
-        for (var i = 0; i < totalLines; i++) {
-            var curYValue = startingYValue + i*50;
-            var curLine;
+        for (let i = 0; i < totalLines; i++) {
+            let curYValue = startingYValue + i*50;
+            let curLine;
             if (i < feedbackMessage.length) {
                 curLine = feedbackMessage[i];
             } else {
                 curLine = feedbackInstructions[i - feedbackMessage.length];
             }
-            var curText = this.draw.text(curLine).x(80).y(curYValue).font({size: 24});
+            let curText = this.draw.text(curLine).x(80).y(curYValue).font({size: 24});
             this.feedbackText.push(curText);
         }
         this.feedbackRect.show();
@@ -115,7 +128,7 @@ export class Feedback {
     hideFeedback() {
         this.feedbackRect.hide();
 
-        for (var i = 0; i < this.feedbackText.length; i++) {
+        for (let i = 0; i < this.feedbackText.length; i++) {
             this.feedbackText[i].hide();
         }
     }
@@ -188,11 +201,11 @@ export class Feedback {
      */
     recordInfoForFeedback(trialData: any, numTrials: number) {
         // Light off
-        var lightOffForTrial = trialIncludesLightOff(trialData);
+        let lightOffForTrial = trialIncludesLightOff(trialData);
         trialWithLightOffOccurred = trialWithLightOffOccurred || lightOffForTrial;
 
         // Timing info
-        var timeForTrial = getTrialTime(trialData);
+        let timeForTrial = getTrialTime(trialData);
         if (timeForTrial > longestTrial) {
             longestTrial = timeForTrial;
         }
@@ -201,16 +214,16 @@ export class Feedback {
         totalDaysRun += trialData.glucoseCreatedData.length - 1//-1 because 0th week is always stored
 
         // Plant death occurred
-        var plantEverDied = plantDiedInTrial(trialData);
+        let plantEverDied = plantDiedInTrial(trialData);
         plantHasEverDied = plantHasEverDied || plantEverDied;
 
         // Record any policy specific info
         if (feedbackPolicy != null) {
             if (typeof templatesByFeedbackPolicy[feedbackPolicy] != "undefined") {
-                var templatesToCheck = templatesByFeedbackPolicy[feedbackPolicy];
-                for (var i = 0; i < templatesToCheck.length; i++) {
+                let templatesToCheck = templatesByFeedbackPolicy[feedbackPolicy];
+                for (let i = 0; i < templatesToCheck.length; i++) {
                     if (trialMatchesTemplate(trialData, templatesToCheck[i])) {
-                        var templateName = templateNamesByFeedbackPolicy[feedbackPolicy][i];
+                        let templateName = templateNamesByFeedbackPolicy[feedbackPolicy][i];
                         if (!policySpecificFeedbackInfo.templateMatches.hasOwnProperty(templateName)) {
                             policySpecificFeedbackInfo.templateMatches[templateName] = [];
                         }

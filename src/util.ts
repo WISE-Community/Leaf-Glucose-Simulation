@@ -1,11 +1,14 @@
 /**
- * Parse the GET URL parameters
+ * Parses the GET URL parameters and returns the result as an object.
+ * @author Hiroki Terashima
+ * @author Geoffrey Kwan
+ *
  * @return an object containing the key/value pairs of the parameter names/values
  */
 export function parseURLParameters() {
 
-    var parameters = {};
-    
+    let parameters = {};
+
     /*
      * get the text in the URL starting with the ?
      * e.g.
@@ -14,7 +17,7 @@ export function parseURLParameters() {
      * search would be this
      * "?feedbackPolicy=experiment2b&showGraph=false"
      */
-    var search = location.search;
+    let search = location.search;
 
     if (search != null && search != '') {
 
@@ -33,12 +36,12 @@ export function parseURLParameters() {
          * parameterPairs[0]="feedbackPolicy=experiment2b"
          * parameterPairs[1]="showGraph=false"
          */
-        var parameterPairs = search.split('&');
+        let parameterPairs = search.split('&');
 
         if (parameterPairs != null) {
 
-            for (var p = 0; p < parameterPairs.length; p++) {
-                var parameterPairString = parameterPairs[p];
+            for (let p = 0; p < parameterPairs.length; p++) {
+                let parameterPairString = parameterPairs[p];
 
                 if (parameterPairString != null) {
 
@@ -48,11 +51,11 @@ export function parseURLParameters() {
                      * parameterPair[0]="feedbackPolicy"
                      * parameterPair[1]="experiment2b"
                      */
-                    var parameterPair = parameterPairString.split('=');
+                    let parameterPair = parameterPairString.split('=');
 
                     if (parameterPair != null) {
-                        var parameterName = parameterPair[0];
-                        var parameterValue = parameterPair[1];
+                        let parameterName = parameterPair[0];
+                        let parameterValue = parameterPair[1];
 
                         if (parameterValue == "true") {
                             /*
