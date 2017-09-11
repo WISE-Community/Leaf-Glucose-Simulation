@@ -213,16 +213,20 @@ export class PlantGlucoseSimulation {
     /**
      * Update the glucose values
      * @param dayNumber which day it is
-     * @param createGlucose whether to create glucose
+     * @param glucoseCreated whether glucose was created
+     * @param glucoseUsed whether glucose was used
      */
-    updateGlucoseValues(dayNumber: number, createGlucose: boolean) {
-        if (createGlucose) {
+    updateGlucoseValues(dayNumber: number, glucoseCreated: boolean,
+        glucoseUsed: boolean) {
+        if (glucoseCreated) {
             // we are creating glucose so we will add to the glucoseCreated
             this.totalGlucoseCreated += this.glucoseCreatedIncrement;
         }
 
-        // increase the glucose used by the plant
-        this.totalGlucoseUsed += this.glucoseUsedIncrement;
+        if (glucoseUsed) {
+            // increase the glucose used by the plant
+            this.totalGlucoseUsed += this.glucoseUsedIncrement;
+        }
 
         // update the amount of glucose stored
         this.totalGlucoseStored = this.totalGlucoseCreated - this.totalGlucoseUsed;
@@ -277,9 +281,10 @@ export class PlantGlucoseSimulation {
                 function lightOnAnimationCallback() {
 
                     let glucoseCreated = true;
+                    let glucoseUsed = true;
 
                     // update the glucose values
-                    this.updateGlucoseValues(this.dayNumber, glucoseCreated);
+                    this.updateGlucoseValues(this.dayNumber, glucoseCreated, glucoseUsed);
 
                     // update the graph
                     this.updateGraph(this.dayNumber, glucoseCreated);
@@ -296,48 +301,11 @@ export class PlantGlucoseSimulation {
 
                     let glucoseCreated = false;
 
-                    // update the glucose values
-                    this.updateGlucoseValues(this.dayNumber, glucoseCreated);
-
                     // update the graph
                     this.updateGraph(this.dayNumber, glucoseCreated);
 
-                    if (this.totalGlucoseStored < 0) {
-                        // the amount of glucose stored is 0 or less which means
-                        // the plant has died
-
-                        // disable control buttons
-                        this.disableControlButtons();
-
-                        // start leaf death sequence, which by default takes 3 seconds
-                        this.currentAnimation = this.mitochondrion
-                            .animate(3000 * this.animationSpeedRatio).dmove(1,1)
-                            .during(function(pos: number, morph, eased, situation) {
-                                // get the death sequence animation leaf index based on time
-                                let deathLeafIndex = 0;
-                                if (pos < .33) {
-                                    deathLeafIndex = 1;
-                                } else if (pos < .66) {
-                                    deathLeafIndex = 2;
-                                } else {
-                                    deathLeafIndex = 3;
-                                }
-                                this.plantAnimationCorner.showLeaf(deathLeafIndex);
-                            }.bind(this)).afterAll(function() {
-                                // end the trial
-                                // TODO: uncomment me
-                                //this.endTrial();
-
-                                // create the plant died event
-                                this.addEvent('plantDied');
-
-                                // show the plant died message
-                                this.simulationEndFeedback.showPlantDied();
-                            }.bind(this));
-                    } else {
-                        // loop animation after brief pause©
-                        window.setTimeout(function() { this.playAnimationLoop(); }.bind(this), 750 * this.animationSpeedRatio);
-                    }
+                    // loop animation after brief pause©
+                    window.setTimeout(function() { this.playAnimationLoop(); }.bind(this), 750 * this.animationSpeedRatio);
                 }
                 // start the animation
                 this.startLightOffAnimation(lightOffAnimationCallback.bind(this));
@@ -546,6 +514,13 @@ export class PlantGlucoseSimulation {
                             // remove the mitochondrion batteries
                             pgs.removeMitochondrionBatteries();
 
+                            let glucoseCreated = false;
+                            let glucoseUsed = true;
+
+                            // update the glucose values
+                            pgs.updateGlucoseValues(pgs.dayNumber, glucoseCreated,
+                                glucoseUsed);
+
                             // now that we're done with the animation, invoke the callback
                             animationCallback();
                         }
@@ -591,7 +566,8 @@ export class PlantGlucoseSimulation {
                 .move(pgs.mitochondrionBattery2_startingX, pgs.mitochondrionBattery1_startingY)
                 .animate({"duration": pgs.animationDuration}).opacity(0).afterAll(glucoseMovedFromStorageToMitochondrion);
         } else {
-            // there's no glucose stored in storage
+            // there's no glucose stored in storage, and the light is off
+            // so it's the last cycle before death
             if (pgs.energyLeft > 0) {
                 pgs.currentAnimation = pgs.storage.animate({"duration": pgs.animationDuration * 3}).dmove(1,1)
                 .during(function(pos, morph, eased, situation) {
@@ -600,11 +576,51 @@ export class PlantGlucoseSimulation {
                     pgs.updateEnergyDisplay(pgs.energyLeft);
                 })
                 .afterAll(function() {
-                    animationCallback();
+                    // disable control buttons
+                    pgs.disableControlButtons();
+
+                    // start leaf death sequence, which by default takes 3 seconds
+                    pgs.currentAnimation = pgs.mitochondrion
+                        .animate(3000 * pgs.animationSpeedRatio).dmove(1,1)
+                        .during(function(pos: number, morph, eased, situation) {
+                            // get the death sequence animation leaf index based on time
+                            let deathLeafIndex = 0;
+                            if (pos < .33) {
+                                deathLeafIndex = 1;
+                            } else if (pos < .66) {
+                                deathLeafIndex = 2;
+                            } else {
+                                deathLeafIndex = 3;
+                            }
+                            pgs.plantAnimationCorner.showLeaf(deathLeafIndex);
+                        }.bind(pgs)).afterAll(function() {
+                            // end the trial
+                            // TODO: uncomment me
+                            //this.endTrial();
+
+                            // create the plant died event
+                            pgs.addEvent('plantDied');
+
+                            // show the plant died message
+                            pgs.simulationEndFeedback.showPlantDied();
+
+                            let glucoseCreated = false;
+                            let glucoseUsed = false;
+
+                            // update the glucose values
+                            pgs.updateGlucoseValues(pgs.dayNumber, glucoseCreated,
+                                glucoseUsed);
+
+                            // update the graph and don't call the callback
+                            this.updateGraph(this.dayNumber, glucoseCreated);
+
+                        }.bind(pgs));
+
                 });
             } else {
-                // no energy left, we're done with the animation, invoke the callback
-                animationCallback();
+                // no energy left, we're done with the animation, show plant death sequence
+
+
             }
         }
 
