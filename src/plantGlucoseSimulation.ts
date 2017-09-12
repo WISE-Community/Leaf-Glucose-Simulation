@@ -101,7 +101,8 @@ export class PlantGlucoseSimulation {
     totalGlucoseUsed = this.initialGlucoseUsed;
     totalGlucoseStored = this.initialGlucoseStored;
 
-    trials: any[] = [];  // an array of trial data objects, including the current trial
+    // an array of trial data objects, including the current trial
+    trials: any[] = [];
 
     /**
      * Instantiates variables with initial values for objects
@@ -157,7 +158,7 @@ export class PlantGlucoseSimulation {
         });
 
         // initialize the graph
-        this.graph = new Graph(this, showGraph);
+        this.graph = new Graph(this,this.LIGHT_ON_GRAPH_REGION_COLOR, this.LIGHT_OFF_GRAPH_REGION_COLOR, showGraph);
 
         // initialize a new trial data
         this.startNewTrial();
@@ -183,7 +184,7 @@ export class PlantGlucoseSimulation {
     }
 
     /**
-     * Initialize and adds new trial to all trials array
+     * Initialize and adds a new trial to all trials array
      */
     startNewTrial() {
         this.currentTrialData = {
@@ -194,29 +195,6 @@ export class PlantGlucoseSimulation {
         };
 
         this.trials.push(this.currentTrialData);
-    }
-
-    /**
-     * Update the graph display with current trial data
-     * @param dayNumber the day number
-     * @param glucoseCreated whether the glucose was created for the specified day
-     */
-    updateGraph(dayNumber: number, isGlucoseCreated: boolean) {
-        // update the data series for each line in the graph
-        this.graph.setSeriesData(0, this.currentTrialData.glucoseCreatedData);
-        this.graph.setSeriesData(1, this.currentTrialData.glucoseUsedData);
-        this.graph.setSeriesData(2, this.currentTrialData.glucoseStoredData);
-
-        // update background of graph based on light on (yellow) or off (gray)
-        let plotBandSettings = {
-            "id": "plantGlucoseSimulationPlotBand",
-            "from": dayNumber - 1,
-            "to": dayNumber,
-            "color": isGlucoseCreated ? this.LIGHT_ON_GRAPH_REGION_COLOR :
-                this.LIGHT_OFF_GRAPH_REGION_COLOR
-        };
-
-        this.graph.addPlotBand(plotBandSettings);
     }
 
     /**
@@ -288,7 +266,7 @@ export class PlantGlucoseSimulation {
                     this.updateGlucoseValues(this.dayNumber, glucoseCreated, glucoseUsed);
 
                     // update the graph
-                    this.updateGraph(this.dayNumber, glucoseCreated);
+                    this.graph.updateGraph(this.currentTrialData, this.dayNumber, glucoseCreated);
 
                     // loop animation after brief pause
                     window.setTimeout(function() { this.playAnimationLoop(); }.bind(this), 750 * this.animationSpeedRatio);
@@ -301,7 +279,7 @@ export class PlantGlucoseSimulation {
                     let glucoseCreated = false;
 
                     // update the graph
-                    this.updateGraph(this.dayNumber, glucoseCreated);
+                    this.graph.updateGraph(this.currentTrialData, this.dayNumber, glucoseCreated);
 
                     // loop animation after brief pause©
                     window.setTimeout(function() { this.playAnimationLoop(); }.bind(this), 750 * this.animationSpeedRatio);
@@ -316,7 +294,7 @@ export class PlantGlucoseSimulation {
      * Start the animation in a state where light is on
      */
     startLightOnAnimation(animationCallback: () => {}) {
-        let pgs: PlantGlucoseSimulation = this;
+        let sim: PlantGlucoseSimulation = this;
         // create the photon image objects
         this.photonPlant1 = this.draw.image('./photon.png', 30, 30).attr({
             'x': 80,
@@ -330,7 +308,7 @@ export class PlantGlucoseSimulation {
             .add(this.photonPlant1)
             .add(this.photonChloroplast1);
 
-        if (pgs.glucoseCreatedIncrement === 4) {
+        if (sim.glucoseCreatedIncrement === 4) {
             this.photonPlant2 = this.draw.image('./photon.png', 30, 30).attr({
                 'x': 30,
                 'y': 50
@@ -343,106 +321,106 @@ export class PlantGlucoseSimulation {
             this.photonsGroup.add(this.photonPlant2).add(this.photonChloroplast2);
         }
 
-        pgs.currentAnimation = pgs.photonsGroup;
-        pgs.photonsGroup.animate({"duration": pgs.animationDuration}).move(50, 50)
+        sim.currentAnimation = sim.photonsGroup;
+        sim.photonsGroup.animate({"duration": sim.animationDuration}).move(50, 50)
         .during(function(pos, morph, eased, situation) {
             // update the battery indicator from 100 -> 75 during the animation.
-            pgs.energyLeft = 100 - 25 * pos;
-            pgs.updateEnergyDisplay(pgs.energyLeft);
+            sim.energyLeft = 100 - 25 * pos;
+            sim.updateEnergyDisplay(sim.energyLeft);
         })
-        .animate({"duration": pgs.animationDuration}).attr({"opacity": 0})
+        .animate({"duration": sim.animationDuration}).attr({"opacity": 0})
         .during(function(pos, morph, eased, situation) {
             // update the battery indicator from 75 -> 50 during the animation.
-            pgs.energyLeft = 75 - 25 * pos;
-            pgs.updateEnergyDisplay(pgs.energyLeft);
+            sim.energyLeft = 75 - 25 * pos;
+            sim.updateEnergyDisplay(sim.energyLeft);
         })
         .afterAll(function() {
             // reset the photons to original place
-            pgs.photonsGroup.move(-50, -50);
-            pgs.photonsGroup.hide();
+            sim.photonsGroup.move(-50, -50);
+            sim.photonsGroup.hide();
 
             // make glucose appear
-            pgs.glucose3 = pgs.draw.image('./glucose.png', 70, 70).attr({
+            sim.glucose3 = sim.draw.image('./glucose.png', 70, 70).attr({
                 "x": 600,
                 "y": 150
             });
-            pgs.glucose4 = pgs.draw.image('./glucose.png', 70, 70).attr({
+            sim.glucose4 = sim.draw.image('./glucose.png', 70, 70).attr({
                 "x": 675,
                 "y": 100
             });
 
-            if (pgs.glucoseCreatedIncrement === 4) {
-                pgs.glucose1 = pgs.draw.image('./glucose.png', 70, 70).attr({
+            if (sim.glucoseCreatedIncrement === 4) {
+                sim.glucose1 = sim.draw.image('./glucose.png', 70, 70).attr({
                     "x": 450,
                     "y": 100
                 });
-                pgs.glucose2 = pgs.draw.image('./glucose.png', 70, 70).attr({
+                sim.glucose2 = sim.draw.image('./glucose.png', 70, 70).attr({
                     "x": 525,
                     "y": 150
                 });
             }
 
-            let glucoseToMitochondrionGroup = pgs.draw.group();
-            glucoseToMitochondrionGroup.add(pgs.glucose3).add(pgs.glucose4);
-            pgs.currentAnimation = glucoseToMitochondrionGroup;
+            let glucoseToMitochondrionGroup = sim.draw.group();
+            glucoseToMitochondrionGroup.add(sim.glucose3).add(sim.glucose4);
+            sim.currentAnimation = glucoseToMitochondrionGroup;
             // move glucose3 and glucose4 to mitochondrion
             glucoseToMitochondrionGroup.animate(
-                {"delay": pgs.DEFAULT_ANIMATION_DELAY * pgs.animationSpeedRatio, "duration": pgs.animationDuration})
+                {"delay": sim.DEFAULT_ANIMATION_DELAY * sim.animationSpeedRatio, "duration": sim.animationDuration})
                 .dmove(20, 350)
                 .during(function(pos, morph, eased, situation) {
                     // update the battery indicator during the animation.
                     // "pos" is a number between 0 (beginning) -> 1 (end) of the animation
-                    pgs.energyLeft = 50 - 15 * pos;
-                    pgs.updateEnergyDisplay(pgs.energyLeft);
+                    sim.energyLeft = 50 - 15 * pos;
+                    sim.updateEnergyDisplay(sim.energyLeft);
                 })
-                .animate({"duration": pgs.animationDuration}).attr({"opacity": 0})
+                .animate({"duration": sim.animationDuration}).attr({"opacity": 0})
                 .during(function(pos, morph, eased, situation) {
-                    pgs.energyLeft = 35 - 15 * pos;
-                    pgs.updateEnergyDisplay(pgs.energyLeft);
+                    sim.energyLeft = 35 - 15 * pos;
+                    sim.updateEnergyDisplay(sim.energyLeft);
                 })
                 .afterAll(function() {
                     // show the full batteries on the mitochondrion
-                    pgs.createMitochondrionBatteries();
+                    sim.createMitochondrionBatteries();
 
                     // callback for after mitochondrion batteries are moved from mitochondrion to battery indicator.
                     function mitochondrionBatteriesMovedCallback() {
-                        pgs.energyLeft = 100; // reset to full battery
-                        pgs.updateEnergyDisplay(pgs.energyLeft);
+                        sim.energyLeft = 100; // reset to full battery
+                        sim.updateEnergyDisplay(sim.energyLeft);
 
                         // remove the mitochondrion batteries
-                        pgs.removeMitochondrionBatteries();
+                        sim.removeMitochondrionBatteries();
 
                         // callback for after glucose is moved from chloroplast to storage.
                         function glucoseToStorageMovedCallback() {
-                            let glucose1InStorage = pgs.glucose1.clone();
-                            let glucose2InStorage = pgs.glucose2.clone();
-                            pgs.glucosesInStorage.push(glucose1InStorage, glucose2InStorage);
-                            glucose1InStorage.width(pgs.glucose1.width() / pgs.GLUCOSE_GROWTH_SCALE)
-                                .height(pgs.glucose1.height() / pgs.GLUCOSE_GROWTH_SCALE)
+                            let glucose1InStorage = sim.glucose1.clone();
+                            let glucose2InStorage = sim.glucose2.clone();
+                            sim.glucosesInStorage.push(glucose1InStorage, glucose2InStorage);
+                            glucose1InStorage.width(sim.glucose1.width() / sim.GLUCOSE_GROWTH_SCALE)
+                                .height(sim.glucose1.height() / sim.GLUCOSE_GROWTH_SCALE)
                                 .dx(25).dy(-25);
-                            glucose2InStorage.width(pgs.glucose1.width() / pgs.GLUCOSE_GROWTH_SCALE)
-                                .height(pgs.glucose1.height() / pgs.GLUCOSE_GROWTH_SCALE)
+                            glucose2InStorage.width(sim.glucose1.width() / sim.GLUCOSE_GROWTH_SCALE)
+                                .height(sim.glucose1.height() / sim.GLUCOSE_GROWTH_SCALE)
                                 .dx(-25).dy(25);
-                            pgs.glucose1.hide();
-                            pgs.glucose2.hide();
+                            sim.glucose1.hide();
+                            sim.glucose2.hide();
 
                             // now that we're done with the animation, invoke the callback
                             animationCallback();
                         }
 
                         // now move glucose1 and glucose2 to storage
-                        if (pgs.glucoseCreatedIncrement === 4) {
-                            let glucoseToStorageGroup = pgs.draw.set()
-                                .add(pgs.glucose1).add(pgs.glucose2);
+                        if (sim.glucoseCreatedIncrement === 4) {
+                            let glucoseToStorageGroup = sim.draw.set()
+                                .add(sim.glucose1).add(sim.glucose2);
                             // calculate where to move based on existing glucose count in storage.
-                            pgs.currentAnimation = glucoseToStorageGroup;
-                            pgs.glucose1.animate({"delay":pgs.DEFAULT_ANIMATION_DELAY * pgs.animationSpeedRatio, "duration": pgs.animationDuration})
-                                .move(pgs.STORAGE_X + ((pgs.glucosesInStorage.length / 2) % 5) * 75,
-                                    pgs.STORAGE_Y + (Math.floor((pgs.glucosesInStorage.length / 2) / 5)) * 75)
+                            sim.currentAnimation = glucoseToStorageGroup;
+                            sim.glucose1.animate({"delay":sim.DEFAULT_ANIMATION_DELAY * sim.animationSpeedRatio, "duration": sim.animationDuration})
+                                .move(sim.STORAGE_X + ((sim.glucosesInStorage.length / 2) % 5) * 75,
+                                    sim.STORAGE_Y + (Math.floor((sim.glucosesInStorage.length / 2) / 5)) * 75)
                                 .afterAll(glucoseToStorageMovedCallback);
-                            pgs.glucose2.animate({"delay":pgs.DEFAULT_ANIMATION_DELAY * pgs.animationSpeedRatio, "duration": pgs.animationDuration})
-                                .move(pgs.STORAGE_X + ((pgs.glucosesInStorage.length / 2) % 5) * 75,
-                                    pgs.STORAGE_Y + (Math.floor((pgs.glucosesInStorage.length / 2) / 5)) * 75);
+                            sim.glucose2.animate({"delay":sim.DEFAULT_ANIMATION_DELAY * sim.animationSpeedRatio, "duration": sim.animationDuration})
+                                .move(sim.STORAGE_X + ((sim.glucosesInStorage.length / 2) % 5) * 75,
+                                    sim.STORAGE_Y + (Math.floor((sim.glucosesInStorage.length / 2) / 5)) * 75);
                         } else {
                             // there is no glucose moving to storage, so
                             // go directly to the callback
@@ -451,20 +429,20 @@ export class PlantGlucoseSimulation {
 
                     }
 
-                    let mitochondrionBatteryAnimationGroup = pgs.draw.set()
-                        .add(pgs.mitochondrionBattery1).add(pgs.mitochondrionBattery2);
-                    pgs.currentAnimation = mitochondrionBatteryAnimationGroup;
+                    let mitochondrionBatteryAnimationGroup = sim.draw.set()
+                        .add(sim.mitochondrionBattery1).add(sim.mitochondrionBattery2);
+                    sim.currentAnimation = mitochondrionBatteryAnimationGroup;
                     // move mitochondrion battery 1 to repair damage and battery 2 to transport nutrients after delay
-                    pgs.mitochondrionBattery1.animate({"delay": pgs.DEFAULT_ANIMATION_DELAY * pgs.animationSpeedRatio, "duration": pgs.animationDuration})
-                        .move(pgs.BATTERY_EMPTY_REPAIR_DAMAGE_X, pgs.BATTERY_EMPTY_REPAIR_DAMAGE_Y)
+                    sim.mitochondrionBattery1.animate({"delay": sim.DEFAULT_ANIMATION_DELAY * sim.animationSpeedRatio, "duration": sim.animationDuration})
+                        .move(sim.BATTERY_EMPTY_REPAIR_DAMAGE_X, sim.BATTERY_EMPTY_REPAIR_DAMAGE_Y)
                         .during(function(pos, morph, eased, situation) {
                           // update the battery indicator during the animation. "pos" is a number between 0 (beginning) -> 1 (end) of the animation
-                          pgs.energyLeft = 20 - 15 * pos;
-                          pgs.updateEnergyDisplay(pgs.energyLeft);
+                          sim.energyLeft = 20 - 15 * pos;
+                          sim.updateEnergyDisplay(sim.energyLeft);
                         })
                         .afterAll(mitochondrionBatteriesMovedCallback);
-                    pgs.mitochondrionBattery2.animate({"delay": pgs.DEFAULT_ANIMATION_DELAY * pgs.animationSpeedRatio, "duration": pgs.animationDuration})
-                        .move(pgs.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X, pgs.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y)
+                    sim.mitochondrionBattery2.animate({"delay": sim.DEFAULT_ANIMATION_DELAY * sim.animationSpeedRatio, "duration": sim.animationDuration})
+                        .move(sim.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X, sim.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y)
                 });
         });
     }
@@ -476,32 +454,32 @@ export class PlantGlucoseSimulation {
      */
     moveGlucoseToCenterOfMitochondrion(
         lastTwoGlucoses: any[], animationCallback: () => {}) {
-        let pgs = this;
+        let sim = this;
         let glucose1InStorage = lastTwoGlucoses[0];
         let glucose2InStorage = lastTwoGlucoses[1];
 
-        let storageToMitochondrionGroup = pgs.draw.set();
+        let storageToMitochondrionGroup = sim.draw.set();
         storageToMitochondrionGroup.add(glucose1InStorage).add(glucose2InStorage);
-        pgs.currentAnimation = storageToMitochondrionGroup;
+        sim.currentAnimation = storageToMitochondrionGroup;
 
         // callback for after glucose is moved from storage to mitochondrion.
         function glucoseMovedFromStorageToMitochondrion() {
             // remove last two glucose from storage
-            pgs.glucosesInStorage.splice(pgs.glucosesInStorage.length - 2, 2);
+            sim.glucosesInStorage.splice(sim.glucosesInStorage.length - 2, 2);
 
             // callback for after mitochondrion batteries are moved from mitochondrion to battery indicator.
             function mitochondrionBatteriesMovedCallback() {
-                pgs.energyLeft = 100; // reset energy to 100%
-                pgs.updateEnergyDisplay(pgs.energyLeft);
+                sim.energyLeft = 100; // reset energy to 100%
+                sim.updateEnergyDisplay(sim.energyLeft);
 
                 // remove the mitochondrion batteries
-                pgs.removeMitochondrionBatteries();
+                sim.removeMitochondrionBatteries();
 
                 let glucoseCreated = false;
                 let glucoseUsed = true;
 
                 // update the glucose values
-                pgs.updateGlucoseValues(pgs.dayNumber, glucoseCreated,
+                sim.updateGlucoseValues(sim.dayNumber, glucoseCreated,
                     glucoseUsed);
 
                 // now that we're done with the animation, invoke the callback
@@ -509,43 +487,43 @@ export class PlantGlucoseSimulation {
             }
 
             // display two full batteries on the mitochondrion
-            pgs.createMitochondrionBatteries();
+            sim.createMitochondrionBatteries();
 
-            let mitochondrionBatteryAnimationGroup = pgs.draw.set()
-                .add(pgs.mitochondrionBattery1).add(pgs.mitochondrionBattery2);
-            pgs.currentAnimation = mitochondrionBatteryAnimationGroup;
+            let mitochondrionBatteryAnimationGroup = sim.draw.set()
+                .add(sim.mitochondrionBattery1).add(sim.mitochondrionBattery2);
+            sim.currentAnimation = mitochondrionBatteryAnimationGroup;
 
             // move mitochondrion battery 1 to repair damage and battery 2 to transport nutrients after delay
-            pgs.mitochondrionBattery1.animate({"delay": pgs.DEFAULT_ANIMATION_DELAY * pgs.animationSpeedRatio, "duration": pgs.animationDuration})
-                .move(pgs.BATTERY_EMPTY_REPAIR_DAMAGE_X, pgs.BATTERY_EMPTY_REPAIR_DAMAGE_Y)
+            sim.mitochondrionBattery1.animate({"delay": sim.DEFAULT_ANIMATION_DELAY * sim.animationSpeedRatio, "duration": sim.animationDuration})
+                .move(sim.BATTERY_EMPTY_REPAIR_DAMAGE_X, sim.BATTERY_EMPTY_REPAIR_DAMAGE_Y)
                 .during(function(pos, morph, eased, situation) {
                     // update the battery indicator during the animation. "pos" is a number between 0 (beginning) -> 1 (end) of the animation
-                    pgs.energyLeft = 50 - 45 * pos;
-                    pgs.updateEnergyDisplay(pgs.energyLeft);
+                    sim.energyLeft = 50 - 45 * pos;
+                    sim.updateEnergyDisplay(sim.energyLeft);
                 })
                 .afterAll(mitochondrionBatteriesMovedCallback);
-            pgs.mitochondrionBattery2.animate({"delay": pgs.DEFAULT_ANIMATION_DELAY * pgs.animationSpeedRatio, "duration": pgs.animationDuration})
-                .move(pgs.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X, pgs.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y);
+            sim.mitochondrionBattery2.animate({"delay": sim.DEFAULT_ANIMATION_DELAY * sim.animationSpeedRatio, "duration": sim.animationDuration})
+                .move(sim.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X, sim.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y);
 
         }
 
-        glucose1InStorage.animate({"duration": pgs.animationDuration})
-        .move(pgs.mitochondrionBattery1_startingX, pgs.mitochondrionBattery1_startingY)
+        glucose1InStorage.animate({"duration": sim.animationDuration})
+        .move(sim.mitochondrionBattery1_startingX, sim.mitochondrionBattery1_startingY)
             .during(function(pos, morph, eased, situation) {
                 // update the battery indicator during the animation. "pos" is a number between 0 (beginning) -> 1 (end) of the animation
-                pgs.energyLeft = 100 - 25 * pos;
-                pgs.updateEnergyDisplay(pgs.energyLeft);
+                sim.energyLeft = 100 - 25 * pos;
+                sim.updateEnergyDisplay(sim.energyLeft);
             })
-            .animate({"duration": pgs.animationDuration}).opacity(0)
+            .animate({"duration": sim.animationDuration}).opacity(0)
             .during(function(pos, morph, eased, situation) {
                 // update the battery indicator during the animation. "pos" is a number between 0 (beginning) -> 1 (end) of the animation
-                pgs.energyLeft = 75 - 25 * pos;
-                pgs.updateEnergyDisplay(pgs.energyLeft);
+                sim.energyLeft = 75 - 25 * pos;
+                sim.updateEnergyDisplay(sim.energyLeft);
             })
             .afterAll(glucoseMovedFromStorageToMitochondrion);
-        glucose2InStorage.animate({"duration": pgs.animationDuration})
-            .move(pgs.mitochondrionBattery2_startingX, pgs.mitochondrionBattery1_startingY)
-            .animate({"duration": pgs.animationDuration}).opacity(0)
+        glucose2InStorage.animate({"duration": sim.animationDuration})
+            .move(sim.mitochondrionBattery2_startingX, sim.mitochondrionBattery1_startingY)
+            .animate({"duration": sim.animationDuration}).opacity(0)
     }
 
     /**
@@ -571,28 +549,28 @@ export class PlantGlucoseSimulation {
      * Start the animation in a state where light is off
      */
     startLightOffAnimation(animationCallback: () => {}) {
-        let pgs = this;
+        let sim = this;
 
-        if (pgs.glucosesInStorage.length > 0) {
-            let lastTwoGlucoses = pgs.increaseLastTwoGlucoseSizes();
-            pgs.moveGlucoseToCenterOfMitochondrion(lastTwoGlucoses, animationCallback);
+        if (sim.glucosesInStorage.length > 0) {
+            let lastTwoGlucoses = sim.increaseLastTwoGlucoseSizes();
+            sim.moveGlucoseToCenterOfMitochondrion(lastTwoGlucoses, animationCallback);
         } else {
             // there's no glucose stored in storage, and the light is off
             // so it's the last cycle before death
-            if (pgs.energyLeft > 0) {
-                pgs.currentAnimation = pgs.storage.animate({"duration": pgs.animationDuration * 3}).dmove(1,1)
+            if (sim.energyLeft > 0) {
+                sim.currentAnimation = sim.storage.animate({"duration": sim.animationDuration * 3}).dmove(1,1)
                 .during(function(pos, morph, eased, situation) {
                     // update the battery indicator during the animation. "pos" is a number between 0 (beginning) -> 1 (end) of the animation
-                    pgs.energyLeft = 100 - 100 * pos;
-                    pgs.updateEnergyDisplay(pgs.energyLeft);
+                    sim.energyLeft = 100 - 100 * pos;
+                    sim.updateEnergyDisplay(sim.energyLeft);
                 })
                 .afterAll(function() {
                     // disable control buttons
-                    pgs.disableControlButtons();
+                    sim.disableControlButtons();
 
                     // start leaf death sequence, which by default takes 3 seconds
-                    pgs.currentAnimation = pgs.mitochondrion
-                        .animate(3000 * pgs.animationSpeedRatio).dmove(1,1)
+                    sim.currentAnimation = sim.mitochondrion
+                        .animate(3000 * sim.animationSpeedRatio).dmove(1,1)
                         .during(function(pos: number, morph, eased, situation) {
                             // get the death sequence animation leaf index based on time
                             let deathLeafIndex = 0;
@@ -603,29 +581,30 @@ export class PlantGlucoseSimulation {
                             } else {
                                 deathLeafIndex = 3;
                             }
-                            pgs.plantAnimationCorner.showLeaf(deathLeafIndex);
-                        }.bind(pgs)).afterAll(function() {
+                            sim.plantAnimationCorner.showLeaf(deathLeafIndex);
+                        }.bind(sim)).afterAll(function() {
                             // end the trial
                             // TODO: uncomment me
                             //this.endTrial();
 
                             // create the plant died event
-                            pgs.addEvent('plantDied');
+                            sim.addEvent('plantDied');
 
                             // show the plant died message
-                            pgs.simulationEndFeedback.showPlantDied();
+                            sim.simulationEndFeedback.showPlantDied();
 
                             let glucoseCreated = false;
                             let glucoseUsed = false;
 
                             // update the glucose values
-                            pgs.updateGlucoseValues(pgs.dayNumber, glucoseCreated,
+                            sim.updateGlucoseValues(sim.dayNumber, glucoseCreated,
                                 glucoseUsed);
 
-                            // update the graph and don't call the callback
-                            this.updateGraph(this.dayNumber, glucoseCreated);
+                            // update the graph but don't call the callback
+                            this.graph.updateGraph(this.currentTrialData,
+                                this.dayNumber, glucoseCreated);
 
-                        }.bind(pgs));
+                        }.bind(sim));
                 });
             }
         }
@@ -648,7 +627,7 @@ export class PlantGlucoseSimulation {
         this.enableControlButtons();
 
         // change the play/pause button to 'play'
-        $("#playPause").attr("src", "play_circle.png");
+        $("#playPause").attr("src", "playCircle.png");
 
         // reset current animation
         if (this.currentAnimation != null) {
@@ -765,56 +744,56 @@ export class PlantGlucoseSimulation {
      * button clicks and slider moved
      */
     registerListenersForUserInput() {
-        let pgs = this;
+        let sim = this;
 
         // animation speed switch handler
         $("#animationSpeedSwitchInput").on("change", function() {
             let animationSpeedSwitchValue = $(this).val();
             if (animationSpeedSwitchValue == 1) {
                 // user wants to run at normal speed
-                pgs.addEvent('animationSpeedNormalClicked');
-                pgs.updateAnimationSpeedRatio(pgs.ANIMATION_SPEED_RATIO_NORMAL);
+                sim.addEvent('animationSpeedNormalClicked');
+                sim.updateAnimationSpeedRatio(sim.ANIMATION_SPEED_RATIO_NORMAL);
             } else if (animationSpeedSwitchValue == 2) {
                 // user wants to run at double speed
-                pgs.addEvent('animationSpeed2xClicked');
-                pgs.updateAnimationSpeedRatio(pgs.ANIMATION_SPEED_RATIO_DOUBLE);
+                sim.addEvent('animationSpeed2xClicked');
+                sim.updateAnimationSpeedRatio(sim.ANIMATION_SPEED_RATIO_DOUBLE);
             } else {
                 // user wants to run at 4x speed
-                pgs.addEvent('animationSpeed4xClicked');
-                pgs.updateAnimationSpeedRatio(pgs.ANIMATION_SPEED_RATIO_QUADRUPLE);
+                sim.addEvent('animationSpeed4xClicked');
+                sim.updateAnimationSpeedRatio(sim.ANIMATION_SPEED_RATIO_QUADRUPLE);
             }
         });
 
         // play/pause button handler
         $("#playPause").on("click", function() {
-            if (pgs.isControlEnabled) {
+            if (sim.isControlEnabled) {
                 let playPause = $(this).attr("src");
 
-                if (playPause === "play_circle.png") {
+                if (playPause === "playCircle.png") {
                     // user wants to start or resume the simulation
-                    if (pgs.currentAnimation == null) {
+                    if (sim.currentAnimation == null) {
                         // the simulation is stopped, so start it
-                        pgs.addEvent('startButtonClicked');
-                        pgs.start();
+                        sim.addEvent('startButtonClicked');
+                        sim.start();
                     } else {
                         // resume a paused animation
-                        pgs.addEvent('resumeButtonClicked');
-                        pgs.currentAnimation.play();
+                        sim.addEvent('resumeButtonClicked');
+                        sim.currentAnimation.play();
                     }
                     // change the play/pause button to pause
-                    $("#playPause").attr("src", "pause_circle.png");
+                    $("#playPause").attr("src", "pauseCircle.png");
                 } else {
                     // user wants to pause the simulation
-                    pgs.addEvent('pauseButtonClicked');
-                    pgs.pause();
+                    sim.addEvent('pauseButtonClicked');
+                    sim.pause();
                 }
             }
         });
 
         // reset button handler
         $("#reset").on("click", function() {
-            pgs.addEvent('resetButtonClicked');
-            pgs.reset();
+            sim.addEvent('resetButtonClicked');
+            sim.reset();
         });
     }
 
@@ -836,8 +815,7 @@ export class PlantGlucoseSimulation {
      * Pause the simulation
      */
     pause() {
-        // change the play/pause button to play
-        $("#playPause").attr("src", "play_circle.png");
+        $("#playPause").attr("src", "playCircle.png");
 
         if (this.currentAnimation != null) {
             this.currentAnimation.pause();
@@ -918,11 +896,11 @@ export class PlantGlucoseSimulation {
      * Create batteries that appear on the mitochondrion
      */
     createMitochondrionBatteries() {
-        this.mitochondrionBattery1 = this.draw.image('./battery_full.png').attr({
+        this.mitochondrionBattery1 = this.draw.image('./batteryFull.png').attr({
             "x": this.mitochondrionBattery1_startingX,
             "y": this.mitochondrionBattery1_startingY
         });
-        this.mitochondrionBattery2 = this.draw.image('./battery_full.png').attr({
+        this.mitochondrionBattery2 = this.draw.image('./batteryFull.png').attr({
             "x": this.mitochondrionBattery2_startingX,
             "y": this.mitochondrionBattery2_startingY
         });

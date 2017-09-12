@@ -9,7 +9,6 @@ export class EnergyIndicatorView {
     batteryImageTransportNutrients: SVG;
     border: SVG;
     draw: SVG;
-    energyIndicatorBox: SVG;
     energyIndicatorText: SVG;
     greenCheck: SVG;
     redExclamation: SVG;
@@ -18,10 +17,11 @@ export class EnergyIndicatorView {
     repairDamageIndicatorText: SVG;
     transportNutrientsRect: SVG;
     transportNutrientsIndicatorText: SVG;
+    yellowExclamation: SVG;
 
     BATTERY_FULL_HEIGHT = 66;  // height of battery rectangle when full, in pixles.
     BATTERY_FULL_COLOR = "#82c940";  // color of battery rectangle when full
-    BATTERY_HALF_FULL_COLOR = "#ffd700";  // color of battery rectangle when half full
+    BATTERY_HALF_FULL_COLOR = "#ff9b0c";  // color of battery rectangle when half full
     BATTERY_NEAR_EMPTY_COLOR = "#fc0d1b";  // color of battery rectangle when near empty
     DEFAULT_FONT_SIZE = 40;  // default font-size for text in this view
     INDICATOR_BATTERY_ORIGINAL_Y = 821; // where battery mask's y is
@@ -44,12 +44,18 @@ export class EnergyIndicatorView {
         this.energyIndicatorText = this.draw.text('Energy\nNeeds')
             .x(100).y(760).font({size: this.DEFAULT_FONT_SIZE});
 
-        this.greenCheck = this.draw.image('./green_check.png').attr({
+        this.greenCheck = this.draw.image('./greenCheck.png').attr({
             'x': 125,
             'y': 875
         });
 
-        this.redExclamation = this.draw.image('./red_exclamation.png')
+        this.redExclamation = this.draw.image('./redExclamation.png')
+            .attr({
+                'x': 125,
+                'y': 875
+            }).hide();
+
+        this.yellowExclamation = this.draw.image('./yellowExclamation.png')
             .attr({
                 'x': 125,
                 'y': 875
@@ -65,7 +71,7 @@ export class EnergyIndicatorView {
         this.repairDamageRect = this.draw.rect(48, this.BATTERY_FULL_HEIGHT)
             .x(325).y(this.INDICATOR_BATTERY_ORIGINAL_Y).fill(this.BATTERY_FULL_COLOR);
 
-        this.batteryImageRepairDamage = this.draw.image('./battery_empty.png')
+        this.batteryImageRepairDamage = this.draw.image('./batteryEmpty.png')
             .attr({
                 'x': 325,
                 'y': 815
@@ -78,7 +84,7 @@ export class EnergyIndicatorView {
         this.transportNutrientsRect = this.draw.rect(48, this.BATTERY_FULL_HEIGHT)
             .x(625).y(this.INDICATOR_BATTERY_ORIGINAL_Y).fill(this.BATTERY_FULL_COLOR);
 
-        this.batteryImageTransportNutrients = this.draw.image('./battery_empty.png')
+        this.batteryImageTransportNutrients = this.draw.image('./batteryEmpty.png')
             .attr({
                 'x': 625,
                 'y': 815
@@ -134,11 +140,14 @@ export class EnergyIndicatorView {
         this.greenCheck.hide();
         this.redExclamation.hide();
         this.redX.hide();
+        this.yellowExclamation.hide();
         if (energyLeft == 0) {
             this.redX.show();
         } else if (energyLeft <= 25) {
             this.redExclamation.show();
-        } else if (energyLeft > 50) {
+        } else if (energyLeft <= 50) {
+            this.yellowExclamation.show();
+        } else {
             this.greenCheck.show();
         }
     }

@@ -2,82 +2,91 @@ import * as $ from "jquery";
 import * as Highcharts from "highcharts";
 import {PlantGlucoseSimulation} from "./plantGlucoseSimulation";
 
- /**
-  * PlantAnimationCorner --- Graphs glucose made, used, and stored over time
-  * @author Hiroki Terashima
-  * @author Geoffrey Kwan
-  */
+/**
+ * Graph --- Graphs glucose made, used, and stored over time
+ * @author Hiroki Terashima
+ * @author Geoffrey Kwan
+*/
 export class Graph {
     chartOptions: any;  // options provided to initialize graph with starting values
     chart: Highcharts.ChartObject;  // Chart object that is rendered on the graph
+    dayColorLightOn: string;
+    dayColorLightOff: string;
     simulation: PlantGlucoseSimulation;
 
     /**
      * Instantiates the graph with default options
+     * @param simulation A reference to the simulation
+     * @param dayColorLightOn A hex string containing the default background color of this
+     *     day display corner when the light is on
+     * @param dayColorLightOff A hex string containing the default background color of this
+     *     day display corner when the light is off
      * @param doShowGraph true iff this graph should be displayed
      */
-    constructor(simulation: PlantGlucoseSimulation, doShowGraph: boolean) {
+    constructor(simulation: PlantGlucoseSimulation, dayColorLightOn: string, dayColorLightOff: string, doShowGraph: boolean) {
         this.simulation = simulation;
+        this.dayColorLightOn = dayColorLightOn;
+        this.dayColorLightOff = dayColorLightOff;
         // set the default chart options
         this.chartOptions = {
-          chart: {
-              renderTo: 'highchartsDiv',
-              type: 'line',
-              width: '320'
-          },
-          plotOptions: {
-              line: {
-                  marker: {
-                      enabled: false
-                  }
-              }
-          },
-          title: {
-              text: 'Glucose Over Time',
-              x: -20 //center
-          },
-          xAxis: {
-              title: {
-                  text: 'Time (Days)'
-              },
-              min: 0,
-              max: 21,
-              tickInterval: 1
-          },
-          yAxis: {
-              title: {
-                  text: 'Amount of Glucose'
-              },
-              min: 0,
-              max: 80,
-              tickInterval: 20,
-          },
-          tooltip: {
-              enabled: false
-          },
-          series: [
-              {
-                  name: 'Total Glucose Made',
-                  color: '#72ae2e',
-                  lineWidth: 3,
-                  data: [],
-                  dashStyle: "shortDot"
-              },
-              {
-                  name: 'Total Glucose Used',
-                  color: '#f17d00',
-                  lineWidth: 3,
-                  data: [],
-                  dashStyle: "shortDash"
-              },
-              {
-                  name: 'Total Glucose Stored',
-                  color: '#459db6',
-                  lineWidth: 3,
-                  data: [],
-                  dashStyle: "dot"
-              }
-          ]
+            chart: {
+                renderTo: 'highchartsDiv',
+                type: 'line',
+                width: '320'
+            },
+            plotOptions: {
+                line: {
+                    marker: {
+                        enabled: false
+                    }
+                }
+            },
+            title: {
+                text: 'Glucose Over Time',
+                x: -20
+            },
+            xAxis: {
+                title: {
+                    text: 'Time (Days)'
+                },
+                min: 0,
+                max: 21,
+                tickInterval: 1
+            },
+            yAxis: {
+                title: {
+                    text: 'Amount of Glucose'
+                },
+                min: 0,
+                max: 80,
+                tickInterval: 20,
+            },
+            tooltip: {
+                enabled: false
+            },
+            series: [
+                {
+                    name: 'Total Glucose Made',
+                    color: '#72ae2e',
+                    lineWidth: 3,
+                    data: [],
+                    dashStyle: "shortDot"
+                },
+                {
+                    name: 'Total Glucose Used',
+                    color: '#f17d00',
+                    lineWidth: 3,
+                    data: [],
+                    dashStyle: "shortDash"
+                },
+                {
+                    name: 'Total Glucose Stored',
+                    color: '#459db6',
+                    lineWidth: 3,
+                    data: [],
+                    dashStyle: "dot"
+                }
+            ]
         };
 
         this.chart = new Highcharts.Chart(this.chartOptions);
@@ -117,6 +126,29 @@ export class Graph {
         this.chart.series[seriesIndex].setData(seriesData);
     }
 
+     /**
+      * Update the graph with current trial data
+      * Update background of graph based on light on (yellow) or off (gray)
+      *
+      * @param currentTrialData contains glucose created/used/stored information
+      * @param dayNumber the day number to plot the graph for
+      * @param glucoseCreated whether the glucose was created for the specified day
+      */
+     updateGraph(currentTrialData: any, dayNumber: number, isGlucoseCreated: boolean) {
+         this.setSeriesData(0, currentTrialData.glucoseCreatedData);
+         this.setSeriesData(1, currentTrialData.glucoseUsedData);
+         this.setSeriesData(2, currentTrialData.glucoseStoredData);
+
+         let plotBandSettings = {
+             "id": "plantGlucoseSimulationPlotBand",
+             "from": dayNumber - 1,
+             "to": dayNumber,
+             "color": isGlucoseCreated ? this.dayColorLightOn :
+                 this.dayColorLightOff
+         };
+         this.addPlotBand(plotBandSettings);
+     }
+
     /**
      * Adds a plot band to the graph
      * @param plotBandSettings settings for the plotband
@@ -139,8 +171,8 @@ export class Graph {
     }
 
     /**
-    * listen for graph line show/hide toggles and toggle corresponding image's opacity.
-    */
+     * listen for graph line show/hide toggles and toggle corresponding image's opacity.
+     */
     registerGraphLineToggleListener() {
         let simulation = this.simulation;
         $(".highcharts-legend-item").on("click", function() {
