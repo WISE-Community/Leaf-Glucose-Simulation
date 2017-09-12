@@ -31,7 +31,6 @@ export class EnergyIndicatorView {
      * @param draw the SVG object where the view will be drawn on
      */
     constructor(draw: SVG) {
-
         this.draw = draw;
 
         // draw a border around the view

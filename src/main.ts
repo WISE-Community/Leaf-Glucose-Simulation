@@ -14,6 +14,7 @@ $(document).ready(function() {
     let parameters: any = parseURLParameters();
 
     let feedbackPolicy = null;
+    let lightMode = 2;
     let showGraph = true;
 
     if (parameters['feedbackPolicy'] != null) {
@@ -26,10 +27,15 @@ $(document).ready(function() {
         showGraph = parameters['showGraph'];
     }
 
+    if (parameters["lightMode"] != null) {
+        // get the light mode value from the URL parameters
+        lightMode = parameters["lightMode"];
+    }
+
     let wiseAPI = new WISEAPI();
 
     // create the PlantGlucoseSimulation
-    let pgm = new PlantGlucoseSimulation("model", feedbackPolicy, showGraph);
+    let pgm = new PlantGlucoseSimulation("model", lightMode, feedbackPolicy, showGraph);
 
     if (parent != null && parent.node != null) {
         // set the trials array into the parent node if it exists. this is

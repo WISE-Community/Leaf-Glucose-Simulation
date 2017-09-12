@@ -7,17 +7,17 @@
                 margin: 0px;
                 padding: 0px;
             }
-            #lightSwitchInput:hover, #animationSpeedSwitchInput:hover, #controls:hover {
+            .lightSwitchInput:hover, #animationSpeedSwitchInput:hover, #controls:hover {
                 cursor: pointer;
             }
-            #lightSwitchInput {
-              width: 40px;
-              margin-top: 20px;
-               transform: rotate(270deg);
-              -moz-transform: rotate(270deg); /*do same for other browsers if required*/
+            .lightSwitchInput {
+                width: 45px;
+                margin-top: 20px;
+                transform: rotate(270deg);
+                -moz-transform: rotate(270deg); /*do same for other browsers if required*/
             }
             #powerSwitchDiv, #animationSpeedSwitchDiv {
-              height: 50px;
+                height: 50px;
             }
             #animationSpeedSwitchInput {
                 width: 45px;
@@ -39,14 +39,28 @@
                 left: 65px;
                 opacity: 0.7;
             }
+            .lightSwitch2, .lightSwitch3 {
+                display: none;
+            }
         </style>
     </head>
     <body>
         <div style="display:flex; width: 400px; justify-content: space-between">
             <div id="powerSwitchDiv">
                 <div style="font-weight:bold">Light</div>
-                <input type="range" max="1" step="1" value="1" id="lightSwitchInput" title="Turn light ON/OFF" />
-                <div style="float:right; margin-left:-8px"><div style="margin-top:5px">ON</div><div style="margin-top:8px">OFF</div></div>
+                <span id="lightMode2">
+                    <input type="range" max="1" step="1" value="1" id="lightSwitchInput2" class="lightSwitchInput lightSwitch2" title="Turn light ON/OFF" />
+                    <div id="lightSwitchLabel2" class="lightSwitch2" style="float:right; margin-left:-8px">
+                        <div style="margin-top:5px">ON</div>
+                        <div style="margin-top:12px">OFF</div>
+                    </div>
+                    <input type="range" max="2" step="1" value="2" id="lightSwitchInput3" class="lightSwitchInput lightSwitch3" title="Turn light ON/OFF" />
+                    <div id="lightSwitchLabel3" class="lightSwitch3" style="float:right; margin-left:-8px">
+                        <div>Full</div>
+                        <div>Half</div>
+                        <div>Off</div>
+                    </div>
+                </span>
                 <img id="waitImageLightSwitch" src="wait.png" />
             </div>
             <div id="animationSpeedSwitchDiv">

@@ -11,7 +11,6 @@ export class SimulationEndFeedback {
     draw: SVG;
     plantDiedRect: SVG;
     plantDiedText: SVG;
-
     simulationEndedRect: SVG;
     simulationEndedText: SVG;
 
@@ -23,27 +22,19 @@ export class SimulationEndFeedback {
         this.draw = draw;
 
         // create the simulation ended message
-        this.simulationEndedRect = this.draw.rect(500, 100).x(250).y(400).fill('lightblue').stroke({width:2})
-            .opacity(1).attr({ 'fill-opacity': 1 });
+        this.simulationEndedRect = this.draw.rect(500, 100).x(250).y(400)
+            .fill('lightblue').stroke({width:2})
+            .opacity(1).attr({ 'fill-opacity': 1 }).hide();
+        this.simulationEndedText = this.draw.text('Simulation ended')
+            .x(315).y(410).font({size: 48}).hide();
 
-        // create the message text
-        this.simulationEndedText = this.draw.text('Simulation ended').x(315).y(410).font({size: 48});
-
-        // hide the elements until we want to show them
-        this.simulationEndedRect.hide();
-        this.simulationEndedText.hide();
-
-        // Create the plant died message
-        this.plantDiedRect = this.draw.rect(500, 100).x(250).y(400).fill('red').stroke({width:2}).opacity(1).attr({
-            'fill-opacity': 1
-        });
-
-        this.plantDiedText = this.draw.text('The plant has died').x(315).y(410).font({size: 48});
-
-        // hide the elements until we want to show them
-        this.plantDiedRect.hide();
-        this.plantDiedText.hide();
-
+        // create the plant died message
+        this.plantDiedRect = this.draw.rect(500, 100).x(250).y(400)
+            .fill('red').stroke({width:2}).opacity(1).attr({
+                'fill-opacity': 1
+            }).hide();
+        this.plantDiedText = this.draw.text('The plant has died')
+            .x(315).y(410).font({size: 48}).hide();
     }
 
     /**
@@ -57,27 +48,21 @@ export class SimulationEndFeedback {
     }
 
     /**
-     * Shows plant died feedback
+     * Shows plant died feedback and bring it to the front
      */
     showPlantDied() {
-        // move the plant died elements in front of everything
         this.plantDiedRect.front();
         this.plantDiedText.front();
-
-        // show the plant died message
         this.plantDiedRect.show();
         this.plantDiedText.show();
     }
 
     /**
-     * Shows simulation ended feedback
+     * Shows simulation ended feedback and bring it to the front
      */
     showSimulationEnded() {
-        // move the simulation ended elements in front of everything
         this.simulationEndedRect.front();
         this.simulationEndedText.front();
-
-        // show the simulation ended message
         this.simulationEndedRect.show();
         this.simulationEndedText.show();
     }

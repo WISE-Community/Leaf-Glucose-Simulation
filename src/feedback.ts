@@ -44,7 +44,8 @@ export class Feedback {
     templateNamesByFeedbackPolicy: any = {experiment2b:["fourWeeksOn"]};
 
     /**
-     * Instantiates elements in the feedback view.
+     * Instantiates elements in the feedback view. This view is hidden
+     * until needed.
      * @param draw the SVG object where the view will be drawn on
      * @param feedbackPolicy A string containing the identifier
      * of the feedback to use.
@@ -55,14 +56,11 @@ export class Feedback {
 
         // create the message rectangle
         this.feedbackRect = this.draw.rect(500, 300).x(50).y(200)
-          .fill('LightYellow').stroke({width:2}).opacity(1).attr({
-            'fill-opacity': 1
-          });
+            .fill('LightYellow').stroke({width:2}).opacity(1).attr({
+                'fill-opacity': 1
+            });
 
-        // create the message text
         this.feedbackText = [];
-
-        // hide the elements until we want to show them
         this.feedbackRect.hide();
     }
 

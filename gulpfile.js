@@ -18,8 +18,11 @@ var watchedBrowserify = watchify(browserify({
     entries: [
         "src/dayDisplayCorner.ts",
         "src/energyIndicatorView.ts",
+        "src/event.ts",
         "src/feedback.ts",
         "src/graph.ts",
+        "src/lightSwitch2.ts",
+        "src/lightSwitch3.ts",
         "src/main.ts",
         "src/plantGlucoseSimulation.ts",
         "src/plantAnimationCorner.ts",

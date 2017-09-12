@@ -1,5 +1,6 @@
 import * as $ from "jquery";
 import * as Highcharts from "highcharts";
+import {PlantGlucoseSimulation} from "./plantGlucoseSimulation";
 
  /**
   * PlantAnimationCorner --- Graphs glucose made, used, and stored over time
@@ -7,81 +8,81 @@ import * as Highcharts from "highcharts";
   * @author Geoffrey Kwan
   */
 export class Graph {
-
     chartOptions: any;  // options provided to initialize graph with starting values
     chart: Highcharts.ChartObject;  // Chart object that is rendered on the graph
+    simulation: PlantGlucoseSimulation;
 
     /**
-     * Instantiates elements in the graph view.
+     * Instantiates the graph with default options
      * @param doShowGraph true iff this graph should be displayed
      */
-    constructor(doShowGraph: boolean) {
-
-          // set the chart options
-          this.chartOptions = {
-              chart: {
-                  renderTo: 'highchartsDiv',
-                  type: 'line',
-                  width: '320'
-              },
-              plotOptions: {
-                  line: {
-                      marker: {
-                          enabled: false
-                      }
+    constructor(simulation: PlantGlucoseSimulation, doShowGraph: boolean) {
+        this.simulation = simulation;
+        // set the default chart options
+        this.chartOptions = {
+          chart: {
+              renderTo: 'highchartsDiv',
+              type: 'line',
+              width: '320'
+          },
+          plotOptions: {
+              line: {
+                  marker: {
+                      enabled: false
                   }
-              },
+              }
+          },
+          title: {
+              text: 'Glucose Over Time',
+              x: -20 //center
+          },
+          xAxis: {
               title: {
-                  text: 'Glucose Over Time',
-                  x: -20 //center
+                  text: 'Time (Days)'
               },
-              xAxis: {
-                  title: {
-                      text: 'Time (Days)'
-                  },
-                  min: 0,
-                  max: 21,
-                  tickInterval: 1
+              min: 0,
+              max: 21,
+              tickInterval: 1
+          },
+          yAxis: {
+              title: {
+                  text: 'Amount of Glucose'
               },
-              yAxis: {
-                  title: {
-                      text: 'Amount of Glucose'
-                  },
-                  min: 0,
-                  max: 80,
-                  tickInterval: 20,
+              min: 0,
+              max: 80,
+              tickInterval: 20,
+          },
+          tooltip: {
+              enabled: false
+          },
+          series: [
+              {
+                  name: 'Total Glucose Made',
+                  color: '#72ae2e',
+                  lineWidth: 3,
+                  data: [],
+                  dashStyle: "shortDot"
               },
-              tooltip: {
-                  enabled: false
+              {
+                  name: 'Total Glucose Used',
+                  color: '#f17d00',
+                  lineWidth: 3,
+                  data: [],
+                  dashStyle: "shortDash"
               },
-              series: [
-                  {
-                      name: 'Total Glucose Made',
-                      color: '#72ae2e',
-                      lineWidth: 3,
-                      data: [],
-                      dashStyle: "shortDot"
-                  },
-                  {
-                      name: 'Total Glucose Used',
-                      color: '#f17d00',
-                      lineWidth: 3,
-                      data: [],
-                      dashStyle: "shortDash"
-                  },
-                  {
-                      name: 'Total Glucose Stored',
-                      color: '#459db6',
-                      lineWidth: 3,
-                      data: [],
-                      dashStyle: "dot"
-                  }
-              ]
-          };
+              {
+                  name: 'Total Glucose Stored',
+                  color: '#459db6',
+                  lineWidth: 3,
+                  data: [],
+                  dashStyle: "dot"
+              }
+          ]
+        };
 
-          // initialize the chart
-          this.chart = new Highcharts.Chart(this.chartOptions);
-          this.showHideGraph(doShowGraph);
+        this.chart = new Highcharts.Chart(this.chartOptions);
+        this.showHideGraph(doShowGraph);
+        this.registerGraphLineToggleListener();
     }
 
     /**
@@ -89,7 +90,7 @@ export class Graph {
      */
     resetGraph() {
         for (let i = 0; i < this.chart.series.length; i++) {
-          this.chart.series[i].setData([]);
+            this.chart.series[i].setData([]);
         }
         this.chart.xAxis[0].removePlotBand("plantGlucoseSimulationPlotBand"); // moves all the plot bands
     }
@@ -137,4 +138,28 @@ export class Graph {
         }
     }
 
+    /**
+    * listen for graph line show/hide toggles and toggle corresponding image's opacity.
+    */
+    registerGraphLineToggleListener() {
+        let simulation = this.simulation;
+        $(".highcharts-legend-item").on("click", function() {
+            // get the index of the line user toggled (0 = glucose made, 1 = used, 2 = stored)
+            let lineIndex = $(".highcharts-legend-item").index($(this));
+
+            // is the line hidden or displayed?
+            let isHidden = $(this).hasClass("highcharts-legend-item-hidden");
+
+            // get the image object based on which line the user toggled
+            let image = [simulation.chloroplast,
+                simulation.mitochondrion, simulation.storage][lineIndex];
+
+            // set the opacity of the image object accordingly
+            if (isHidden) {
+                image.opacity(0.5);
+            } else {
+                image.opacity(1);
+            }
+        });
+    }
 }
