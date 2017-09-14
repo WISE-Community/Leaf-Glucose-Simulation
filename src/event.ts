@@ -4,6 +4,6 @@
  * ex: light on/off, simulation started/ended
  */
 export interface Event {
-    name: string,
-    timestamp: number
+  name: string,
+  timestamp: number
 }

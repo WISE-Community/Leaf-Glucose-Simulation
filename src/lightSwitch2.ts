@@ -7,56 +7,63 @@ import {PlantGlucoseSimulation} from "./plantGlucoseSimulation";
  *
  * Display an On/Off switch, where On = 100% energy, Off = 0% energy
  *
+ * When the light switch is requested during an animation cycle,
+ *   a wait image will be displayed.
+ *
  * @author Hiroki Terashima
  * @author Geoffrey Kwan
  */
 export class LightSwitch2 {
-    simulation: PlantGlucoseSimulation;
-    // wait image for when user changes the light switch during an animation cycle
-    waitImageLightSwitch: any;
+  INPUT_VALUE_POWER_OFF = 0;
+  INPUT_VALUE_POWER_ON = 1;
 
-    /**
-     * Creates a new LightSwitch2 instance
-     * @param simulation A reference to the simulation
-     */
-    constructor(simulation: PlantGlucoseSimulation) {
-        this.simulation = simulation;
-        this.waitImageLightSwitch = $("#waitImageLightSwitch");
-        $(".lightSwitch2").show();
-        this.listenForUserInput();
-    }
+  lightSwitchControls: any;
+  simulation: PlantGlucoseSimulation;
+  waitImageLightSwitch: any;
 
-    /**
-     * Register listeners for user interactions like
-     * when the user changes the value of the light switch slider
-     */
-    listenForUserInput() {
-        let lightSwitch = this;
-        $("#lightSwitchInput2").on("change", function() {
-            let lightSwitchValue = $(this).val();
-            if (lightSwitchValue == 0) {
-                // user wants to turn power switch off
-                lightSwitch.simulation.addEvent('turnLightOffButtonClicked');
-                lightSwitch.simulation.handleLightChangeRequest(0 /* light off */);
-            } else {
-                // user wants to turn power switch on
-                lightSwitch.simulation.addEvent('turnLightOnButtonClicked');
-                lightSwitch.simulation.handleLightChangeRequest(100 /* light on */);
-            }
-        });
-    };
+  /**
+   * Creates a new LightSwitch2 instance
+   * @param simulation A reference to the simulation
+   */
+  constructor(simulation: PlantGlucoseSimulation) {
+    this.simulation = simulation;
+    this.waitImageLightSwitch = $("#waitImageLightSwitch");
+    this.lightSwitchControls = $(".lightSwitch2");
+    this.lightSwitchControls.show();
+    this.listenForUserInput();
+  }
 
-    /**
-     * Fades away the waiting image indicator
-     */
-    hideWaitImage() {
-        this.waitImageLightSwitch.fadeOut();
-    }
+  /**
+   * Register listeners for user interactions like
+   * when the user changes the value of the light switch slider
+   */
+  listenForUserInput() {
+    let lightSwitch = this;
+    $("#lightSwitchInput2").on("change", function() {
+      let lightSwitchValue = $(this).val();
+      if (lightSwitchValue == lightSwitch.INPUT_VALUE_POWER_OFF) {
+        lightSwitch.simulation.addEvent('turnLightOffButtonClicked');
+        lightSwitch.simulation.handleLightChangeRequest(0 /* light off */);
+      } else if (lightSwitchValue == lightSwitch.INPUT_VALUE_POWER_ON) {
+        lightSwitch.simulation.addEvent('turnLightOnButtonClicked');
+        lightSwitch.simulation.handleLightChangeRequest(100 /* light on */);
+      }
+    });
+  }
 
-    /**
-     * Shows the waiting image indicator
-     */
-    showWaitImage() {
-        this.waitImageLightSwitch.show();
-    }
+  hideWaitImage() {
+    this.waitImageLightSwitch.fadeOut();
+  }
+
+  showWaitImage() {
+    this.waitImageLightSwitch.show();
+  }
+
+  disableUserInput() {
+    this.lightSwitchControls.prop("disabled", true);
+  }
+
+  enableUserInput() {
+    this.lightSwitchControls.prop("disabled", false);
+  }
 }

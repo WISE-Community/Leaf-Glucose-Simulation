@@ -3,118 +3,131 @@ import * as SVG from "svg.js";
 /**
  * PlantAnimationCorner --- Displays the animation showing photons
  * hitting the plant.
+
+ * When the light is off, a darkness overlay is displayed
+
  * @author Hiroki Terashima
  * @author Geoffrey Kwan
  */
 export class PlantAnimationCorner {
-    draw: SVG;
-    lightBulbOn: SVG;
-    lightBulbOff: SVG;
-    allLeaves: SVG[];
-    leafYellow: SVG;
-    leafLightGreen: SVG;
-    leafGreen: SVG;
-    leafDead: SVG;
-    darknessOverlay: SVG;
+  GREEN_LEAF_INDEX: number = 0;
+  LIGHT_GREEN_LEAF_INDEX: number = 1;
+  YELLOW_LEAF_INDEX: number = 2;
+  DEAD_LEAF_INDEX: number = 3;
 
-    /**
-     * Instantiates variables with initial values for objects
-     * within the plant animation corner.
-     * @param draw An SVG draw object to paint other elements on
-     */
-    constructor(draw: SVG) {
-        this.draw = draw;
+  draw: SVG;
+  lightBulbOn: SVG;
+  lightBulbOff: SVG;
+  allLeaves: SVG[];
+  leafYellow: SVG;
+  leafLightGreen: SVG;
+  leafGreen: SVG;
+  leafDead: SVG;
+  darknessOverlay: SVG;
 
-        // draws the upper left box where the light and plant will be displayed
-        this.draw.rect(250,300).x(0).y(0).fill('white').stroke({width:2});
+  /**
+   * Instantiates variables with initial values for objects
+   * within the plant animation corner.
+   * @param draw An SVG draw object to paint other elements on
+   */
+  constructor(draw: SVG) {
+    this.draw = draw;
 
-        // create the leaf images
-        this.leafYellow = this.draw.image('./leafYellow.png', 128, 128).attr({
-            'x': 20,
-            'y': 150
-        });
+    // draw the outline in the upper-left corner
+    this.draw.rect(250,300).x(0).y(0).fill('white').stroke({width:2});
 
-        this.leafLightGreen = this.draw.image('./leafLightGreen.png', 128, 128).attr({
-            'x': 55,
-            'y': 90
-        });
+    this.leafYellow = this.draw.image('./leafYellow.png', 128, 128).attr({
+      'x': 20,
+      'y': 150
+    });
 
-        this.leafGreen = this.draw.image('./leafGreen.png', 128, 128).attr({
-            'x': 55,
-            'y': 90
-        });
+    this.leafLightGreen = this.draw.image('./leafLightGreen.png', 128, 128)
+      .attr({
+        'x': 55,
+        'y': 90
+      });
 
-        // draw the pot
-        this.draw.image('./pot.png', 128, 128).attr({"x": 100, "y": 160});
+    this.leafGreen = this.draw.image('./leafGreen.png', 128, 128).attr({
+      'x': 55,
+      'y': 90
+    });
 
-        // the dead leaf should appear above the pot
-        this.leafDead = this.draw.image('./leafDead.png', 128, 128).attr({
-            'x': 20,
-            'y': 150
-        });
+    this.draw.image('./pot.png', 128, 128).attr({"x": 100, "y": 160});
 
-        // store all the leaf images in an array from liveliest -> dead
-        this.allLeaves = [this.leafGreen, this.leafLightGreen, this.leafYellow, this.leafDead];
+    // the dead leaf should appear above the pot
+    this.leafDead = this.draw.image('./leafDead.png', 128, 128).attr({
+      'x': 20,
+      'y': 150
+    });
 
-        // draw the rectangle below the pot
-        this.draw.rect(250,40).x(0).y(270).fill('gray').stroke({width:2});
+    // store all the leaf images in an array from liveliest -> dead
+    this.allLeaves = [this.leafGreen, this.leafLightGreen,
+      this.leafYellow, this.leafDead];
 
-        // create the light bulb on image
-        this.lightBulbOn = this.draw.image('./lightbulb20001.png', 40, 70).rotate(150);
+    // draw the ground below the pot
+    this.draw.rect(250,40).x(0).y(270).fill('gray').stroke({width:2});
 
-        // create the light bulb off image
-        this.lightBulbOff = this.draw.image('./lightbulb20002.png', 40, 70).rotate(150).hide();
+    this.lightBulbOn = this.draw.image('./lightbulb20001.png', 40, 70)
+      .rotate(150);
 
-        // create the darkness overlay that displays when the light is turned off
-        this.darknessOverlay = this.draw.rect(250, 300).attr({
-            'fill-opacity': 0,
-            'fill': 'black'
-        });
+    this.lightBulbOff = this.draw.image('./lightbulb20002.png', 40, 70)
+      .rotate(150).hide();
 
-        // show the green healthy leaf at the beginning
-        this.showLeaf(0);
+    this.darknessOverlay = this.draw.rect(250, 300).attr({
+      'fill-opacity': 0,
+      'fill': 'black'
+    });
+
+    this.showGreenLeaf();
+  }
+
+  /**
+   * Change the leaf that is displayed based on the leaf index specified.
+   * 0 = green, 1 = light green, 2 = yellow, 3 = brown
+   * @param leafIndex which leaf should be shown
+   */
+  showLeaf(leafIndex: number) {
+    this.allLeaves.map((leaf) => { leaf.hide() });
+    this.allLeaves[leafIndex].show();
+  }
+
+  showGreenLeaf() {
+    this.showLeaf(this.GREEN_LEAF_INDEX);
+  }
+
+  showLightGreenLeaf() {
+    this.showLeaf(this.LIGHT_GREEN_LEAF_INDEX);
+  }
+
+  showYellowLeaf() {
+    this.showLeaf(this.YELLOW_LEAF_INDEX);
+  }
+
+  showDeadLeaf() {
+    this.showLeaf(this.DEAD_LEAF_INDEX);
+  }
+
+  /**
+   * Turn the light on or off and display/hide darkness overlay
+   * @param doTurnLightOn true iff the light should be turned on
+   */
+  turnLightOn(doTurnLightOn: boolean = true) {
+    if (doTurnLightOn) {
+      this.lightBulbOff.hide();
+      this.lightBulbOn.show();
+      this.hideDarknessOverlay();
+    } else {
+      this.lightBulbOn.hide();
+      this.lightBulbOff.show();
+      this.showDarknessOverlay();
     }
+  }
 
-    /**
-     * Change the leaf that is displayed based on the leaf index specified.
-     * 0 = green, 1 = light green, 2 = yellow, 3 = brown
-     * @param leafIndex which leaf should be shown
-     */
-    showLeaf(leafIndex: number) {
-        // first hide all the leaves
-        this.allLeaves.map((leaf) => { leaf.hide() });
+  hideDarknessOverlay() {
+    this.darknessOverlay.animate().attr({'fill-opacity': '0'});
+  }
 
-        // then show the appropriate leaf
-        this.allLeaves[leafIndex].show();
-    }
-
-    /**
-     * Turn the light on or off
-     * @param doTurnLightOn true iff the light should be turned on
-     */
-    turnLightOn(doTurnLightOn: boolean = true) {
-        if (doTurnLightOn) {
-          // hide the grey light bulb
-          this.lightBulbOff.hide();
-
-          // show the yellow light bulb
-          this.lightBulbOn.show();
-
-          // hide the darkness overlay
-          this.darknessOverlay.animate().attr({
-              'fill-opacity': '0'
-          });
-        } else {
-          // hide the yellow bulb
-          this.lightBulbOn.hide();
-
-          // show the grey bulb
-          this.lightBulbOff.show();
-
-          // show the darkness overlay
-          this.darknessOverlay.animate().attr({
-              'fill-opacity': '0.3'
-          });
-        }
-    }
+  showDarknessOverlay() {
+    this.darknessOverlay.animate().attr({'fill-opacity': '0.3'});
+  }
 }
