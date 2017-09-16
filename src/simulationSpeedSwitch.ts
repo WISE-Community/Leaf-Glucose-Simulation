@@ -35,15 +35,15 @@ export class SimulationSpeedSwitch {
       if (animationSpeedSwitchValue == 1) {
         speedSwitch.simulation.addEvent('animationSpeedNormalClicked');
         speedSwitch.simulation
-          .updateAnimationSpeedRatio(speedSwitch.SPEED_RATIO_NORMAL);
+            .updateAnimationSpeedRatio(speedSwitch.SPEED_RATIO_NORMAL);
       } else if (animationSpeedSwitchValue == 2) {
         speedSwitch.simulation.addEvent('animationSpeed2xClicked');
         speedSwitch.simulation
-          .updateAnimationSpeedRatio(speedSwitch.SPEED_RATIO_DOUBLE);
+            .updateAnimationSpeedRatio(speedSwitch.SPEED_RATIO_DOUBLE);
       } else {
         speedSwitch.simulation.addEvent('animationSpeed4xClicked');
         speedSwitch.simulation
-          .updateAnimationSpeedRatio(speedSwitch.SPEED_RATIO_QUADRUPLE);
+            .updateAnimationSpeedRatio(speedSwitch.SPEED_RATIO_QUADRUPLE);
       }
     });
   }

@@ -4,6 +4,7 @@
  * @author Geoffrey Kwan
  *
  * @return an object containing the key/value pairs of the parameter names/values
+ * TODO: hiroki refactor. too many nesting
  */
 export function parseURLParameters() {
   let parameters = {};
@@ -35,10 +36,8 @@ export function parseURLParameters() {
      */
     let parameterPairs = search.split('&');
     if (parameterPairs != null) {
-      for (let p = 0; p < parameterPairs.length; p++) {
-        let parameterPairString = parameterPairs[p];
+      for (let parameterPairString of parameterPairs) {
         if (parameterPairString != null) {
-
           /*
            * split the string at =
            * e.g.
@@ -47,8 +46,7 @@ export function parseURLParameters() {
            */
           let parameterPair = parameterPairString.split('=');
           if (parameterPair != null) {
-            let parameterName = parameterPair[0];
-            let parameterValue = parameterPair[1];
+            let [parameterName, parameterValue] = parameterPair;
             if (parameterValue == "true") {
               /*
                * the value is the string "true" so we will convert

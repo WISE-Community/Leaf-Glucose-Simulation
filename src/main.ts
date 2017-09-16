@@ -26,8 +26,7 @@ $(document).ready(function() {
   }
 
   let wiseAPI = new WISEAPI();
-  new PlantGlucoseSimulation("model", lightMode,
-    feedbackPolicy, showGraph);
+  new PlantGlucoseSimulation("model", lightMode, feedbackPolicy, showGraph);
 
   if (parent != null && parent.node != null) {
     // set the trials array into the parent node if it exists. this is

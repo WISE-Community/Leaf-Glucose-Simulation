@@ -99,9 +99,9 @@ export class Graph {
    * Reset the graph to original blank slate and toggle line on/off
    */
   resetGraph() {
-    for (let i = 0; i < this.chart.series.length; i++) {
-      this.chart.series[i].setData([]);
-    }
+    this.chart.series.map((series) => {
+        series.setData([]);
+    })
     this.chart.xAxis[0].removePlotBand("plantGlucoseSimulationPlotBand");
 
     // toggle line on/off, if user previous toggled it
@@ -183,7 +183,8 @@ export class Graph {
   }
 
   /**
-   * listen for graph line show/hide toggles and toggle corresponding image's opacity.
+   * listen for graph line show/hide toggles
+   * and toggle corresponding image's opacity.
    */
   registerGraphLineToggleListener() {
     let simulation = this.simulation;
@@ -191,14 +192,12 @@ export class Graph {
       // get the index of the line user toggled (0 = glucose made, 1 = used, 2 = stored)
       let lineIndex = $(".highcharts-legend-item").index($(this));
 
-      // see if the line clicked is hidden or displayed
-      let isHidden = $(this).hasClass("highcharts-legend-item-hidden");
-
       // get the image object based on which line the user toggled
       let image = [simulation.chloroplast,
         simulation.mitochondrion, simulation.storage][lineIndex];
 
-      // set the opacity of the image object accordingly
+      // see if the line clicked is hidden or displayed
+      let isHidden = $(this).hasClass("highcharts-legend-item-hidden");
       if (isHidden) {
         image.opacity(0.5);
       } else {

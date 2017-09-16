@@ -62,16 +62,16 @@ export class PlantAnimationCorner {
 
     // store all the leaf images in an array from liveliest -> dead
     this.allLeaves = [this.leafGreen, this.leafLightGreen,
-      this.leafYellow, this.leafDead];
+        this.leafYellow, this.leafDead];
 
     // draw the ground below the pot
     this.draw.rect(250,40).x(0).y(270).fill('gray').stroke({width:2});
 
     this.lightBulbOn = this.draw.image('./lightbulb20001.png', 40, 70)
-      .rotate(150);
+        .rotate(150);
 
     this.lightBulbOff = this.draw.image('./lightbulb20002.png', 40, 70)
-      .rotate(150).hide();
+        .rotate(150).hide();
 
     this.darknessOverlay = this.draw.rect(250, 300).attr({
       'fill-opacity': 0,
