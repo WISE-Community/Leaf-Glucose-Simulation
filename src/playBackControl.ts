@@ -49,10 +49,10 @@ export class PlayBackControl {
   }
 
   showPauseButton() {
-    this.playPauseButton.attr("src", "pauseCircle.png");
+    this.playPauseButton.attr("src", "images/pauseCircle.png");
   }
 
   showPlayButton() {
-    this.playPauseButton.attr("src", "playCircle.png");
+    this.playPauseButton.attr("src", "images/playCircle.png");
   }
 }

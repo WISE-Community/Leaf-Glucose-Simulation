@@ -47,6 +47,7 @@ export class PlantGlucoseSimulation {
 
   // ratio speed for each animation to complete. 0 = stop -> 1 = full speed
   animationSpeedRatio: number = 1;
+
   // actual amount of time (in ms) each animation should take to complete
   animationDuration: number =
       this.DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
@@ -113,7 +114,8 @@ export class PlantGlucoseSimulation {
 
   /**
    * Instantiates variables with initial values for objects
-   * within the simulation.
+   * within the simulation. Controlling the simulation (play/pause/reset)
+   * is done through the PlayBackControl and SimulationSpeedSwitch class.
    * @param elementId A string containing the id of the DOM element where
    * the simulation should be displayed
    * @param lightMode A number containing the number of options for light.
@@ -143,15 +145,15 @@ export class PlantGlucoseSimulation {
     this.graph = new Graph(this,this.LIGHT_ON_GRAPH_REGION_COLOR,
       this.LIGHT_OFF_GRAPH_REGION_COLOR, showGraph);
     this.feedback = new Feedback(this.draw, feedbackPolicy);
-    this.chloroplast = this.draw.image('./chloroplast.png').attr({
+    this.chloroplast = this.draw.image('./images/chloroplast.png').attr({
       'x': this.CHLOROPLAST_X,
       'y': this.CHLOROPLAST_Y
     });
-    this.mitochondrion = this.draw.image('./mitochondrion.png').attr({
+    this.mitochondrion = this.draw.image('./images/mitochondrion.png').attr({
       'x': this.MITOCHONDRION_X,
       'y': this.MITOCHONDRION_Y
     });
-    this.storage = this.draw.image('./storage.png').attr({
+    this.storage = this.draw.image('./images/storage.png').attr({
       'x': this.STORAGE_X,
       'y': this.STORAGE_Y
     });
@@ -277,7 +279,11 @@ export class PlantGlucoseSimulation {
    * Start the animation in a state where light is on
    */
   startLightOnAnimation(animationCallback: () => {}) {
-    const sim: PlantGlucoseSimulation = this;
+    this.movePhotonsToPlantAndChloroplast(animationCallback);
+  }
+
+  // called during light ON cycle
+  movePhotonsToPlantAndChloroplast(animationCallback: () => {}) {
     this.photonsGroup = this.createPhotons();
     this.currentAnimation = this.photonsGroup;
     this.photonsGroup.animate({'duration': this.animationDuration})
@@ -326,11 +332,11 @@ export class PlantGlucoseSimulation {
   }
 
   createPhotons() {
-    this.photonPlant1 = this.draw.image('./photon.png', 30, 30).attr({
+    this.photonPlant1 = this.draw.image('./images/photon.png', 30, 30).attr({
       'x': 80,
       'y': 50
     });
-    this.photonChloroplast1 = this.draw.image('./photon.png', 50, 50).attr({
+    this.photonChloroplast1 = this.draw.image('./images/photon.png', 50, 50).attr({
       'x': 530,
       'y': 50
     });
@@ -338,11 +344,11 @@ export class PlantGlucoseSimulation {
         .add(this.photonPlant1).add(this.photonChloroplast1);
 
     if (this.glucoseCreatedIncrement === 4) {
-      this.photonPlant2 = this.draw.image('./photon.png', 30, 30).attr({
+      this.photonPlant2 = this.draw.image('./images/photon.png', 30, 30).attr({
         'x': 30,
         'y': 50
       });
-      this.photonChloroplast2 = this.draw.image('./photon.png', 50, 50)
+      this.photonChloroplast2 = this.draw.image('./images/photon.png', 50, 50)
         .attr({
           'x': 430,
           'y': 50
@@ -356,21 +362,21 @@ export class PlantGlucoseSimulation {
    * Create glucose and returns a group containing them
    */
   createGlucose() {
-    this.glucose3 = this.draw.image('./glucose.png', 70, 70).attr({
+    this.glucose3 = this.draw.image('./images/glucose.png', 70, 70).attr({
       'x': 600,
       'y': 150
     });
-    this.glucose4 = this.draw.image('./glucose.png', 70, 70).attr({
+    this.glucose4 = this.draw.image('./images/glucose.png', 70, 70).attr({
       'x': 675,
       'y': 100
     });
 
     if (this.glucoseCreatedIncrement === 4) {
-      this.glucose1 = this.draw.image('./glucose.png', 70, 70).attr({
+      this.glucose1 = this.draw.image('./images/glucose.png', 70, 70).attr({
         'x': 450,
         'y': 100
       });
-      this.glucose2 = this.draw.image('./glucose.png', 70, 70).attr({
+      this.glucose2 = this.draw.image('./images/glucose.png', 70, 70).attr({
         'x': 525,
         'y': 150
       });
@@ -768,12 +774,12 @@ export class PlantGlucoseSimulation {
    * Create batteries that appear on the mitochondrion and returns the group
    */
   createMitochondrionBatteries() {
-    this.mitochondrionBattery1 = this.draw.image('./batteryFull.png')
+    this.mitochondrionBattery1 = this.draw.image('./images/batteryFull.png')
         .attr({
           'x': this.mitochondrionBattery1_startingX,
           'y': this.mitochondrionBattery1_startingY
         });
-    this.mitochondrionBattery2 = this.draw.image('./batteryFull.png')
+    this.mitochondrionBattery2 = this.draw.image('./images/batteryFull.png')
         .attr({
           'x': this.mitochondrionBattery2_startingX,
           'y': this.mitochondrionBattery2_startingY
