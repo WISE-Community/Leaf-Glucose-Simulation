@@ -36,26 +36,26 @@ export class PlantAnimationCorner {
     // draw the outline in the upper-left corner
     this.draw.rect(250,300).x(0).y(0).fill('white').stroke({width:2});
 
-    this.leafYellow = this.draw.image('./leafYellow.png', 128, 128).attr({
+    this.leafYellow = this.draw.image('./images/leafYellow.png', 128, 128).attr({
       'x': 20,
       'y': 150
     });
 
-    this.leafLightGreen = this.draw.image('./leafLightGreen.png', 128, 128)
+    this.leafLightGreen = this.draw.image('./images/leafLightGreen.png', 128, 128)
       .attr({
         'x': 55,
         'y': 90
       });
 
-    this.leafGreen = this.draw.image('./leafGreen.png', 128, 128).attr({
+    this.leafGreen = this.draw.image('./images/leafGreen.png', 128, 128).attr({
       'x': 55,
       'y': 90
     });
 
-    this.draw.image('./pot.png', 128, 128).attr({"x": 100, "y": 160});
+    this.draw.image('./images/pot.png', 128, 128).attr({"x": 100, "y": 160});
 
     // the dead leaf should appear above the pot
-    this.leafDead = this.draw.image('./leafDead.png', 128, 128).attr({
+    this.leafDead = this.draw.image('./images/leafDead.png', 128, 128).attr({
       'x': 20,
       'y': 150
     });
@@ -67,10 +67,10 @@ export class PlantAnimationCorner {
     // draw the ground below the pot
     this.draw.rect(250,40).x(0).y(270).fill('gray').stroke({width:2});
 
-    this.lightBulbOn = this.draw.image('./lightbulb20001.png', 40, 70)
+    this.lightBulbOn = this.draw.image('./images/lightbulb20001.png', 40, 70)
         .rotate(150);
 
-    this.lightBulbOff = this.draw.image('./lightbulb20002.png', 40, 70)
+    this.lightBulbOff = this.draw.image('./images/lightbulb20002.png', 40, 70)
         .rotate(150).hide();
 
     this.darknessOverlay = this.draw.rect(250, 300).attr({
