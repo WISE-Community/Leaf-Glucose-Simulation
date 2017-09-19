@@ -45,7 +45,9 @@ Leaf-Glucose-Simulation$ gulp
 
 5. See the model on the browser by going to path_to_Leaf-Glucose-Simulation/dist/index.html . (e.g. file:///Users/myusername/dev/Leaf-Glucose-Simulation/dist/index.html)
 
-6. Make changes with your favorite IDE. Changes to typescript will be immediately compiled to the dist folder. If you make any other change, you will need to restart gulp for now.
+6. Make changes with your favorite IDE. Changes to typescript will be immediately compiled to the dist folder. 
+
+7. See you change in the browser by refreshing the page.
 
 ## Resources
 This is a good resource on using Gulp and TypeScript: https://www.typescriptlang.org/docs/handbook/gulp.html
