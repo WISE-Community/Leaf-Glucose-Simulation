@@ -94,8 +94,12 @@ export class PlantGlucoseSimulation {
   mitochondrionBattery2: SVG;
   photonChloroplast1: SVG;
   photonChloroplast2: SVG;
+  photonChloroplast3: SVG;
+  photonChloroplast4: SVG;
   photonPlant1: SVG;
   photonPlant2: SVG;
+  photonPlant3: SVG;
+  photonPlant4: SVG;
   photonsGroup: SVG;
   plantAnimationCorner: PlantAnimationCorner;
   playBackControl: PlayBackControl;
@@ -336,24 +340,41 @@ export class PlantGlucoseSimulation {
       'x': 80,
       'y': 50
     });
+    this.photonPlant2 = this.draw.image('./images/photon.png', 30, 30).attr({
+      'x': 80,
+      'y': 20
+    });
     this.photonChloroplast1 = this.draw.image('./images/photon.png', 50, 50).attr({
       'x': 530,
-      'y': 50
+      'y': 60
+    });
+    this.photonChloroplast2 = this.draw.image('./images/photon.png', 50, 50).attr({
+      'x': 570,
+      'y': 30
     });
     const photonsGroup = this.draw.group()
-        .add(this.photonPlant1).add(this.photonChloroplast1);
+        .add(this.photonPlant1).add(this.photonPlant2)
+        .add(this.photonChloroplast1).add(this.photonChloroplast2);
 
     if (this.glucoseCreatedIncrement === 4) {
-      this.photonPlant2 = this.draw.image('./images/photon.png', 30, 30).attr({
+      this.photonPlant3 = this.draw.image('./images/photon.png', 30, 30).attr({
         'x': 30,
         'y': 50
       });
-      this.photonChloroplast2 = this.draw.image('./images/photon.png', 50, 50)
-        .attr({
-          'x': 430,
-          'y': 50
-        });
-      photonsGroup.add(this.photonPlant2).add(this.photonChloroplast2);
+      this.photonPlant4 = this.draw.image('./images/photon.png', 30, 30).attr({
+        'x': 50,
+        'y': 20
+      });
+      this.photonChloroplast3 = this.draw.image('./images/photon.png', 50, 50).attr({
+        'x': 430,
+        'y': 60
+      });
+      this.photonChloroplast4 = this.draw.image('./images/photon.png', 50, 50).attr({
+        'x': 470,
+        'y': 30
+      });
+      photonsGroup.add(this.photonPlant3).add(this.photonPlant4)
+          .add(this.photonChloroplast3).add(this.photonChloroplast4);
     }
     return photonsGroup;
   }
