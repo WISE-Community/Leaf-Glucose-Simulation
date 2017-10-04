@@ -27,15 +27,4 @@ $(document).ready(function() {
 
   let wiseAPI = new WISEAPI();
   new PlantGlucoseSimulation("model", lightMode, feedbackPolicy, showGraph);
-/*
-  if (parent != null && parent.node != null) {
-    // set the trials array into the parent node if it exists. this is
-    // used for saving student data when the model is used in WISE4
-    // where the external script is used for saving.
-    parent.node.trials = pgm.trials;
-  }
-  */
-  //alert("The simulation will now start with all three lines on the graph.
-  // If you'd like to change which lines are shown on the graph,
-  // click on the label in the legend.");
 });

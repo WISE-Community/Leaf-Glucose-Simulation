@@ -2,17 +2,17 @@ import * as $ from "jquery";
 import {PlantGlucoseSimulation} from "./plantGlucoseSimulation";
 
 /**
- * LightSwitch --- Rendering the light switch in Full/Half/Off configurations
+ * LightSwitch3 --- Rendering the light switch in Full/Half/Off configurations
  * and responds to user interaction
  *
  * Full = 100% energy, Half = 50% energy, and Off = 0% energy
  *
- * When the light is at Half, it shines with one photon, and two glucose
- *   get produced, which all go to get used.
-
+ * When the light is at Half, it shines with two photons, and two glucose
+ * is produced, and both will be used and none will be left for storage.
+ *
  * When the light switch is requested during an animation cycle,
- *   a wait image will be displayed.
-
+ * a wait image will be displayed.
+ *
  * @author Hiroki Terashima
  * @author Geoffrey Kwan
  */
@@ -25,10 +25,6 @@ export class LightSwitch3 {
   simulation: PlantGlucoseSimulation;
   waitImageLightSwitch: any;
 
-  /**
-   * Creates a new LightSwitch3 instance
-   * @param simulation A reference to the plant glucose simulation
-   */
   constructor(simulation: PlantGlucoseSimulation) {
     this.simulation = simulation;
     this.waitImageLightSwitch = $("#waitImageLightSwitch");
@@ -37,10 +33,6 @@ export class LightSwitch3 {
     this.listenForUserInput();
   }
 
-  /**
-   * Register listeners for user interactions like
-   * when the user changes the value of the light switch slider
-   */
   listenForUserInput() {
     let lightSwitch = this;
     $("#lightSwitchInput3").on("change", function () {

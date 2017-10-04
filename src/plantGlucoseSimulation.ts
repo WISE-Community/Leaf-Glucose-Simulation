@@ -5,6 +5,7 @@ import { Feedback } from './feedback';
 import { Graph } from './graph';
 import { LightSwitch2 } from './lightSwitch2';
 import { LightSwitch3 } from './lightSwitch3';
+import { LightSwitch5 } from './lightSwitch5';
 import { PlantAnimationCorner } from './plantAnimationCorner';
 import { PlayBackControl } from './playBackControl';
 import { SimulationEndFeedback } from './simulationEndFeedback';
@@ -52,6 +53,10 @@ export class PlantGlucoseSimulation {
   animationDuration: number =
       this.DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
 
+  // actual amount of time (in ms) delay before starting animation
+  animationDelay: number =
+      this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
+
   chloroplast: SVG;
   currentAnimation: SVG;
   currentDayNumber: number = 0;
@@ -70,10 +75,10 @@ export class PlantGlucoseSimulation {
   glucoseCreatedIncrement: number = 4;
   glucoseUsedIncrement: number = 2;
 
-  glucose1: SVG;
-  glucose2: SVG;
-  glucose3: SVG;
-  glucose4: SVG;
+  glucoseToMitochondrion1: SVG;
+  glucoseToMitochondrion2: SVG;
+  glucoseToStorage1: SVG;
+  glucoseToStorage2: SVG;
   glucosesInStorage: SVG[] = [];
   initialGlucoseCreated: number = 0;
   initialGlucoseUsed: number = 0;
@@ -82,16 +87,17 @@ export class PlantGlucoseSimulation {
   isLightOn: boolean = true;
   isLightOnRequestedInNextCycle: boolean = false;
   isLightOffRequestedInNextCycle: boolean = false;
-  lightEnergyPercent: number = 100;
   lightMode: number = 2;
   lightSwitch: any;
   mitochondrion: SVG;
   mitochondrionBattery1: SVG;
-  mitochondrionBattery1_startingX = this.MITOCHONDRION_X + 100;
-  mitochondrionBattery1_startingY = this.MITOCHONDRION_Y + 100;
-  mitochondrionBattery2_startingX = this.MITOCHONDRION_X + 175;
-  mitochondrionBattery2_startingY = this.MITOCHONDRION_Y + 50;
+  mitochondrionBattery1StartX = this.MITOCHONDRION_X + 100;
+  mitochondrionBattery1StartY = this.MITOCHONDRION_Y + 100;
+  mitochondrionBattery2StartX = this.MITOCHONDRION_X + 175;
+  mitochondrionBattery2StartY = this.MITOCHONDRION_Y + 50;
   mitochondrionBattery2: SVG;
+  numPhotonsNextCycle: number;
+  numPhotonsThisCycle: number = 4;
   photonChloroplast1: SVG;
   photonChloroplast2: SVG;
   photonChloroplast3: SVG;
@@ -123,7 +129,7 @@ export class PlantGlucoseSimulation {
    * @param elementId A string containing the id of the DOM element where
    * the simulation should be displayed
    * @param lightMode A number containing the number of options for light.
-   * 2 = On/Off, 3 = Full/Half/Off
+   * 2 = On/Off, 3 = Full/Half/Off, 5 = 100%/75%/50%/25%/0%
    * @param feedbackPolicy A string containing the identifier of the feedback
    * to use.
    * @param showGraph A boolean whether the graph should be displayed or not
@@ -134,10 +140,10 @@ export class PlantGlucoseSimulation {
     this.lightMode = lightMode;
     if (this.lightMode === 2) {
       this.lightSwitch = new LightSwitch2(this);
-      this.glucoseCreatedIncrement = 4;
-      this.glucoseUsedIncrement = 2;
     } else if (this.lightMode === 3) {
       this.lightSwitch = new LightSwitch3(this);
+    } else if (this.lightMode === 5) {
+      this.lightSwitch = new LightSwitch5(this);
     }
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.playBackControl = new PlayBackControl(this);
@@ -149,18 +155,12 @@ export class PlantGlucoseSimulation {
     this.graph = new Graph(this,this.LIGHT_ON_GRAPH_REGION_COLOR,
       this.LIGHT_OFF_GRAPH_REGION_COLOR, showGraph);
     this.feedback = new Feedback(this.draw, feedbackPolicy);
-    this.chloroplast = this.draw.image('./images/chloroplast.png').attr({
-      'x': this.CHLOROPLAST_X,
-      'y': this.CHLOROPLAST_Y
-    });
-    this.mitochondrion = this.draw.image('./images/mitochondrion.png').attr({
-      'x': this.MITOCHONDRION_X,
-      'y': this.MITOCHONDRION_Y
-    });
-    this.storage = this.draw.image('./images/storage.png').attr({
-      'x': this.STORAGE_X,
-      'y': this.STORAGE_Y
-    });
+    this.chloroplast = this.draw.image('./images/chloroplast.png')
+        .attr({ 'x': this.CHLOROPLAST_X, 'y': this.CHLOROPLAST_Y });
+    this.mitochondrion = this.draw.image('./images/mitochondrion.png')
+        .attr({ 'x': this.MITOCHONDRION_X, 'y': this.MITOCHONDRION_Y });
+    this.storage = this.draw.image('./images/storage.png')
+        .attr({ 'x': this.STORAGE_X, 'y': this.STORAGE_Y });
     this.startNewTrial();
   }
 
@@ -229,35 +229,50 @@ export class PlantGlucoseSimulation {
    * effect until the next cycle
    */
   playAnimationCycle() {
-    this.currentDayNumber++; // start a new day
+    this.currentDayNumber++;
     if (this.currentDayNumber > this.MAX_DAYS) {
       this.handleSimulationEnded();
-    } else { // the simulation has not reached the end yet
+    } else {
       this.dayDisplayCorner.updateDayText('Day ' + this.currentDayNumber);
 
-      if (this.isLightOnRequestedInNextCycle) {
-        this.isLightOn = true;
-      } else if (this.isLightOffRequestedInNextCycle) {
-        this.isLightOn = false;
-      } else {
-        // keep the isLightOn the same as before
+      if (this.numPhotonsNextCycle != null &&
+          this.numPhotonsNextCycle != this.numPhotonsThisCycle) {
+        this.updateNumPhotonsThisCycle(this.numPhotonsNextCycle)
+        this.lightSwitch.hideWaitImage();
       }
 
-      // reset the light on/off request
-      this.isLightOnRequestedInNextCycle = false;
-      this.isLightOffRequestedInNextCycle = false;
-
-      if (this.isLightOn) {
-        this.turnLightOn();
-        this.startLightOnAnimation(this.lightOnAnimationCallback.bind(this));
-      } else {
-        this.turnLightOff();
-        this.startLightOffAnimation(this.lightOffAnimationCallback.bind(this));
+      if (this.glucosesInStorage.length === 0 &&
+          this.numPhotonsThisCycle === 0) {
+        // there is no energy coming in or stored. The plant dies now.
+        this.currentAnimation = this.draw.animate(
+            {'duration': this.animationDuration * 3})
+            .during((pos, morph, eased, situation) => {
+              let startingEnergy = parseInt(this.energyLeft);
+              this.drainEnergy(100 /* start */, 0 /* end */, pos);
+            })
+            .afterAll(() => {
+              this.disableControlButtons();
+              this.startPlantDeathSequence();
+            });
+      } else if (this.numPhotonsThisCycle > 0) {
+        this.movePhotonsToPlantAndChloroplast(
+            this.animationCallback.bind(this));
+      } else if (this.glucosesInStorage.length > 0) {
+        this.moveGlucoseFromStorageToMitochondrion(
+            this.animationCallback.bind(this));
       }
+      this.numPhotonsNextCycle = null;
     }
   }
 
-  lightOnAnimationCallback() {
+  updateNumPhotonsThisCycle(numPhotonsThisCycle: number) {
+    this.numPhotonsThisCycle = numPhotonsThisCycle;
+    this.glucoseCreatedIncrement = numPhotonsThisCycle;
+    //this.dayDisplayCorner.updateDayColor(this.isLightOn);
+    //this.plantAnimationCorner.turnLightOn(this.isLightOn);
+  }
+
+  animationCallback() {
     const isGlucoseCreated = true;
     const isGlucoseUsed = true;
     this.updateGlucoseValues(this.currentDayNumber, isGlucoseCreated,
@@ -279,14 +294,6 @@ export class PlantGlucoseSimulation {
     }, this.animationDuration);
   }
 
-  /**
-   * Start the animation in a state where light is on
-   */
-  startLightOnAnimation(animationCallback: () => {}) {
-    this.movePhotonsToPlantAndChloroplast(animationCallback);
-  }
-
-  // called during light ON cycle
   movePhotonsToPlantAndChloroplast(animationCallback: () => {}) {
     this.photonsGroup = this.createPhotons();
     this.currentAnimation = this.photonsGroup;
@@ -301,15 +308,31 @@ export class PlantGlucoseSimulation {
           this.drainEnergy(75 /* start */, 50 /* end */, pos);
         })
         .afterAll(() => {
+          this.photonsGroup.remove();
+          this.photonsGroup = null;
+          this.createGlucosesToMitochondrion();
+          this.createGlucosesToStorage();
           this.moveGlucoseFromChloroplastToMitochondrion(animationCallback);
         });
   }
 
-  // called during light ON cycle
   moveGlucoseFromChloroplastToMitochondrion(animationCallback: () => {}) {
-    this.currentAnimation = this.createGlucose().animate(
-        {'delay': this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio,
-        'duration': this.animationDuration})
+    this.currentAnimation = this.draw.set();
+    if (this.glucoseToMitochondrion2 != null) {
+      this.glucoseToMitochondrion2.animate(
+          {'delay': this.animationDelay, 'duration': this.animationDuration})
+          .dmove(20, 350)
+          .animate({'duration': this.animationDuration}).attr({'opacity': 0})
+          .afterAll(() => {
+            this.glucoseToMitochondrion2 = null;
+            this.mitochondrionBattery2 = this.createBattery(
+                this.mitochondrionBattery2StartX, this.mitochondrionBattery2StartY);
+          });
+      this.currentAnimation.add(this.glucoseToMitochondrion2);
+    }
+
+    this.glucoseToMitochondrion1.animate(
+        {'delay': this.animationDelay, 'duration': this.animationDuration})
         .dmove(20, 350)
         .during((pos, morph, eased, situation) => {
           this.drainEnergy(50 /* start */, 35 /* end */, pos);
@@ -319,8 +342,19 @@ export class PlantGlucoseSimulation {
           this.drainEnergy(35 /* start */, 20 /* end */, pos);
         })
         .afterAll(() => {
-          this.moveGlucoseFromMitochondrionToEnergyIndicator(animationCallback);
+          this.glucoseToMitochondrion1.remove();
+          this.mitochondrionBattery1 =
+              this.createBattery(this.mitochondrionBattery1StartX,
+                  this.mitochondrionBattery1StartY);
+          if (this.numPhotonsThisCycle === 1 && !this.glucoseToMitochondrion2) {
+            this.moveGlucoseFromStorageToMitochondrion(() => {
+              this.moveBatteryFromMitochondrionToEnergyIndicator(animationCallback);
+            }, true /* requires assist */);
+          } else {
+            this.moveBatteryFromMitochondrionToEnergyIndicator(animationCallback);
+          }
         });
+    this.currentAnimation.add(this.glucoseToMitochondrion1);
   }
 
   /**
@@ -335,167 +369,201 @@ export class PlantGlucoseSimulation {
     this.energyIndicatorView.updateEnergyDisplay(this.energyLeft);
   }
 
-  createPhotons() {
-    this.photonPlant1 = this.draw.image('./images/photon.png', 30, 30).attr({
-      'x': 80,
-      'y': 50
-    });
-    this.photonPlant2 = this.draw.image('./images/photon.png', 30, 30).attr({
-      'x': 80,
-      'y': 20
-    });
-    this.photonChloroplast1 = this.draw.image('./images/photon.png', 50, 50).attr({
-      'x': 530,
-      'y': 60
-    });
-    this.photonChloroplast2 = this.draw.image('./images/photon.png', 50, 50).attr({
-      'x': 570,
-      'y': 30
-    });
-    const photonsGroup = this.draw.group()
-        .add(this.photonPlant1).add(this.photonPlant2)
-        .add(this.photonChloroplast1).add(this.photonChloroplast2);
+  createPhotonToPlant(x: number, y: number) {
+    return this.draw.image('./images/photon.png', 30, 30)
+        .attr({ 'x': x, 'y': y });
+  }
 
+  createPhotonToChloroplast(x: number, y: number) {
+    return this.draw.image('./images/photon.png', 50, 50)
+        .attr({ 'x': x, 'y': y });
+  }
+
+  createPhotons() {
+    const photonsGroup = this.draw.group();
+    if (this.glucoseCreatedIncrement >= 1) {
+      this.photonPlant1 = this.createPhotonToPlant(80, 50);
+      this.photonChloroplast1 = this.createPhotonToChloroplast(530, 60);
+      photonsGroup.add(this.photonPlant1).add(this.photonChloroplast1)
+    }
+    if (this.glucoseCreatedIncrement >= 2) {
+      this.photonPlant2 = this.createPhotonToPlant(80, 20);
+      this.photonChloroplast2 = this.createPhotonToChloroplast(570, 30);
+      photonsGroup.add(this.photonPlant2).add(this.photonChloroplast2)
+    }
+    if (this.glucoseCreatedIncrement >= 3) {
+      this.photonPlant3 = this.createPhotonToPlant(30, 50);
+      this.photonChloroplast3 = this.createPhotonToChloroplast(430, 60);
+      photonsGroup.add(this.photonPlant3).add(this.photonChloroplast3)
+    }
     if (this.glucoseCreatedIncrement === 4) {
-      this.photonPlant3 = this.draw.image('./images/photon.png', 30, 30).attr({
-        'x': 30,
-        'y': 50
-      });
-      this.photonPlant4 = this.draw.image('./images/photon.png', 30, 30).attr({
-        'x': 50,
-        'y': 20
-      });
-      this.photonChloroplast3 = this.draw.image('./images/photon.png', 50, 50).attr({
-        'x': 430,
-        'y': 60
-      });
-      this.photonChloroplast4 = this.draw.image('./images/photon.png', 50, 50).attr({
-        'x': 470,
-        'y': 30
-      });
-      photonsGroup.add(this.photonPlant3).add(this.photonPlant4)
-          .add(this.photonChloroplast3).add(this.photonChloroplast4);
+      this.photonPlant4 = this.createPhotonToPlant(50, 20);
+      this.photonChloroplast4 = this.createPhotonToChloroplast(470, 30);
+      photonsGroup.add(this.photonPlant4).add(this.photonChloroplast4);
     }
     return photonsGroup;
   }
 
-  /**
-   * Create glucose and returns a group containing them
-   */
-  createGlucose() {
-    this.glucose3 = this.draw.image('./images/glucose.png', 70, 70).attr({
-      'x': 600,
-      'y': 150
+  createGlucose(x: number, y: number) {
+    return this.draw.image('./images/glucose.png', 70, 70).attr({
+      'x': x,
+      'y': y
     });
-    this.glucose4 = this.draw.image('./images/glucose.png', 70, 70).attr({
-      'x': 675,
-      'y': 100
-    });
-
-    if (this.glucoseCreatedIncrement === 4) {
-      this.glucose1 = this.draw.image('./images/glucose.png', 70, 70).attr({
-        'x': 450,
-        'y': 100
-      });
-      this.glucose2 = this.draw.image('./images/glucose.png', 70, 70).attr({
-        'x': 525,
-        'y': 150
-      });
-    }
-    return this.draw.group().add(this.glucose3).add(this.glucose4);
   }
 
-  // called during light ON cycle
+  /**
+   * Create glucose that will be moved from chloroplast
+   * to mitochondrion and returns a group containing them
+   */
+  createGlucosesToMitochondrion() {
+    if (this.glucoseCreatedIncrement >= 1) {
+      this.glucoseToMitochondrion1 = this.createGlucose(600, 150);
+    }
+    if (this.glucoseCreatedIncrement >= 2) {
+      this.glucoseToMitochondrion2 = this.createGlucose(675, 100);
+    }
+  }
+
+  /**
+   * Create glucose that will be moved from chloroplast
+   * to storage and returns a group containing them
+   */
+  createGlucosesToStorage() {
+    if (this.glucoseCreatedIncrement === 3) {
+      this.glucoseToStorage1 = this.createGlucose(450, 100);
+    } else if (this.glucoseCreatedIncrement === 4) {
+      this.glucoseToStorage1 = this.createGlucose(450, 100);
+      this.glucoseToStorage2 = this.createGlucose(525, 150);
+    }
+  }
+
   moveGlucoseFromChloroplastToStorage(animationCallback: () => {}) {
+    this.currentAnimation = this.draw.set();
+
+    let buffer = 25;
+
+    // move the glucose to storage in rows
+    this.glucoseToStorage1.animate(
+        {'delay': this.animationDelay,
+        'duration': this.animationDuration})
+        .move(this.STORAGE_X + ((this.glucosesInStorage.length / 2) % 5) * 75 - buffer,
+            this.STORAGE_Y +
+            (Math.floor((this.glucosesInStorage.length / 2) / 5)) * 75 - buffer)
+        .afterAll(() => {
+          this.glucosesInStorage.push(this.glucoseToStorage1.clone());
+          this.glucoseToStorage1.remove();
+          this.glucoseToStorage1 = null;
+          animationCallback();
+        });
+    this.currentAnimation.add(this.glucoseToStorage1);
     if (this.glucoseCreatedIncrement === 4) {
-      this.currentAnimation = this.draw.set()
-          .add(this.glucose1).add(this.glucose2);
-
-      // move the glucose to storage in rows
-      this.glucose1.animate(
-          {'delay': this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio,
+      this.glucoseToStorage2.animate(
+          {'delay': this.animationDelay,
           'duration': this.animationDuration})
-          .move(this.STORAGE_X + ((this.glucosesInStorage.length / 2) % 5) * 75,
+          .move(this.STORAGE_X + ((this.glucosesInStorage.length / 2) % 5) * 75 + buffer,
               this.STORAGE_Y +
-              (Math.floor((this.glucosesInStorage.length / 2) / 5)) * 75)
+              (Math.floor((this.glucosesInStorage.length / 2) / 5)) * 75 + buffer)
           .afterAll(() => {
-            this.shrinkGlucoseInStorage(animationCallback);
+            this.glucosesInStorage.push(this.glucoseToStorage2.clone());
+            this.glucoseToStorage2.remove();
+            this.glucoseToStorage2 = null;
           });
-
-      this.glucose2.animate(
-          {'delay': this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio,
-          'duration': this.animationDuration})
-          .move(this.STORAGE_X + ((this.glucosesInStorage.length / 2) % 5) * 75,
-              this.STORAGE_Y +
-              (Math.floor((this.glucosesInStorage.length / 2) / 5)) * 75);
-    } else {
-      // there is no glucose to move to storage, so
-      // go directly to the callback
-      animationCallback();
+      this.currentAnimation.add(this.glucoseToStorage2);
     }
-  }
-
-  /**
-   * Shrinks glucose that was just moved from mitochondrion to storage
-   */
-  shrinkGlucoseInStorage(animationCallback: () => {}) {
-    const glucose1InStorage = this.glucose1.clone();
-    const glucose2InStorage = this.glucose2.clone();
-    this.glucosesInStorage.push(glucose1InStorage, glucose2InStorage);
-
-    glucose1InStorage.width(this.glucose1.width() / this.GLUCOSE_GROWTH_SCALE)
-        .height(this.glucose1.height() / this.GLUCOSE_GROWTH_SCALE)
-        .dx(25).dy(-25);
-
-    glucose2InStorage.width(this.glucose1.width() / this.GLUCOSE_GROWTH_SCALE)
-        .height(this.glucose1.height() / this.GLUCOSE_GROWTH_SCALE)
-        .dx(-25).dy(25);
-    this.glucose1.hide();
-    this.glucose2.hide();
-
-    animationCallback();
   }
 
   /**
    * Move the glucose to center of mitochondrion during light OFF cycle
-   * @param lastTwoGlucoses An array of last two glucoses in storage
    * @param animationCallback A callback of animation
    */
-  moveGlucoseFromStorageToMitochondrion(lastTwoGlucoses: any[],
-      animationCallback: () => {}) {
-    const [glucose1InStorage, glucose2InStorage] = lastTwoGlucoses;
+  moveGlucoseFromStorageToMitochondrion(
+      animationCallback: () => {}, requiresAssist: boolean = false) {
+    if (this.glucosesInStorage.length === 0) {
+      animationCallback();
+    } else {
+      this.currentAnimation = this.draw.set();
+      const glucose1InStorage = this.glucosesInStorage[this.glucosesInStorage.length - 1];
 
-    this.currentAnimation = this.draw.set()
-        .add(glucose1InStorage).add(glucose2InStorage);;
+      if (this.glucosesInStorage.length >= 2 && !requiresAssist) {
+        const glucose2InStorage = this.glucosesInStorage[this.glucosesInStorage.length - 2];
 
-    glucose1InStorage.animate({'duration': this.animationDuration})
-        .move(this.mitochondrionBattery1_startingX,
-            this.mitochondrionBattery1_startingY)
-        .during((pos, morph, eased, situation) => {
-          this.drainEnergy(100 /* start */, 75 /* end */, pos);
-        })
-        .animate({'duration': this.animationDuration}).opacity(0)
-        .during((pos, morph, eased, situation) => {
-          this.drainEnergy(75 /* start */, 50 /* end */, pos);
-        })
-        .afterAll(() => {
-          // remove the last two glucose from storage
-          this.glucosesInStorage.splice(this.glucosesInStorage.length - 2, 2);
-          this.moveGlucoseFromMitochondrionToEnergyIndicator(animationCallback);
-        });
-    glucose2InStorage.animate({'duration': this.animationDuration})
-        .move(this.mitochondrionBattery2_startingX,
-            this.mitochondrionBattery1_startingY)
-        .animate({'duration': this.animationDuration}).opacity(0)
+        if (glucose2InStorage != null) {
+          glucose2InStorage.animate({'duration': this.animationDuration})
+              .move(this.mitochondrionBattery2StartX,
+                  this.mitochondrionBattery1StartY)
+              .animate({'duration': this.animationDuration})
+              .opacity(0)
+              .afterAll(() => {
+                this.mitochondrionBattery2 =
+                    this.createBattery(this.mitochondrionBattery2StartX,
+                        this.mitochondrionBattery2StartY);
+              });
+          this.currentAnimation.add(glucose2InStorage);
+        }
+      }
+      let moveToX = this.mitochondrionBattery1StartX;
+      let moveToY = this.mitochondrionBattery1StartY;
+      if (requiresAssist) {
+        moveToX = this.mitochondrionBattery2StartX;
+        moveToY = this.mitochondrionBattery2StartY;
+      }
+      glucose1InStorage.animate({'duration': this.animationDuration})
+          .move(moveToX, moveToY)
+          .during((pos, morph, eased, situation) => {
+            if (!requiresAssist) {
+              this.drainEnergy(100 /* start */, 75 /* end */, pos);
+            }
+          })
+          .animate({'duration': this.animationDuration})
+          .opacity(0)
+          .during((pos, morph, eased, situation) => {
+            if (!requiresAssist) {
+              this.drainEnergy(75 /* start */, 50 /* end */, pos);
+            }
+          })
+          .afterAll(() => {
+            // remove the last glucose from storage
+            this.glucosesInStorage.splice(this.glucosesInStorage.length - 1, 1);
+            glucose1InStorage.remove();
+            glucose1InStorage = null;
+            if (glucose2InStorage != null) {
+              this.glucosesInStorage.splice(this.glucosesInStorage.length - 1, 1);
+              glucose2InStorage.remove();
+              glucose2InStorage = null;
+            }
+            if (this.numPhotonsThisCycle === 1) {
+              this.mitochondrionBattery2 =
+                  this.createBattery(this.mitochondrionBattery2StartX,
+                      this.mitochondrionBattery2StartY);
+              animationCallback();
+            } else {
+              this.mitochondrionBattery1 =
+                  this.createBattery(this.mitochondrionBattery1StartX,
+                      this.mitochondrionBattery1StartY);
+              this.moveBatteryFromMitochondrionToEnergyIndicator(animationCallback);
+            }
+          });
+      this.currentAnimation.add(glucose1InStorage);
+      }
   }
 
-  // called during both light ON and OFF cycle
-  moveGlucoseFromMitochondrionToEnergyIndicator(animationCallback: () => {}) {
-    this.currentAnimation = this.createMitochondrionBatteries();
+  moveBatteryFromMitochondrionToEnergyIndicator(animationCallback: () => {}) {
+    this.currentAnimation = this.draw.set();
+    // move battery 2 to transport nutrients
+    if (this.mitochondrionBattery2 != null) {
+      this.mitochondrionBattery2.animate(
+          {'delay': this.animationDelay,
+          'duration': this.animationDuration})
+          .move(this.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X,
+              this.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y)
+          .afterAll(() => {
+          });
+      this.currentAnimation.add(this.mitochondrionBattery2);
+    }
 
     // move mitochondrion battery 1 to repair damage
     this.mitochondrionBattery1.animate(
-        {'delay': this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio,
+        {'delay': this.animationDelay,
         'duration': this.animationDuration})
         .move(this.BATTERY_EMPTY_REPAIR_DAMAGE_X,
             this.BATTERY_EMPTY_REPAIR_DAMAGE_Y)
@@ -507,21 +575,22 @@ export class PlantGlucoseSimulation {
           }
         })
         .afterAll(() => {
-          if (this.isLightOn) {
+          if (this.mitochondrionBattery2 != null) {
             this.resetEnergyToFull();
             this.removeMitochondrionBatteries();
-            this.moveGlucoseFromChloroplastToStorage(animationCallback);
+            if (this.glucoseCreatedIncrement >= 3) {
+              this.moveGlucoseFromChloroplastToStorage(animationCallback);
+            } else {
+              // there is no glucose to move to storage, so
+              // go directly to the callback
+              animationCallback();
+            }
           } else {
-            this.playLightOffFinalAnimationSequence(animationCallback);
+            this.disableControlButtons();
+            this.startPlantDeathSequence();
           }
         });
-
-    // movebattery 2 to transport nutrients
-    this.mitochondrionBattery2.animate(
-        {'delay': this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio,
-        'duration': this.animationDuration})
-        .move(this.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X,
-            this.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y);
+    this.currentAnimation.add(this.mitochondrionBattery1);
   }
 
   resetEnergyToFull() {
@@ -542,54 +611,11 @@ export class PlantGlucoseSimulation {
     animationCallback();
   }
 
-  /**
-   * Increases the size of last two glucoses in storage by the
-   * GLUCOSE_GROWTH_SCALE factor
-   * @returns {[SVG,SVG]} An array of last two glucoses in storage after
-   * growing it in size
-   */
-  increaseLastTwoGlucoseSizes() {
-    const glucose1InStorageIndex = this.glucosesInStorage.length - 1;
-    const glucose1InStorage = this.glucosesInStorage[glucose1InStorageIndex];
-    glucose1InStorage.width(glucose1InStorage.width() * this.GLUCOSE_GROWTH_SCALE)
-        .height(glucose1InStorage.height() * this.GLUCOSE_GROWTH_SCALE);
-
-    const glucose2InStorageIndex = this.glucosesInStorage.length - 2;
-    const glucose2InStorage = this.glucosesInStorage[glucose2InStorageIndex];
-    glucose2InStorage.width(glucose2InStorage.width() * this.GLUCOSE_GROWTH_SCALE)
-        .height(glucose2InStorage.height() * this.GLUCOSE_GROWTH_SCALE);
-    return [glucose1InStorage, glucose2InStorage];
-  }
-
   handleSimulationEnded() {
     this.addEvent('simulationEnded');
     this.pauseSimulation();
     this.simulationEndFeedback.showSimulationEnded();
     this.disableControlButtons();
-  }
-
-  /**
-   * Start the animation in a state where light is off
-   */
-  startLightOffAnimation(animationCallback: () => {}) {
-    if (this.glucosesInStorage.length > 0) {
-      const lastTwoGlucoses = this.increaseLastTwoGlucoseSizes();
-      this.moveGlucoseFromStorageToMitochondrion(lastTwoGlucoses, animationCallback);
-    } else {
-      // there's no glucose stored in storage, and the light is off
-      // so it's the last cycle before death
-      if (this.energyLeft > 0) {
-        this.currentAnimation = this.draw.animate(
-            {'duration': this.animationDuration * 3})
-            .during((pos, morph, eased, situation) => {
-              this.drainEnergy(100 /* start */, 0 /* end */, pos);
-            })
-            .afterAll(() => {
-              this.disableControlButtons();
-              this.startPlantDeathSequence();
-            });
-      }
-    }
   }
 
   startPlantDeathSequence() {
@@ -608,7 +634,6 @@ export class PlantGlucoseSimulation {
       .afterAll(() => {
         this.addEvent('plantDied');
         this.simulationEndFeedback.showPlantDied();
-
         const glucoseCreated = false;
         const glucoseUsed = false;
         this.updateGlucoseValues(this.currentDayNumber, glucoseCreated,
@@ -621,24 +646,26 @@ export class PlantGlucoseSimulation {
   removeMitochondrionBatteries() {
     if (this.mitochondrionBattery1 != null) {
       this.mitochondrionBattery1.remove();
+      this.mitochondrionBattery1 = null;
     }
     if (this.mitochondrionBattery2 != null) {
       this.mitochondrionBattery2.remove();
+      this.mitochondrionBattery2 = null;
     }
   }
 
   removeGlucoses() {
-    if (this.glucose1 != null) {
-      this.glucose1.remove();
+    if (this.glucoseToStorage1 != null) {
+      this.glucoseToStorage1.remove();
     }
-    if (this.glucose2 != null) {
-      this.glucose2.remove();
+    if (this.glucoseToStorage2 != null) {
+      this.glucoseToStorage2.remove();
     }
-    if (this.glucose3 != null) {
-      this.glucose3.remove();
+    if (this.glucoseToMitochondrion1 != null) {
+      this.glucoseToMitochondrion1.remove();
     }
-    if (this.glucose4 != null) {
-      this.glucose4.remove();
+    if (this.glucoseToMitochondrion2 != null) {
+      this.glucoseToMitochondrion2.remove();
     }
   }
 
@@ -678,14 +705,6 @@ export class PlantGlucoseSimulation {
     this.feedback.hideFeedback();
     this.lightSwitch.hideWaitImage();
     this.startNewTrial();
-
-    /*
-    TODO: uncomment me when ready
-    if (wiseAPI.wise5) {
-      // get the student work from other components
-      wiseAPI.getStudentWork();
-    }
-    */
   }
 
   disableControlButtons() {
@@ -728,84 +747,32 @@ export class PlantGlucoseSimulation {
   updateAnimationSpeedRatio(newAnimationSpeedRatio: number) {
     this.animationSpeedRatio = newAnimationSpeedRatio;
     this.animationDuration =
-      this.DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
+        this.DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
+    this.animationDelay =
+        this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
   }
 
   /**
-   * Updates the model light energy percentage
-   * @param requestedLightEnergyPercent the new energy percentage requested by
-   * the user. Possible values are 0, 50, or 100
+   * Updates the number of photons coming in from light source
+   *
+   * If the request comes during an animation cycle, set a variabge flag and
+   * show a wait image so the user knows the change will take effect
+   * at the beginning of the next animation cycle.
+   *
+   * @param numPhotonsNextCycle the new photon count requested by
+   * the user. Possible values are 0, 1, 2, 3, or 4
    */
-  handleLightChangeRequest(requestedLightEnergyPercent: number) {
-    this.lightEnergyPercent = requestedLightEnergyPercent;
-    if (this.currentAnimation != null) {
-      // show a wait image so the user knows the change will take effect
-      // at the beginning of the next animation cycle
-      this.lightSwitch.showWaitImage();
-      if (requestedLightEnergyPercent >= 50) {
-        // this variable will be read in at the beginning of the
-        // next animation cycle
-        this.isLightOnRequestedInNextCycle = true;
-      } else {
-        this.isLightOffRequestedInNextCycle = true;
-      }
-    } else {
-      // turn the light on/off right now
-      if (requestedLightEnergyPercent >= 50) {
-        this.turnLightOn();
-      } else {
-        this.turnLightOff();
-      }
-    }
-  }
+   handleLightChangeRequest(numPhotonsNextCycle: number) {
+     if (this.currentAnimation != null) {
+       this.lightSwitch.showWaitImage();
+       this.numPhotonsNextCycle = numPhotonsNextCycle;
+     } else {
+       // animation is stopped, so update numPhontons now
+       this.updateNumPhotonsThisCycle(numPhotonsNextCycle);
+     }
+   }
 
-  /**
-   * Turn the light on which affect the number of photons to appear
-   */
-  turnLightOn() {
-    if (this.lightEnergyPercent === 50) {
-      this.glucoseCreatedIncrement = 2;
-      this.glucoseUsedIncrement = 2;
-    } else if (this.lightEnergyPercent === 100) {
-      this.glucoseCreatedIncrement = 4;
-      this.glucoseUsedIncrement = 2;
-    }
-    this.toggleLight(true);
-  }
-
-  /**
-   * Turn the light off which makes no photons appear
-   */
-  turnLightOff() {
-    this.toggleLight(false);
-  }
-
-  /**
-   * Toggle light on or off. The effect is immediate.
-   * @param doToggleOn
-   */
-  toggleLight(doToggleOn: boolean) {
-    this.isLightOn = doToggleOn;
-    this.dayDisplayCorner.updateDayColor(this.isLightOn);
-    this.plantAnimationCorner.turnLightOn(this.isLightOn);
-    this.lightSwitch.hideWaitImage();
-  }
-
-  /**
-   * Create batteries that appear on the mitochondrion and returns the group
-   */
-  createMitochondrionBatteries() {
-    this.mitochondrionBattery1 = this.draw.image('./images/batteryFull.png')
-        .attr({
-          'x': this.mitochondrionBattery1_startingX,
-          'y': this.mitochondrionBattery1_startingY
-        });
-    this.mitochondrionBattery2 = this.draw.image('./images/batteryFull.png')
-        .attr({
-          'x': this.mitochondrionBattery2_startingX,
-          'y': this.mitochondrionBattery2_startingY
-        });
-    return this.draw.set()
-        .add(this.mitochondrionBattery1).add(this.mitochondrionBattery2);
+  createBattery(x: number, y: number) {
+    return this.draw.image('./images/batteryFull.png').attr({ 'x': x, 'y': y });
   }
 }

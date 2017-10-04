@@ -93,7 +93,6 @@ export class EnergyIndicatorView {
     this.transportNutrientsIndicatorText = this.draw.text('Transport\nNutrients')
       .x(685).y(795).font({size: 40});
 
-    // start with 100% energy
     this.showEnergyNeeds(100);
     this.showBatteryIndicator(100);
   }
@@ -122,7 +121,8 @@ export class EnergyIndicatorView {
     this.repairDamageRect.height(newBatteryHeight);
     this.transportNutrientsRect.height(newBatteryHeight);
 
-    let newBatteryY = this.INDICATOR_BATTERY_ORIGINAL_Y + (this.BATTERY_FULL_HEIGHT - newBatteryHeight);
+    let newBatteryY = this.INDICATOR_BATTERY_ORIGINAL_Y +
+        (this.BATTERY_FULL_HEIGHT - newBatteryHeight);
     this.repairDamageRect.y(newBatteryY);
     this.transportNutrientsRect.y(newBatteryY);
 
@@ -140,9 +140,6 @@ export class EnergyIndicatorView {
 
   /**
    * Shows status of energy needs.
-   *   Green check mark if full of energy
-   *   None if half energy
-   *   Red exclamation mark if energy is needed
    * @param energyLeft an integer between 0 and 100
    */
   showEnergyNeeds(energyLeft: number) {

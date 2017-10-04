@@ -2,7 +2,7 @@ import * as $ from "jquery";
 import {PlantGlucoseSimulation} from "./plantGlucoseSimulation";
 
 /**
- * LightSwitch --- Renders the light switch in on/off configuration
+ * LightSwitch2 --- Renders the light switch in on/off configuration
  * and responds to user interaction
  *
  * Display an On/Off switch, where On = 100% energy, Off = 0% energy
@@ -21,10 +21,6 @@ export class LightSwitch2 {
   simulation: PlantGlucoseSimulation;
   waitImageLightSwitch: any;
 
-  /**
-   * Creates a new LightSwitch2 instance
-   * @param simulation A reference to the simulation
-   */
   constructor(simulation: PlantGlucoseSimulation) {
     this.simulation = simulation;
     this.waitImageLightSwitch = $("#waitImageLightSwitch");
@@ -33,10 +29,6 @@ export class LightSwitch2 {
     this.listenForUserInput();
   }
 
-  /**
-   * Register listeners for user interactions like
-   * when the user changes the value of the light switch slider
-   */
   listenForUserInput() {
     let lightSwitch = this;
     $("#lightSwitchInput2").on("change", function() {

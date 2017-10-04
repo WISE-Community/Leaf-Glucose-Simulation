@@ -23,6 +23,7 @@ const watchedBrowserify = watchify(browserify({
     'src/graph.ts',
     'src/lightSwitch2.ts',
     'src/lightSwitch3.ts',
+    'src/lightSwitch5.ts',
     'src/main.ts',
     'src/plantGlucoseSimulation.ts',
     'src/plantAnimationCorner.ts',

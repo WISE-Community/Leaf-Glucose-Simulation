@@ -5,33 +5,28 @@
  * @author Geoffrey Kwan
  */
 export class DayDisplayCorner {
-  draw: SVG;  // the SVG draw object
-  dayRect: SVG;  // rectangle surrounding the day display corner
-  dayText: SVG;  // text showing what day it is
-  dayColorLightOn: string;  // hex color string of background for light on state
-  dayColorLightOff: string; // hex color string of background for light off state
+  draw: SVG;
+  backgroundRect: SVG;
+  dayText: SVG;
+  lightOnHex: string;
+  lightOffHex: string;
 
   /**
-   * Instantiates variables with initial values for objects
-   * within the day display corner.
    * @param draw An SVG draw object to paint other elements on
-   * @param dayColorLightOn A String containing the default background color of this
+   * @param lightOnHex A String containing the default background color of this
    * day display corner when the light is on
-   * @param dayColorLightOff A String containing the default background color of this
+   * @param lightOffHex A String containing the default background color of this
    * day display corner when the light is off
    */
-  constructor(draw: SVG, dayColorLightOn: string, dayColorLightOff: string) {
+  constructor(draw: SVG, lightOnHex: string, lightOffHex: string) {
     this.draw = draw;
-    this.dayColorLightOn = dayColorLightOn;
-    this.dayColorLightOff = dayColorLightOff;
+    this.lightOnHex = lightOnHex;
+    this.lightOffHex = lightOffHex;
 
-    // draw the upper left box where the light and plant will be displayed
-    this.dayRect = this.draw.rect(250, 110)
-      .x(750).y(0).fill(this.dayColorLightOn).stroke({width:2});
+    this.backgroundRect = this.draw.rect(250, 110) .x(750).y(0)
+        .fill(this.lightOnHex).stroke({width:2});
 
-    // create the day message text
-    this.dayText = this.draw.text('Day 1')
-      .x(775).y(0).font({size: 64});
+    this.dayText = this.draw.text('Day 1').x(775).y(0).font({size: 64});
   }
 
   /**
@@ -49,9 +44,9 @@ export class DayDisplayCorner {
    */
   updateDayColor(isLightOn: boolean) {
     if (isLightOn) {
-      this.dayRect.fill(this.dayColorLightOn);
+      this.backgroundRect.fill(this.lightOnHex);
     } else {
-      this.dayRect.fill(this.dayColorLightOff);
+      this.backgroundRect.fill(this.lightOffHex);
     }
   }
 }
