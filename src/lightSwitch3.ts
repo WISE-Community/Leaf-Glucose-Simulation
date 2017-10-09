@@ -39,13 +39,13 @@ export class LightSwitch3 {
       let lightSwitchValue = $(this).val();
       if (lightSwitchValue == lightSwitch.INPUT_VALUE_POWER_OFF) {
         lightSwitch.simulation.addEvent('turnLightOffButtonClicked');
-        lightSwitch.simulation.handleLightChangeRequest(0 /* light off */);
+        lightSwitch.simulation.handleLightChangeRequest(0);
       } else if (lightSwitchValue == lightSwitch.INPUT_VALUE_POWER_HALF) {
         lightSwitch.simulation.addEvent('turnLightHalfButtonClicked');
-        lightSwitch.simulation.handleLightChangeRequest(50 /* light half on */);
+        lightSwitch.simulation.handleLightChangeRequest(2);
       } else if (lightSwitchValue == lightSwitch.INPUT_VALUE_POWER_FULL) {
         lightSwitch.simulation.addEvent('turnLightFullButtonClicked');
-        lightSwitch.simulation.handleLightChangeRequest(100 /* light on */);
+        lightSwitch.simulation.handleLightChangeRequest(4);
       }
     });
   }

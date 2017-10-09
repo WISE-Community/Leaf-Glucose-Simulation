@@ -14,6 +14,7 @@ import { SimulationState } from './simulationState';
 import * as SVG from 'svg.js';
 import 'svg.draggable.js';
 import * as $ from 'jquery';
+import {WISEAPI} from "./wiseAPI";
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -122,6 +123,8 @@ export class PlantGlucoseSimulation {
   // an array of trial data objects including the current trial
   trials: any[] = [];
 
+  wiseAPI: WISEAPI;
+
   /**
    * Instantiates variables with initial values for objects
    * within the simulation. Controlling the simulation (play/pause/reset)
@@ -161,6 +164,7 @@ export class PlantGlucoseSimulation {
         .attr({ 'x': this.MITOCHONDRION_X, 'y': this.MITOCHONDRION_Y });
     this.storage = this.draw.image('./images/storage.png')
         .attr({ 'x': this.STORAGE_X, 'y': this.STORAGE_Y });
+    this.wiseAPI = new WISEAPI();
     this.startNewTrial();
   }
 
@@ -191,13 +195,15 @@ export class PlantGlucoseSimulation {
    */
   startNewTrial() {
     this.currentTrialData = {
+      id: new Date().getTime(),
+      name: 'Trial ' + (this.trials.length + 1),
       glucoseCreatedData: [[0, this.initialGlucoseCreated]],
       glucoseUsedData: [[0, this.initialGlucoseUsed]],
       glucoseStoredData: [[0, this.initialGlucoseStored]],
       events: []
     };
     this.trials.push(this.currentTrialData);
-    console.log(this.trials);
+    this.saveCurrentTrialData();
   }
 
   /**
@@ -237,7 +243,7 @@ export class PlantGlucoseSimulation {
 
       if (this.numPhotonsNextCycle != null &&
           this.numPhotonsNextCycle != this.numPhotonsThisCycle) {
-        this.updateNumPhotonsThisCycle(this.numPhotonsNextCycle)
+        this.updateNumPhotonsThisCycle(this.numPhotonsNextCycle);
         this.lightSwitch.hideWaitImage();
       }
 
@@ -279,14 +285,82 @@ export class PlantGlucoseSimulation {
         isGlucoseUsed);
     this.graph.updateGraph(this.currentTrialData, this.currentDayNumber,
         isGlucoseCreated);
+
+    this.saveCurrentTrialData();
     this.loopAnimationAfterBriefPause();
   }
 
-  lightOffAnimationCallback() {
-    this.graph.updateGraph(this.currentTrialData, this.currentDayNumber,
-        false /* isGlucoseCreated */);
-    this.loopAnimationAfterBriefPause();
+  saveCurrentTrialData() {
+    if (this.wiseAPI) {
+      let state = {
+        messageType: 'studentDataChanged',
+        isAutoSave: false,
+        isSubmit: false,
+        studentData:
+            {
+              'trial': this.convertToHighchartsTrial(this.currentTrialData)
+            }
+      };
+
+      this.wiseAPI.sendMessage(state);
+    }
   }
+
+  convertToHighchartsTrial(trialData) {
+    let convertedTrial = {
+      id: trialData.id,
+      name: trialData.name,
+      series: []
+    };
+
+    let glucoseCreatedSeries = this.convertToHighchartsSeries(
+        trialData.id + '-glucoseMade',
+        'Total Glucose Made',
+        '#72ae2e',
+        'shortDot',
+        'circle',
+        trialData.glucoseCreatedData);
+
+    let glucoseUsedSeries = this.convertToHighchartsSeries(
+        trialData.id + '-glucoseUsed',
+        'Total Glucose Used',
+        '#f17d00',
+        'shortDash',
+        'circle',
+        trialData.glucoseUsedData);
+    let glucoseStoredSeries = this.convertToHighchartsSeries(
+        trialData.id + '-glucoseStored',
+        'Total Glucose Stored',
+        '#459db6',
+        'dot',
+        'circle',
+        trialData.glucoseStoredData);
+    convertedTrial.series.push(glucoseCreatedSeries);
+    convertedTrial.series.push(glucoseUsedSeries);
+    convertedTrial.series.push(glucoseStoredSeries);
+    return convertedTrial;
+  }
+
+  convertToHighchartsSeries(seriesId, seriesName, seriesColor, dashStyle, markerSymbol, seriesData) {
+    let convertedSeries = {
+      id: seriesId,
+      name: seriesName,
+      color: seriesColor,
+      dashStyle: dashStyle,
+      marker: { symbol: markerSymbol },
+      data: []
+    };
+    for (let seriesDataPoint of seriesData) {
+      convertedSeries.data.push(
+          {
+            x: seriesDataPoint[0],
+            y: seriesDataPoint[1]
+          }
+      );
+    }
+    return convertedSeries;
+  }
+
 
   loopAnimationAfterBriefPause() {
     window.setTimeout(() => {
@@ -598,19 +672,6 @@ export class PlantGlucoseSimulation {
     this.energyIndicatorView.updateEnergyDisplay(this.energyLeft);
   }
 
-  /**
-   * Last sequence in the light off cycle
-   */
-  playLightOffFinalAnimationSequence(animationCallback: () => {}) {
-    this.resetEnergyToFull();
-    this.removeMitochondrionBatteries();
-
-    const glucoseCreated = false;
-    const glucoseUsed = true;
-    this.updateGlucoseValues(this.currentDayNumber, glucoseCreated, glucoseUsed);
-    animationCallback();
-  }
-
   handleSimulationEnded() {
     this.addEvent('simulationEnded');
     this.pauseSimulation();
@@ -640,6 +701,7 @@ export class PlantGlucoseSimulation {
             glucoseUsed);
         this.graph.updateGraph(this.currentTrialData,
             this.currentDayNumber, glucoseCreated);
+        this.saveCurrentTrialData();
       });
   }
 
@@ -755,7 +817,7 @@ export class PlantGlucoseSimulation {
   /**
    * Updates the number of photons coming in from light source
    *
-   * If the request comes during an animation cycle, set a variabge flag and
+   * If the request comes during an animation cycle, set a variable flag and
    * show a wait image so the user knows the change will take effect
    * at the beginning of the next animation cycle.
    *
@@ -767,7 +829,7 @@ export class PlantGlucoseSimulation {
        this.lightSwitch.showWaitImage();
        this.numPhotonsNextCycle = numPhotonsNextCycle;
      } else {
-       // animation is stopped, so update numPhontons now
+       // animation is stopped, so update the light setting now
        this.updateNumPhotonsThisCycle(numPhotonsNextCycle);
      }
    }

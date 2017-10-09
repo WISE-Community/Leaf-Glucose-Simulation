@@ -18,7 +18,7 @@ import {PlantGlucoseSimulation} from "./plantGlucoseSimulation";
  */
 export class LightSwitch5 {
   INPUT_VALUE_POWER_OFF = 0;
-  INPUT_VALUE_POWER_25 = 1
+  INPUT_VALUE_POWER_25 = 1;
   INPUT_VALUE_POWER_50 = 2;
   INPUT_VALUE_POWER_75 = 3;
   INPUT_VALUE_POWER_FULL = 4;

@@ -35,10 +35,10 @@ export class LightSwitch2 {
       let lightSwitchValue = $(this).val();
       if (lightSwitchValue == lightSwitch.INPUT_VALUE_POWER_OFF) {
         lightSwitch.simulation.addEvent('turnLightOffButtonClicked');
-        lightSwitch.simulation.handleLightChangeRequest(0 /* light off */);
+        lightSwitch.simulation.handleLightChangeRequest(0);
       } else if (lightSwitchValue == lightSwitch.INPUT_VALUE_POWER_ON) {
         lightSwitch.simulation.addEvent('turnLightOnButtonClicked');
-        lightSwitch.simulation.handleLightChangeRequest(100 /* light on */);
+        lightSwitch.simulation.handleLightChangeRequest(4);
       }
     });
   }

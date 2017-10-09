@@ -6,7 +6,8 @@
  */
 export class WISEAPI {
   isWISE4: boolean = false;
-  iseWISE5: boolean = false;
+  isWISE5: boolean = false;
+  wiseAPI: any;
   wiseWebAppObj: any;
   studentWorkFromThisNode: any;
   studentWorkFromOtherComponents: any;
@@ -38,11 +39,11 @@ export class WISEAPI {
   }
 
   /**
-   * Save the student data to WISE
+   * Save the student trial data to WISE
    */
-  save() {
+  saveTrialData(trialData: any) {
     if (this.isWISE4) {
-      if (wiseAPI != null) {
+      if (this.wiseAPI != null) {
         this.wiseAPI.save(trialData);
       }
     } else if (this.isWISE5) {
@@ -51,7 +52,7 @@ export class WISEAPI {
         isSubmit: false,
         studentData: trialData
       };
-      saveWISE5State(componentState);
+      this.saveWISE5State(componentState);
     }
   }
 
@@ -61,7 +62,7 @@ export class WISEAPI {
    */
   saveWISE5Event(event: any) {
     event.messageType = 'event';
-    sendMessage(event);
+    this.sendMessage(event);
   }
 
   /**
@@ -70,15 +71,18 @@ export class WISEAPI {
    */
   saveWISE5State(componentState: any) {
     componentState.messageType = 'studentWork';
-    sendMessage(componentState);
+    this.sendMessage(componentState);
   }
 
   /**
    * Send a message to the parent
    * @param the message to send to the parent
    */
-  sendMessage(message: string) {
-    parent.postMessage(message, "*");
+  sendMessage(message) {
+    //console.log('sending message:' + JSON.stringify(message));
+    if (parent != null) {
+      parent.postMessage(message, "*");
+    }
   }
 
   /**
@@ -129,6 +133,7 @@ export class WISEAPI {
    * the component, an object with a node id field and component id field will
    * be returned.
    */
+  /*
   getStudentWorkByNodeIdAndComponentId(nodeId: string, componentId: string) {
     let componentState = null;
     if (nodeId != null && componentId != null) {
@@ -179,4 +184,5 @@ export class WISEAPI {
 
     return componentState;
   }
+  */
 }

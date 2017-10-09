@@ -25,6 +25,5 @@ $(document).ready(function() {
     lightMode = parameters["lightMode"];
   }
 
-  let wiseAPI = new WISEAPI();
   new PlantGlucoseSimulation("model", lightMode, feedbackPolicy, showGraph);
 });
