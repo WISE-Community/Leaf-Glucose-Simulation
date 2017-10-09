@@ -1,6 +1,6 @@
-import * as $ from "jquery";
-import * as Highcharts from "highcharts";
-import {PlantGlucoseSimulation} from "./plantGlucoseSimulation";
+import * as $ from 'jquery';
+import * as Highcharts from 'highcharts';
+import {PlantGlucoseSimulation} from './plantGlucoseSimulation';
 
 /**
  * Graph --- Graphs glucose made, used, and stored over time
@@ -24,7 +24,9 @@ export class Graph {
    * @param doShowGraph true iff this graph should be displayed
    */
   constructor(simulation: PlantGlucoseSimulation, dayColorLightOn: string,
-    dayColorLightOff: string, doShowGraph: boolean) {
+    dayColorLightOff: string, doShowGraph: boolean,
+    showLineGlucoseMade: boolean = true, showLineGlucoseUsed: boolean = true,
+    showLineGlucoseStored: boolean = true) {
     this.simulation = simulation;
     this.dayColorLightOn = dayColorLightOn;
     this.dayColorLightOff = dayColorLightOff;
@@ -71,21 +73,27 @@ export class Graph {
           color: '#72ae2e',
           lineWidth: 3,
           data: [],
-          dashStyle: "shortDot"
+          dashStyle: 'shortDot',
+          showInLegend: showLineGlucoseMade,
+          visible: showLineGlucoseMade
         },
         {
           name: 'Total Glucose Used',
           color: '#f17d00',
           lineWidth: 3,
           data: [],
-          dashStyle: "shortDash"
+          dashStyle: 'shortDash',
+          showInLegend: showLineGlucoseUsed,
+          visible: showLineGlucoseUsed
         },
         {
           name: 'Total Glucose Stored',
           color: '#459db6',
           lineWidth: 3,
           data: [],
-          dashStyle: "dot"
+          dashStyle: 'dot',
+          showInLegend: showLineGlucoseStored,
+          visible: showLineGlucoseStored
         }
       ]
     };
@@ -101,8 +109,8 @@ export class Graph {
   resetGraph() {
     this.chart.series.map((series) => {
         series.setData([]);
-    })
-    this.chart.xAxis[0].removePlotBand("plantGlucoseSimulationPlotBand");
+    });
+    this.chart.xAxis[0].removePlotBand('plantGlucoseSimulationPlotBand');
 
     // toggle line on/off, if user previous toggled it
     let parts = [this.simulation.chloroplast,
@@ -146,16 +154,17 @@ export class Graph {
     * @param dayNumber the day number to plot the graph for
     * @param glucoseCreated whether the glucose was created for the specified day
     */
-   updateGraph(currentTrialData: any, dayNumber: number, isGlucoseCreated: boolean) {
+   updateGraph(currentTrialData: any, dayNumber: number,
+       isGlucoseCreated: boolean) {
      this.setSeriesData(0, currentTrialData.glucoseCreatedData);
      this.setSeriesData(1, currentTrialData.glucoseUsedData);
      this.setSeriesData(2, currentTrialData.glucoseStoredData);
 
      let plotBandSettings = {
-       "id": "plantGlucoseSimulationPlotBand",
-       "from": dayNumber - 1,
-       "to": dayNumber,
-       "color": isGlucoseCreated ? this.dayColorLightOn :
+       'id': 'plantGlucoseSimulationPlotBand',
+       'from': dayNumber - 1,
+       'to': dayNumber,
+       'color': isGlucoseCreated ? this.dayColorLightOn :
          this.dayColorLightOff
      };
      this.addPlotBand(plotBandSettings);
@@ -188,16 +197,16 @@ export class Graph {
    */
   registerGraphLineToggleListener() {
     let simulation = this.simulation;
-    $(".highcharts-legend-item").on("click", function() {
+    $('.highcharts-legend-item').on('click', function() {
       // get the index of the line user toggled (0 = glucose made, 1 = used, 2 = stored)
-      let lineIndex = $(".highcharts-legend-item").index($(this));
+      let lineIndex = $('.highcharts-legend-item').index($(this));
 
       // get the image object based on which line the user toggled
       let image = [simulation.chloroplast,
         simulation.mitochondrion, simulation.storage][lineIndex];
 
       // see if the line clicked is hidden or displayed
-      let isHidden = $(this).hasClass("highcharts-legend-item-hidden");
+      let isHidden = $(this).hasClass('highcharts-legend-item-hidden');
       if (isHidden) {
         image.opacity(0.5);
       } else {

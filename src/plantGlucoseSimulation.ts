@@ -88,7 +88,7 @@ export class PlantGlucoseSimulation {
   isLightOn: boolean = true;
   isLightOnRequestedInNextCycle: boolean = false;
   isLightOffRequestedInNextCycle: boolean = false;
-  lightMode: number = 2;
+  numLightOptions: number = 2;
   lightSwitch: any;
   mitochondrion: SVG;
   mitochondrionBattery1: SVG;
@@ -131,21 +131,23 @@ export class PlantGlucoseSimulation {
    * is done through the PlayBackControl and SimulationSpeedSwitch class.
    * @param elementId A string containing the id of the DOM element where
    * the simulation should be displayed
-   * @param lightMode A number containing the number of options for light.
+   * @param numLightOptions A number containing the number of options for light.
    * 2 = On/Off, 3 = Full/Half/Off, 5 = 100%/75%/50%/25%/0%
    * @param feedbackPolicy A string containing the identifier of the feedback
    * to use.
    * @param showGraph A boolean whether the graph should be displayed or not
    */
-  constructor(elementId: string, lightMode: number = 2,
-      feedbackPolicy: any = null, showGraph: boolean = true) {
+  constructor(elementId: string, numLightOptions: number = 2,
+      feedbackPolicy: any = null, showGraph: boolean = true,
+      showLineGlucoseMade: boolean = true, showLineGlucoseUsed: boolean = true,
+      showLineGlucoseStored: boolean = true) {
     this.draw = SVG(elementId);
-    this.lightMode = lightMode;
-    if (this.lightMode === 2) {
+    this.numLightOptions = numLightOptions;
+    if (this.numLightOptions === 2) {
       this.lightSwitch = new LightSwitch2(this);
-    } else if (this.lightMode === 3) {
+    } else if (this.numLightOptions === 3) {
       this.lightSwitch = new LightSwitch3(this);
-    } else if (this.lightMode === 5) {
+    } else if (this.numLightOptions === 5) {
       this.lightSwitch = new LightSwitch5(this);
     }
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
@@ -156,7 +158,8 @@ export class PlantGlucoseSimulation {
     this.simulationEndFeedback = new SimulationEndFeedback(this.draw);
     this.energyIndicatorView = new EnergyIndicatorView(this.draw);
     this.graph = new Graph(this,this.LIGHT_ON_GRAPH_REGION_COLOR,
-      this.LIGHT_OFF_GRAPH_REGION_COLOR, showGraph);
+      this.LIGHT_OFF_GRAPH_REGION_COLOR, showGraph, showLineGlucoseMade,
+        showLineGlucoseUsed, showLineGlucoseStored);
     this.feedback = new Feedback(this.draw, feedbackPolicy);
     this.chloroplast = this.draw.image('./images/chloroplast.png')
         .attr({ 'x': this.CHLOROPLAST_X, 'y': this.CHLOROPLAST_Y });

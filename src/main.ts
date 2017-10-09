@@ -12,18 +12,32 @@ import * as $ from "jquery";
 $(document).ready(function() {
   let parameters: any = parseURLParameters();
   let feedbackPolicy = null;
-  let lightMode = 2;
+  let numLightOptions = 2;
   let showGraph = true;
+  let showLineGlucoseMade = true;
+  let showLineGlucoseUsed = true;
+  let showLineGlucoseStored = true;
 
+  if (parameters["numLightOptions"] != null) {
+    numLightOptions = parameters["numLightOptions"];
+  }
   if (parameters['feedbackPolicy'] != null) {
     feedbackPolicy = parameters['feedbackPolicy'];
   }
   if (parameters['showGraph'] != null) {
     showGraph = parameters['showGraph'];
   }
-  if (parameters["lightMode"] != null) {
-    lightMode = parameters["lightMode"];
+  if (parameters["showLineGlucoseMade"] != null) {
+    showLineGlucoseMade = parameters["showLineGlucoseMade"];
+  }
+  if (parameters["showLineGlucoseUsed"] != null) {
+    showLineGlucoseUsed = parameters["showLineGlucoseUsed"];
+  }
+  if (parameters["showLineGlucoseStored"] != null) {
+    showLineGlucoseStored = parameters["showLineGlucoseStored"];
   }
 
-  new PlantGlucoseSimulation("model", lightMode, feedbackPolicy, showGraph);
+  new PlantGlucoseSimulation("model", numLightOptions, feedbackPolicy,
+      showGraph, showLineGlucoseMade, showLineGlucoseUsed,
+      showLineGlucoseStored);
 });
