@@ -25,13 +25,25 @@ export class PlantAnimationCorner {
   leafDead: SVG;
   darknessOverlay: SVG;
 
+  bgColorLight100: string;
+  bgColorLight75: string;
+  bgColorLight50: string;
+  bgColorLight25: string;
+  bgColorLight0: string;
+
   /**
    * Instantiates variables with initial values for objects
    * within the plant animation corner.
    * @param draw An SVG draw object to paint other elements on
    */
-  constructor(draw: SVG) {
+  constructor(draw: SVG, bgColorLight100: string, bgColorLight75: string, bgColorLight50: string,
+      bgColorLight25: string, bgColorLight0: string) {
     this.draw = draw;
+    this.bgColorLight100 = bgColorLight100;
+    this.bgColorLight75 = bgColorLight75;
+    this.bgColorLight50 = bgColorLight50;
+    this.bgColorLight25 = bgColorLight25;
+    this.bgColorLight0 = bgColorLight0;
 
     // draw the outline in the upper-left corner
     this.draw.rect(250,300).x(0).y(0).fill('white').stroke({width:2});
@@ -74,8 +86,8 @@ export class PlantAnimationCorner {
         .rotate(150).hide();
 
     this.darknessOverlay = this.draw.rect(250, 300).attr({
-      'fill-opacity': 0,
-      'fill': 'black'
+      'fill-opacity': 0.3,
+      'fill': bgColorLight100
     });
 
     this.showGreenLeaf();
@@ -108,26 +120,36 @@ export class PlantAnimationCorner {
   }
 
   /**
-   * Turn the light on or off and display/hide darkness overlay
-   * @param doTurnLightOn true iff the light should be turned on
+   * Updates the background color of this day display corner based on
+   * number of photons
+   * @param numPhotonsThisCycle how many photons came in this day
    */
-  turnLightOn(doTurnLightOn: boolean = true) {
-    if (doTurnLightOn) {
-      this.lightBulbOff.hide();
-      this.lightBulbOn.show();
-      this.hideDarknessOverlay();
-    } else {
-      this.lightBulbOn.hide();
-      this.lightBulbOff.show();
-      this.showDarknessOverlay();
+  updateBackground(numPhotonsThisCycle: number) {
+    if (numPhotonsThisCycle === 4) {
+      this.turnLightOn();
+      this.darknessOverlay.fill(this.bgColorLight100);
+    } else if (numPhotonsThisCycle === 3) {
+      this.turnLightOn();
+      this.darknessOverlay.fill(this.bgColorLight75);
+    } else if (numPhotonsThisCycle === 2) {
+      this.turnLightOn();
+      this.darknessOverlay.fill(this.bgColorLight50);
+    } else if (numPhotonsThisCycle === 1) {
+      this.turnLightOn();
+      this.darknessOverlay.fill(this.bgColorLight25);
+    } else if (numPhotonsThisCycle === 0) {
+      this.turnLightOff();
+      this.darknessOverlay.fill(this.bgColorLight0);
     }
   }
 
-  hideDarknessOverlay() {
-    this.darknessOverlay.animate().attr({'fill-opacity': '0'});
+  turnLightOff() {
+    this.lightBulbOn.hide();
+    this.lightBulbOff.show();
   }
 
-  showDarknessOverlay() {
-    this.darknessOverlay.animate().attr({'fill-opacity': '0.3'});
+  turnLightOn() {
+    this.lightBulbOff.hide();
+    this.lightBulbOn.show();
   }
 }
