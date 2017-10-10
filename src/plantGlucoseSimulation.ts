@@ -36,10 +36,11 @@ export class PlantGlucoseSimulation {
   // default delay before staring animation in ms
   DEFAULT_ANIMATION_DELAY: number = 250;
 
-  // scale for growing/shrinking glucose
-  GLUCOSE_GROWTH_SCALE: number = 1.25;
-  LIGHT_ON_GRAPH_REGION_COLOR: string = '#fff9a5';
-  LIGHT_OFF_GRAPH_REGION_COLOR: string = '#dddddd';
+  BG_COLOR_LIGHT_100: string = '#ffffca';
+  BG_COLOR_LIGHT_75: string = '#fff077';
+  BG_COLOR_LIGHT_50: string = '#fed34b';
+  BG_COLOR_LIGHT_25: string = '#febf2c';
+  BG_COLOR_LIGHT_0: string = '#bfbfbf';
 
   MAX_DAYS = 20;
   MITOCHONDRION_X = 500;
@@ -152,13 +153,16 @@ export class PlantGlucoseSimulation {
     }
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.playBackControl = new PlayBackControl(this);
-    this.plantAnimationCorner = new PlantAnimationCorner(this.draw);
+    this.plantAnimationCorner = new PlantAnimationCorner(this.draw, this.BG_COLOR_LIGHT_100,
+        this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
+        this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0);
     this.dayDisplayCorner = new DayDisplayCorner(this.draw,
-      this.LIGHT_ON_GRAPH_REGION_COLOR, this.LIGHT_OFF_GRAPH_REGION_COLOR);
+        this.BG_COLOR_LIGHT_100, this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
+        this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0);
     this.simulationEndFeedback = new SimulationEndFeedback(this.draw);
     this.energyIndicatorView = new EnergyIndicatorView(this.draw);
-    this.graph = new Graph(this,this.LIGHT_ON_GRAPH_REGION_COLOR,
-      this.LIGHT_OFF_GRAPH_REGION_COLOR, showGraph, showLineGlucoseMade,
+    this.graph = new Graph(this, this.BG_COLOR_LIGHT_100, this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
+        this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0, showGraph, showLineGlucoseMade,
         showLineGlucoseUsed, showLineGlucoseStored);
     this.feedback = new Feedback(this.draw, feedbackPolicy);
     this.chloroplast = this.draw.image('./images/chloroplast.png')
@@ -277,8 +281,8 @@ export class PlantGlucoseSimulation {
   updateNumPhotonsThisCycle(numPhotonsThisCycle: number) {
     this.numPhotonsThisCycle = numPhotonsThisCycle;
     this.glucoseCreatedIncrement = numPhotonsThisCycle;
-    //this.dayDisplayCorner.updateDayColor(this.isLightOn);
-    //this.plantAnimationCorner.turnLightOn(this.isLightOn);
+    this.dayDisplayCorner.updateDayColor(numPhotonsThisCycle);
+    this.plantAnimationCorner.updateBackground(numPhotonsThisCycle);
   }
 
   animationCallback() {
@@ -287,7 +291,7 @@ export class PlantGlucoseSimulation {
     this.updateGlucoseValues(this.currentDayNumber, isGlucoseCreated,
         isGlucoseUsed);
     this.graph.updateGraph(this.currentTrialData, this.currentDayNumber,
-        isGlucoseCreated);
+        this.numPhotonsThisCycle);
 
     this.saveCurrentTrialData();
     this.loopAnimationAfterBriefPause();
@@ -703,7 +707,7 @@ export class PlantGlucoseSimulation {
         this.updateGlucoseValues(this.currentDayNumber, glucoseCreated,
             glucoseUsed);
         this.graph.updateGraph(this.currentTrialData,
-            this.currentDayNumber, glucoseCreated);
+            this.currentDayNumber, this.numPhotonsThisCycle);
         this.saveCurrentTrialData();
       });
   }

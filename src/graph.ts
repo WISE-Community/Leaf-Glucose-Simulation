@@ -10,8 +10,11 @@ import {PlantGlucoseSimulation} from './plantGlucoseSimulation';
 export class Graph {
   chartOptions: any;  // options provided to initialize graph with starting values
   chart: Highcharts.ChartObject;  // Chart object that is rendered on the graph
-  dayColorLightOn: string;
-  dayColorLightOff: string;
+  bgColorLight100: string;
+  bgColorLight75: string;
+  bgColorLight50: string;
+  bgColorLight25: string;
+  bgColorLight0: string;
   simulation: PlantGlucoseSimulation;
 
   /**
@@ -23,13 +26,16 @@ export class Graph {
    *   day display corner when the light is off
    * @param doShowGraph true iff this graph should be displayed
    */
-  constructor(simulation: PlantGlucoseSimulation, dayColorLightOn: string,
-    dayColorLightOff: string, doShowGraph: boolean,
-    showLineGlucoseMade: boolean = true, showLineGlucoseUsed: boolean = true,
-    showLineGlucoseStored: boolean = true) {
+  constructor(simulation: PlantGlucoseSimulation, bgColorLight100: string, bgColorLight75: string,
+      bgColorLight50: string, bgColorLight25: string, bgColorLight0: string, doShowGraph: boolean,
+      showLineGlucoseMade: boolean = true, showLineGlucoseUsed: boolean = true,
+      showLineGlucoseStored: boolean = true) {
     this.simulation = simulation;
-    this.dayColorLightOn = dayColorLightOn;
-    this.dayColorLightOff = dayColorLightOff;
+    this.bgColorLight100 = bgColorLight100;
+    this.bgColorLight75 = bgColorLight75;
+    this.bgColorLight50 = bgColorLight50;
+    this.bgColorLight25 = bgColorLight25;
+    this.bgColorLight0 = bgColorLight0;
     // set the default chart options
     this.chartOptions = {
       chart: {
@@ -148,14 +154,15 @@ export class Graph {
 
    /**
     * Update the graph with current trial data
-    * Update background of graph based on light on (yellow) or off (gray)
+    * Update background of graph based on number of
+    * photons that came in this day
     *
     * @param currentTrialData contains glucose created/used/stored information
     * @param dayNumber the day number to plot the graph for
-    * @param glucoseCreated whether the glucose was created for the specified day
+    * @param numPhotonsThisCycle number of photons that came in this day
     */
    updateGraph(currentTrialData: any, dayNumber: number,
-       isGlucoseCreated: boolean) {
+               numPhotonsThisCycle: number) {
      this.setSeriesData(0, currentTrialData.glucoseCreatedData);
      this.setSeriesData(1, currentTrialData.glucoseUsedData);
      this.setSeriesData(2, currentTrialData.glucoseStoredData);
@@ -164,10 +171,15 @@ export class Graph {
        'id': 'plantGlucoseSimulationPlotBand',
        'from': dayNumber - 1,
        'to': dayNumber,
-       'color': isGlucoseCreated ? this.dayColorLightOn :
-         this.dayColorLightOff
+       'color': this.getColor(numPhotonsThisCycle)
      };
      this.addPlotBand(plotBandSettings);
+   }
+
+
+   getColor(numPhotons: number) {
+       return [this.bgColorLight0, this.bgColorLight25, this.bgColorLight50,
+           this.bgColorLight75, this.bgColorLight100][numPhotons]
    }
 
   /**

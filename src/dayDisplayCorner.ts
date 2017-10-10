@@ -8,8 +8,11 @@ export class DayDisplayCorner {
   draw: SVG;
   backgroundRect: SVG;
   dayText: SVG;
-  lightOnHex: string;
-  lightOffHex: string;
+  bgColorLight100: string;
+  bgColorLight75: string;
+  bgColorLight50: string;
+  bgColorLight25: string;
+  bgColorLight0: string;
 
   /**
    * @param draw An SVG draw object to paint other elements on
@@ -18,13 +21,17 @@ export class DayDisplayCorner {
    * @param lightOffHex A String containing the default background color of this
    * day display corner when the light is off
    */
-  constructor(draw: SVG, lightOnHex: string, lightOffHex: string) {
+  constructor(draw: SVG, bgColorLight100: string, bgColorLight75: string, bgColorLight50: string,
+      bgColorLight25: string, bgColorLight0: string) {
     this.draw = draw;
-    this.lightOnHex = lightOnHex;
-    this.lightOffHex = lightOffHex;
+    this.bgColorLight100 = bgColorLight100;
+    this.bgColorLight75 = bgColorLight75;
+    this.bgColorLight50 = bgColorLight50;
+    this.bgColorLight25 = bgColorLight25;
+    this.bgColorLight0 = bgColorLight0;
 
-    this.backgroundRect = this.draw.rect(250, 110) .x(750).y(0)
-        .fill(this.lightOnHex).stroke({width:2});
+    this.backgroundRect = this.draw.rect(250, 110).x(750).y(0)
+      .fill(this.bgColorLight100).stroke({width: 2});
 
     this.dayText = this.draw.text('Day 1').x(775).y(0).font({size: 64});
   }
@@ -39,14 +46,20 @@ export class DayDisplayCorner {
 
   /**
    * Updates the background color of this day display corner based on
-   * whether the light is on or off
-   * @param isLightOn A boolean containing whether the light is on or off
+   * number of photons
+   * @param numPhotonsThisCycle how many photons came in this day
    */
-  updateDayColor(isLightOn: boolean) {
-    if (isLightOn) {
-      this.backgroundRect.fill(this.lightOnHex);
-    } else {
-      this.backgroundRect.fill(this.lightOffHex);
+  updateDayColor(numPhotonsThisCycle: number) {
+    if (numPhotonsThisCycle === 4) {
+      this.backgroundRect.fill(this.bgColorLight100);
+    } else if (numPhotonsThisCycle === 3) {
+      this.backgroundRect.fill(this.bgColorLight75);
+    } else if (numPhotonsThisCycle === 2) {
+      this.backgroundRect.fill(this.bgColorLight50);
+    } else if (numPhotonsThisCycle === 1) {
+      this.backgroundRect.fill(this.bgColorLight25);
+    } else if (numPhotonsThisCycle === 0) {
+      this.backgroundRect.fill(this.bgColorLight0);
     }
   }
 }
