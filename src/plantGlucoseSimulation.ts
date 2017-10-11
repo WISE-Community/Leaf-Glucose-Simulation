@@ -210,7 +210,7 @@ export class PlantGlucoseSimulation {
       events: []
     };
     this.trials.push(this.currentTrialData);
-    this.saveCurrentTrialData();
+    this.notifyStudentDataChanged();
   }
 
   /**
@@ -293,11 +293,11 @@ export class PlantGlucoseSimulation {
     this.graph.updateGraph(this.currentTrialData, this.currentDayNumber,
         this.numPhotonsThisCycle);
 
-    this.saveCurrentTrialData();
+    this.notifyStudentDataChanged();
     this.loopAnimationAfterBriefPause();
   }
 
-  saveCurrentTrialData() {
+  notifyStudentDataChanged() {
     if (this.wiseAPI) {
       let state = {
         messageType: 'studentDataChanged',
@@ -306,6 +306,22 @@ export class PlantGlucoseSimulation {
         studentData:
             {
               'trial': this.convertToHighchartsTrial(this.currentTrialData)
+            }
+      };
+
+      this.wiseAPI.sendMessage(state);
+    }
+  }
+
+  saveStudentWork() {
+    if (this.wiseAPI) {
+      let state = {
+        messageType: 'studentWork',
+        isAutoSave: false,
+        isSubmit: false,
+        studentData:
+            {
+              'trials': this.trials
             }
       };
 
@@ -684,6 +700,7 @@ export class PlantGlucoseSimulation {
     this.pauseSimulation();
     this.simulationEndFeedback.showSimulationEnded();
     this.disableControlButtons();
+    this.saveStudentWork();
   }
 
   startPlantDeathSequence() {
@@ -708,7 +725,8 @@ export class PlantGlucoseSimulation {
             glucoseUsed);
         this.graph.updateGraph(this.currentTrialData,
             this.currentDayNumber, this.numPhotonsThisCycle);
-        this.saveCurrentTrialData();
+        this.notifyStudentDataChanged();
+        this.saveStudentWork();
       });
   }
 
