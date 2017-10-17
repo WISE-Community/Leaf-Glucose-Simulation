@@ -16,6 +16,9 @@ export class Graph {
   bgColorLight25: string;
   bgColorLight0: string;
   simulation: PlantGlucoseSimulation;
+  showLineGlucoseMade: boolean;
+  showLineGlucoseUsed: boolean;
+  showLineGlucoseStored: boolean;
 
   /**
    * Instantiates the graph with default options
@@ -36,6 +39,10 @@ export class Graph {
     this.bgColorLight50 = bgColorLight50;
     this.bgColorLight25 = bgColorLight25;
     this.bgColorLight0 = bgColorLight0;
+    this.showLineGlucoseMade = showLineGlucoseMade;
+    this.showLineGlucoseUsed = showLineGlucoseUsed;
+    this.showLineGlucoseStored = showLineGlucoseStored;
+
     // set the default chart options
     this.chartOptions = {
       chart: {
@@ -119,13 +126,27 @@ export class Graph {
     this.chart.xAxis[0].removePlotBand('plantGlucoseSimulationPlotBand');
 
     // toggle line on/off, if user previous toggled it
-    let parts = [this.simulation.chloroplast,
-      this.simulation.mitochondrion, this.simulation.storage];
-    for (let p = 0; p < parts.length; p++) {
-      if (parts[p].opacity() === 0.5) {
-        this.displaySeries(p, false);
+    if (this.showLineGlucoseMade) {
+      if (this.simulation.chloroplast.opacity() === 0.5) {
+        this.displaySeries(0, false);
       } else {
-        this.displaySeries(p, true);
+        this.displaySeries(0, true);
+      }
+    }
+
+    if (this.showLineGlucoseUsed) {
+      if (this.simulation.mitochondrion.opacity() === 0.5) {
+        this.displaySeries(1, false);
+      } else {
+        this.displaySeries(1, true);
+      }
+    }
+
+    if (this.showLineGlucoseStored) {
+      if (this.simulation.storage.opacity() === 0.5) {
+        this.displaySeries(2, false);
+      } else {
+        this.displaySeries(2, true);
       }
     }
   }
@@ -209,13 +230,23 @@ export class Graph {
    */
   registerGraphLineToggleListener() {
     let simulation = this.simulation;
-    $('.highcharts-legend-item').on('click', function() {
+    let toggleableImages = [];
+    if (this.showLineGlucoseMade) {
+      toggleableImages.push(simulation.chloroplast);
+    }
+    if (this.showLineGlucoseUsed) {
+      toggleableImages.push(simulation.mitochondrion);
+    }
+    if (this.showLineGlucoseStored) {
+      toggleableImages.push(simulation.storage);
+    }
+
+    $('.highcharts-legend-item').on('click', {toggleableImages: toggleableImages}, function(event) {
       // get the index of the line user toggled (0 = glucose made, 1 = used, 2 = stored)
       let lineIndex = $('.highcharts-legend-item').index($(this));
 
       // get the image object based on which line the user toggled
-      let image = [simulation.chloroplast,
-        simulation.mitochondrion, simulation.storage][lineIndex];
+      let image = event.data.toggleableImages[lineIndex];
 
       // see if the line clicked is hidden or displayed
       let isHidden = $(this).hasClass('highcharts-legend-item-hidden');

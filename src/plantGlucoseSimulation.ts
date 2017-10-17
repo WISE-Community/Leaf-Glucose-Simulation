@@ -161,16 +161,16 @@ export class PlantGlucoseSimulation {
         this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0);
     this.simulationEndFeedback = new SimulationEndFeedback(this.draw);
     this.energyIndicatorView = new EnergyIndicatorView(this.draw);
-    this.graph = new Graph(this, this.BG_COLOR_LIGHT_100, this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
-        this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0, showGraph, showLineGlucoseMade,
-        showLineGlucoseUsed, showLineGlucoseStored);
-    this.feedback = new Feedback(this.draw, feedbackPolicy);
     this.chloroplast = this.draw.image('./images/chloroplast.png')
         .attr({ 'x': this.CHLOROPLAST_X, 'y': this.CHLOROPLAST_Y });
     this.mitochondrion = this.draw.image('./images/mitochondrion.png')
         .attr({ 'x': this.MITOCHONDRION_X, 'y': this.MITOCHONDRION_Y });
     this.storage = this.draw.image('./images/storage.png')
         .attr({ 'x': this.STORAGE_X, 'y': this.STORAGE_Y });
+    this.graph = new Graph(this, this.BG_COLOR_LIGHT_100, this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
+        this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0, showGraph, showLineGlucoseMade,
+        showLineGlucoseUsed, showLineGlucoseStored);
+    this.feedback = new Feedback(this.draw, feedbackPolicy);
     this.wiseAPI = new WISEAPI();
     this.startNewTrial();
   }
