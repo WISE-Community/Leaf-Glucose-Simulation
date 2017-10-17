@@ -161,16 +161,16 @@ export class PlantGlucoseSimulation {
         this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0);
     this.simulationEndFeedback = new SimulationEndFeedback(this.draw);
     this.energyIndicatorView = new EnergyIndicatorView(this.draw);
-    this.graph = new Graph(this, this.BG_COLOR_LIGHT_100, this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
-        this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0, showGraph, showLineGlucoseMade,
-        showLineGlucoseUsed, showLineGlucoseStored);
-    this.feedback = new Feedback(this.draw, feedbackPolicy);
     this.chloroplast = this.draw.image('./images/chloroplast.png')
         .attr({ 'x': this.CHLOROPLAST_X, 'y': this.CHLOROPLAST_Y });
     this.mitochondrion = this.draw.image('./images/mitochondrion.png')
         .attr({ 'x': this.MITOCHONDRION_X, 'y': this.MITOCHONDRION_Y });
     this.storage = this.draw.image('./images/storage.png')
         .attr({ 'x': this.STORAGE_X, 'y': this.STORAGE_Y });
+    this.graph = new Graph(this, this.BG_COLOR_LIGHT_100, this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
+        this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0, showGraph, showLineGlucoseMade,
+        showLineGlucoseUsed, showLineGlucoseStored);
+    this.feedback = new Feedback(this.draw, feedbackPolicy);
     this.wiseAPI = new WISEAPI();
     this.startNewTrial();
   }
@@ -754,13 +754,15 @@ export class PlantGlucoseSimulation {
     if (this.glucoseToMitochondrion2 != null) {
       this.glucoseToMitochondrion2.remove();
     }
-  }
 
-  removeGlucosesInStorage() {
     this.glucosesInStorage.map((glucoseInStorage) => {
       glucoseInStorage.remove();
     });
     this.glucosesInStorage = [];
+  }
+
+  isAnimationPlaying() : boolean {
+    return this.currentAnimation != null;
   }
 
   resetSimulation() {
@@ -768,7 +770,7 @@ export class PlantGlucoseSimulation {
     this.playBackControl.showPlayButton();
     this.simulationState = SimulationState.Stopped;
 
-    if (this.currentAnimation != null) {
+    if (this.isAnimationPlaying()) {
       this.currentAnimation.stop();
       this.currentAnimation = null;
     }
@@ -776,7 +778,6 @@ export class PlantGlucoseSimulation {
       this.photonsGroup.remove();
     }
     this.removeGlucoses();
-    this.removeGlucosesInStorage();
     this.removeMitochondrionBatteries();
     this.resetEnergyToFull();
     this.plantAnimationCorner.showGreenLeaf();
@@ -822,7 +823,7 @@ export class PlantGlucoseSimulation {
 
   pauseSimulation() {
     this.playBackControl.showPlayButton();
-    if (this.currentAnimation != null) {
+    if (this.isAnimationPlaying()) {
       this.currentAnimation.pause();
     }
     this.simulationState = SimulationState.Paused;
@@ -850,7 +851,7 @@ export class PlantGlucoseSimulation {
    * the user. Possible values are 0, 1, 2, 3, or 4
    */
    handleLightChangeRequest(numPhotonsNextCycle: number) {
-     if (this.currentAnimation != null) {
+     if (this.isAnimationPlaying()) {
        this.lightSwitch.showWaitImage();
        this.numPhotonsNextCycle = numPhotonsNextCycle;
      } else {

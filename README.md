@@ -3,10 +3,20 @@ A simulation that demonstrates what happens inside a leaf during Photosynthesis 
 
 ## Demo
 
-[Lights On,Off](https://wise-community.github.io/Leaf-Glucose-Simulation/dist/index.html?lightMode=2)
+[Lights On,Off](https://wise-community.github.io/Leaf-Glucose-Simulation/dist/index.html?numLightOptions=2)
 
-[Lights Full,3/4,1/2,1/4,Off](https://wise-community.github.io/Leaf-Glucose-Simulation/dist/index.html?lightMode=5)
+[Lights Full,3/4,1/2,1/4,Off](https://wise-community.github.io/Leaf-Glucose-Simulation/dist/index.html?numLightOptions=5)
 
+[Lights Full,3/4,1/2,1/4,Off, No Graph](https://wise-community.github.io/Leaf-Glucose-Simulation/dist/index.html?numLightOptions=5&showGraph=false)
+
+## Simulation Configuration
+
+You can configure the simulation at the beginning by passing in these GET parameters to the model:
+- numLightOptions={2,3,5} (default: 2)
+- showGraph={true,false} (default: true)
+- showLineGlucoseMade={true,false} (default: true)
+- showLineGlucoseUsed={true,false} (default: true)
+- showLineGlucoseStored={true,false} (default: true)
 
 ## Screenshots
 
