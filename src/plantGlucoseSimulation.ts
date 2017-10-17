@@ -754,13 +754,15 @@ export class PlantGlucoseSimulation {
     if (this.glucoseToMitochondrion2 != null) {
       this.glucoseToMitochondrion2.remove();
     }
-  }
 
-  removeGlucosesInStorage() {
     this.glucosesInStorage.map((glucoseInStorage) => {
       glucoseInStorage.remove();
     });
     this.glucosesInStorage = [];
+  }
+
+  isAnimationPlaying() : boolean {
+    return this.currentAnimation != null;
   }
 
   resetSimulation() {
@@ -768,7 +770,7 @@ export class PlantGlucoseSimulation {
     this.playBackControl.showPlayButton();
     this.simulationState = SimulationState.Stopped;
 
-    if (this.currentAnimation != null) {
+    if (this.isAnimationPlaying()) {
       this.currentAnimation.stop();
       this.currentAnimation = null;
     }
@@ -776,7 +778,6 @@ export class PlantGlucoseSimulation {
       this.photonsGroup.remove();
     }
     this.removeGlucoses();
-    this.removeGlucosesInStorage();
     this.removeMitochondrionBatteries();
     this.resetEnergyToFull();
     this.plantAnimationCorner.showGreenLeaf();
@@ -822,7 +823,7 @@ export class PlantGlucoseSimulation {
 
   pauseSimulation() {
     this.playBackControl.showPlayButton();
-    if (this.currentAnimation != null) {
+    if (this.isAnimationPlaying()) {
       this.currentAnimation.pause();
     }
     this.simulationState = SimulationState.Paused;
@@ -850,7 +851,7 @@ export class PlantGlucoseSimulation {
    * the user. Possible values are 0, 1, 2, 3, or 4
    */
    handleLightChangeRequest(numPhotonsNextCycle: number) {
-     if (this.currentAnimation != null) {
+     if (this.isAnimationPlaying()) {
        this.lightSwitch.showWaitImage();
        this.numPhotonsNextCycle = numPhotonsNextCycle;
      } else {
