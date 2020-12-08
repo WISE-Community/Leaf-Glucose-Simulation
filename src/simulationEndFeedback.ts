@@ -28,12 +28,12 @@ export class SimulationEndFeedback {
       .x(315).y(410).font({size: 48}).hide();
 
     this.plantDiedRect = this.draw.rect(500, 100).x(250).y(400)
-      .fill('red').stroke({width:2}).opacity(1).attr({
+      .fill('#FF0000').stroke({width:2}).opacity(1).attr({
         'fill-opacity': 1
       }).hide();
 
     this.plantDiedText = this.draw.text('The plant has died')
-      .x(315).y(410).font({size: 48}).hide();
+      .x(300).y(410).font({size: 48, fill: 'white'}).hide();
   }
 
   /**

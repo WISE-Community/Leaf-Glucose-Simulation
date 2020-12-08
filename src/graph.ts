@@ -76,6 +76,9 @@ export class Graph {
         min: 0,
         max: 80,
         tickInterval: 20,
+        labels: {
+          enabled: false
+        }
       },
       tooltip: {
         enabled: false

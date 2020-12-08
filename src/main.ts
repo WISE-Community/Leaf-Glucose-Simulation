@@ -1,7 +1,7 @@
-import { parseURLParameters } from "./util";
-import { PlantGlucoseSimulation } from  "./plantGlucoseSimulation";
-import { WISEAPI } from "./wiseAPI";
-import * as $ from "jquery";
+import { parseURLParameters } from './util';
+import { PlantGlucoseSimulation } from  './plantGlucoseSimulation';
+import { WISEAPI } from './wiseAPI';
+import * as $ from 'jquery';
 
 /**
  * Entry point for the application. Initializes the simulation with parameters
@@ -17,9 +17,10 @@ $(document).ready(function() {
   let showLineGlucoseMade = true;
   let showLineGlucoseUsed = true;
   let showLineGlucoseStored = true;
+  let showWater = true;
 
-  if (parameters["numLightOptions"] != null) {
-    numLightOptions = parameters["numLightOptions"];
+  if (parameters['numLightOptions'] != null) {
+    numLightOptions = parameters['numLightOptions'];
   }
   if (parameters['feedbackPolicy'] != null) {
     feedbackPolicy = parameters['feedbackPolicy'];
@@ -27,17 +28,20 @@ $(document).ready(function() {
   if (parameters['showGraph'] != null) {
     showGraph = parameters['showGraph'];
   }
-  if (parameters["showLineGlucoseMade"] != null) {
-    showLineGlucoseMade = parameters["showLineGlucoseMade"];
+  if (parameters['showLineGlucoseMade'] != null) {
+    showLineGlucoseMade = parameters['showLineGlucoseMade'];
   }
-  if (parameters["showLineGlucoseUsed"] != null) {
-    showLineGlucoseUsed = parameters["showLineGlucoseUsed"];
+  if (parameters['showLineGlucoseUsed'] != null) {
+    showLineGlucoseUsed = parameters['showLineGlucoseUsed'];
   }
-  if (parameters["showLineGlucoseStored"] != null) {
-    showLineGlucoseStored = parameters["showLineGlucoseStored"];
+  if (parameters['showLineGlucoseStored'] != null) {
+    showLineGlucoseStored = parameters['showLineGlucoseStored'];
+  }
+  if (parameters['showWater'] != null) {
+    showWater = parameters['showWater'];
   }
 
-  new PlantGlucoseSimulation("model", numLightOptions, feedbackPolicy,
+  new PlantGlucoseSimulation('model', numLightOptions, feedbackPolicy,
       showGraph, showLineGlucoseMade, showLineGlucoseUsed,
-      showLineGlucoseStored);
+      showLineGlucoseStored, showWater);
 });

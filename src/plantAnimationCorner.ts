@@ -1,4 +1,4 @@
-import * as SVG from "svg.js";
+import * as SVG from 'svg.js';
 
 /**
  * PlantAnimationCorner --- Displays the animation showing photons
@@ -64,7 +64,7 @@ export class PlantAnimationCorner {
       'y': 90
     });
 
-    this.draw.image('./images/pot.png', 128, 128).attr({"x": 100, "y": 160});
+    this.draw.image('./images/pot.png', 128, 128).attr({'x': 100, 'y': 160});
 
     // the dead leaf should appear above the pot
     this.leafDead = this.draw.image('./images/leafDead.png', 128, 128).attr({
