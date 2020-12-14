@@ -24,6 +24,7 @@ export class PlantAnimationCorner {
   leafGreen: SVG;
   leafDead: SVG;
   darknessOverlay: SVG;
+  wateringCan: SVG;
 
   bgColorLight100: string;
   bgColorLight75: string;
@@ -31,22 +32,25 @@ export class PlantAnimationCorner {
   bgColorLight25: string;
   bgColorLight0: string;
 
+  showWater: boolean;
+
   /**
    * Instantiates variables with initial values for objects
    * within the plant animation corner.
    * @param draw An SVG draw object to paint other elements on
    */
   constructor(draw: SVG, bgColorLight100: string, bgColorLight75: string, bgColorLight50: string,
-      bgColorLight25: string, bgColorLight0: string) {
+      bgColorLight25: string, bgColorLight0: string, showWater: boolean = false) {
     this.draw = draw;
     this.bgColorLight100 = bgColorLight100;
     this.bgColorLight75 = bgColorLight75;
     this.bgColorLight50 = bgColorLight50;
     this.bgColorLight25 = bgColorLight25;
     this.bgColorLight0 = bgColorLight0;
+    this.showWater = showWater;
 
     // draw the outline in the upper-left corner
-    this.draw.rect(250,300).x(0).y(0).fill('white').stroke({width:2});
+    this.draw.rect(300,300).x(0).y(0).fill('white').stroke({width:2});
 
     this.leafYellow = this.draw.image('./images/leafYellow.png', 128, 128).attr({
       'x': 20,
@@ -77,7 +81,7 @@ export class PlantAnimationCorner {
         this.leafYellow, this.leafDead];
 
     // draw the ground below the pot
-    this.draw.rect(250,40).x(0).y(270).fill('gray').stroke({width:2});
+    this.draw.rect(300,40).x(0).y(270).fill('gray').stroke({width:2});
 
     this.lightBulbOn = this.draw.image('./images/lightbulb20001.png', 40, 70)
         .rotate(150);
@@ -85,10 +89,19 @@ export class PlantAnimationCorner {
     this.lightBulbOff = this.draw.image('./images/lightbulb20002.png', 40, 70)
         .rotate(150).hide();
 
-    this.darknessOverlay = this.draw.rect(250, 300).attr({
+    this.darknessOverlay = this.draw.rect(300, 300).attr({
       'fill-opacity': 0.3,
       'fill': bgColorLight100
     });
+
+    // draw the watering can
+    this.wateringCan = this.draw.image('./images/wateringcan.png', 120, 101).attr({
+      'x': 180,
+      'y': 8
+    }).rotate(-40);;
+    if (!this.showWater) {
+      this.wateringCan.hide();
+    }
 
     this.showGreenLeaf();
   }
@@ -151,5 +164,25 @@ export class PlantAnimationCorner {
   turnLightOn() {
     this.lightBulbOff.hide();
     this.lightBulbOn.show();
+  }
+
+  /**
+   * Updates the watering animation based on the water level
+   * @param numWaterThisCycle how much water came in this day
+   */
+  updateWatering(numWaterThisCycle: number) {
+    if (numWaterThisCycle > 0) {
+      this.turnWaterOn();
+    } else {
+      this.turnWaterOff();
+    }
+  }
+
+  turnWaterOn() {
+    this.wateringCan.show();
+  }
+
+  turnWaterOff() {
+    this.wateringCan.hide();
   }
 }

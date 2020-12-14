@@ -39,7 +39,7 @@ export class WaterSwitch2 {
         waterSwitch.simulation.handleWaterChangeRequest(0);
       } else if (waterSwitchValue == waterSwitch.INPUT_VALUE_POWER_ON) {
         waterSwitch.simulation.addEvent('turnWaterOnButtonClicked');
-        waterSwitch.simulation.handleWaterChangeRequest(1);
+        waterSwitch.simulation.handleWaterChangeRequest(4);
       }
     });
   }
