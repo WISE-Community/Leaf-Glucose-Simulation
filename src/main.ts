@@ -17,7 +17,7 @@ $(document).ready(function() {
   let showLineGlucoseMade = true;
   let showLineGlucoseUsed = true;
   let showLineGlucoseStored = true;
-  let showWater = true;
+  let showWater = false;
 
   if (parameters['numLightOptions'] != null) {
     numLightOptions = parameters['numLightOptions'];
