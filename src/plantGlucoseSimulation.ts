@@ -6,6 +6,7 @@ import { Graph } from './graph';
 import { LightSwitch2 } from './lightSwitch2';
 import { LightSwitch3 } from './lightSwitch3';
 import { LightSwitch5 } from './lightSwitch5';
+import { WaterSwitch2 } from './waterSwitch2';
 import { PlantAnimationCorner } from './plantAnimationCorner';
 import { PlayBackControl } from './playBackControl';
 import { SimulationEndFeedback } from './simulationEndFeedback';
@@ -21,13 +22,14 @@ import {WISEAPI} from "./wiseAPI";
  * during Photosynthesis.
  * @author Hiroki Terashima
  * @author Geoffrey Kwan
+ * @author Jonathan Lim-Breitbart
  */
 export class PlantGlucoseSimulation {
   BATTERY_EMPTY_REPAIR_DAMAGE_X: number = 325;
   BATTERY_EMPTY_REPAIR_DAMAGE_Y: number = 815;
   BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X: number = 625;
   BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y: number = 815;
-  CHLOROPLAST_X = 450;
+  CHLOROPLAST_X = 400;
   CHLOROPLAST_Y = 100;
 
   // default amount of time (in ms) each animation should take to complete
@@ -61,6 +63,7 @@ export class PlantGlucoseSimulation {
 
   chloroplast: SVG;
   currentAnimation: SVG;
+  waterAnimation: SVG;
   currentDayNumber: number = 0;
   currentTrialData: any;
   draw: SVG;
@@ -91,6 +94,7 @@ export class PlantGlucoseSimulation {
   isLightOffRequestedInNextCycle: boolean = false;
   numLightOptions: number = 2;
   lightSwitch: any;
+  waterSwitch: any;
   mitochondrion: SVG;
   mitochondrionBattery1: SVG;
   mitochondrionBattery1StartX = this.MITOCHONDRION_X + 100;
@@ -100,6 +104,8 @@ export class PlantGlucoseSimulation {
   mitochondrionBattery2: SVG;
   numPhotonsNextCycle: number;
   numPhotonsThisCycle: number = 4;
+  numWaterNextCycle: number;
+  numWaterThisCycle: number = 4;
   photonChloroplast1: SVG;
   photonChloroplast2: SVG;
   photonChloroplast3: SVG;
@@ -109,8 +115,10 @@ export class PlantGlucoseSimulation {
   photonPlant3: SVG;
   photonPlant4: SVG;
   photonsGroup: SVG;
+  waterGroup: SVG;
   plantAnimationCorner: PlantAnimationCorner;
   playBackControl: PlayBackControl;
+  showWater: boolean;
   simulationEndFeedback: SimulationEndFeedback;
   simulationSpeedSwitch: SimulationSpeedSwitch;
   simulationState: SimulationState = SimulationState.Stopped;
@@ -135,15 +143,18 @@ export class PlantGlucoseSimulation {
    * @param numLightOptions A number containing the number of options for light.
    * 2 = On/Off, 3 = Full/Half/Off, 5 = 100%/75%/50%/25%/0%
    * @param feedbackPolicy A string containing the identifier of the feedback
-   * to use.
+   * to use
    * @param showGraph A boolean whether the graph should be displayed or not
+   * @param showWater A boolean whether the water control should be displayed or
+   * not
    */
   constructor(elementId: string, numLightOptions: number = 2,
       feedbackPolicy: any = null, showGraph: boolean = true,
       showLineGlucoseMade: boolean = true, showLineGlucoseUsed: boolean = true,
-      showLineGlucoseStored: boolean = true) {
+      showLineGlucoseStored: boolean = true, showWater: boolean = true) {
     this.draw = SVG(elementId);
     this.numLightOptions = numLightOptions;
+    this.showWater = showWater;
     if (this.numLightOptions === 2) {
       this.lightSwitch = new LightSwitch2(this);
     } else if (this.numLightOptions === 3) {
@@ -151,11 +162,14 @@ export class PlantGlucoseSimulation {
     } else if (this.numLightOptions === 5) {
       this.lightSwitch = new LightSwitch5(this);
     }
+    if (this.showWater) {
+      this.waterSwitch = new WaterSwitch2(this);
+    }
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.playBackControl = new PlayBackControl(this);
     this.plantAnimationCorner = new PlantAnimationCorner(this.draw, this.BG_COLOR_LIGHT_100,
-        this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
-        this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0);
+        this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50, this.BG_COLOR_LIGHT_25, 
+        this.BG_COLOR_LIGHT_0, this.showWater);
     this.dayDisplayCorner = new DayDisplayCorner(this.draw,
         this.BG_COLOR_LIGHT_100, this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
         this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0);
@@ -183,6 +197,9 @@ export class PlantGlucoseSimulation {
   resumeSimulation() {
     this.simulationState = SimulationState.Running;
     this.currentAnimation.play();
+    if (this.waterAnimation) {
+      this.waterAnimation.play();
+    }
   }
 
   isSimulationStopped() : boolean {
@@ -222,7 +239,9 @@ export class PlantGlucoseSimulation {
   updateGlucoseValues(dayNumber: number, glucoseCreated: boolean,
       glucoseUsed: boolean) {
     if (glucoseCreated) {
-      this.totalGlucoseCreated += this.glucoseCreatedIncrement;
+      if (this.numWaterThisCycle > 0) {
+        this.totalGlucoseCreated += this.glucoseCreatedIncrement;
+      }
     }
     if (glucoseUsed) {
       this.totalGlucoseUsed += this.glucoseUsedIncrement;
@@ -236,9 +255,9 @@ export class PlantGlucoseSimulation {
   /**
    * Run the plant animation cycle once.
    *
-   * A cycle is one complete cycle, either with light on or off.
+   * A cycle is one complete cycle, with light and water on or off.
    *
-   * The light can be switched on/off during the cycle, but it will not take
+   * Light and water can be switched on/off during the cycle, but it will not take
    * effect until the next cycle
    */
   playAnimationCycle() {
@@ -248,6 +267,12 @@ export class PlantGlucoseSimulation {
     } else {
       this.dayDisplayCorner.updateDayText('Day ' + this.currentDayNumber);
 
+      if (this.numWaterNextCycle != null &&
+          this.numWaterNextCycle != this.numWaterThisCycle) {
+        this.updateNumWaterThisCycle(this.numWaterNextCycle);
+        this.waterSwitch.hideWaitImage();
+      }
+
       if (this.numPhotonsNextCycle != null &&
           this.numPhotonsNextCycle != this.numPhotonsThisCycle) {
         this.updateNumPhotonsThisCycle(this.numPhotonsNextCycle);
@@ -255,7 +280,7 @@ export class PlantGlucoseSimulation {
       }
 
       if (this.glucosesInStorage.length === 0 &&
-          this.numPhotonsThisCycle === 0) {
+          (this.numPhotonsThisCycle === 0 || this.numWaterThisCycle === 0)) {
         // there is no energy coming in or stored. The plant dies now.
         this.currentAnimation = this.draw.animate(
             {'duration': this.animationDuration * 3})
@@ -268,13 +293,16 @@ export class PlantGlucoseSimulation {
               this.startPlantDeathSequence();
             });
       } else if (this.numPhotonsThisCycle > 0) {
-        this.movePhotonsToPlantAndChloroplast(
-            this.animationCallback.bind(this));
+        this.movePhotonsToPlantAndChloroplast(this.animationCallback.bind(this));
       } else if (this.glucosesInStorage.length > 0) {
         this.moveGlucoseFromStorageToMitochondrion(
             this.animationCallback.bind(this));
       }
+      if (this.showWater) {
+        this.moveWaterToPlantAndChloroplast();
+      }
       this.numPhotonsNextCycle = null;
+      this.numWaterNextCycle = null;
     }
   }
 
@@ -283,6 +311,11 @@ export class PlantGlucoseSimulation {
     this.glucoseCreatedIncrement = numPhotonsThisCycle;
     this.dayDisplayCorner.updateDayColor(numPhotonsThisCycle);
     this.plantAnimationCorner.updateBackground(numPhotonsThisCycle);
+  }
+
+  updateNumWaterThisCycle(numWaterThisCycle: number) {
+    this.numWaterThisCycle = numWaterThisCycle;
+    this.plantAnimationCorner.updateWatering(numWaterThisCycle);
   }
 
   animationCallback() {
@@ -384,7 +417,6 @@ export class PlantGlucoseSimulation {
     return convertedSeries;
   }
 
-
   loopAnimationAfterBriefPause() {
     window.setTimeout(() => {
       this.playAnimationCycle();
@@ -404,13 +436,31 @@ export class PlantGlucoseSimulation {
         .during((pos, morph, eased, situation) => {
           this.drainEnergy(75 /* start */, 50 /* end */, pos);
         })
-        .afterAll(() => {
+        .afterAll(() => { 
           this.photonsGroup.remove();
           this.photonsGroup = null;
-          this.createGlucosesToMitochondrion();
-          this.createGlucosesToStorage();
-          this.moveGlucoseFromChloroplastToMitochondrion(animationCallback);
+          if (this.numWaterThisCycle > 0) {
+            this.createGlucosesToMitochondrion();
+            this.createGlucosesToStorage();
+            this.moveGlucoseFromChloroplastToMitochondrion(animationCallback);
+          } else {
+            this.moveGlucoseFromStorageToMitochondrion(animationCallback);
+          }
         });
+  }
+
+  moveWaterToPlantAndChloroplast() {
+    this.waterGroup = this.createWaters();
+        this.waterAnimation = this.waterGroup;
+        this.waterGroup.animate({'duration': this.animationDuration})
+            .move(0, 40)
+            .animate({'duration': this.animationDuration})
+            .attr({'opacity': 0})
+            .afterAll(() => { 
+              this.waterGroup.remove();
+              this.waterGroup = null;
+              this.waterAnimation = null;
+            });
   }
 
   moveGlucoseFromChloroplastToMitochondrion(animationCallback: () => {}) {
@@ -480,22 +530,22 @@ export class PlantGlucoseSimulation {
     const photonsGroup = this.draw.group();
     if (this.glucoseCreatedIncrement >= 1) {
       this.photonPlant1 = this.createPhotonToPlant(80, 50);
-      this.photonChloroplast1 = this.createPhotonToChloroplast(530, 60);
+      this.photonChloroplast1 = this.createPhotonToChloroplast(440, 60);
       photonsGroup.add(this.photonPlant1).add(this.photonChloroplast1)
     }
     if (this.glucoseCreatedIncrement >= 2) {
       this.photonPlant2 = this.createPhotonToPlant(80, 20);
-      this.photonChloroplast2 = this.createPhotonToChloroplast(570, 30);
+      this.photonChloroplast2 = this.createPhotonToChloroplast(480, 30);
       photonsGroup.add(this.photonPlant2).add(this.photonChloroplast2)
     }
     if (this.glucoseCreatedIncrement >= 3) {
       this.photonPlant3 = this.createPhotonToPlant(30, 50);
-      this.photonChloroplast3 = this.createPhotonToChloroplast(430, 60);
+      this.photonChloroplast3 = this.createPhotonToChloroplast(340, 60);
       photonsGroup.add(this.photonPlant3).add(this.photonChloroplast3)
     }
     if (this.glucoseCreatedIncrement === 4) {
       this.photonPlant4 = this.createPhotonToPlant(50, 20);
-      this.photonChloroplast4 = this.createPhotonToChloroplast(470, 30);
+      this.photonChloroplast4 = this.createPhotonToChloroplast(380, 30);
       photonsGroup.add(this.photonPlant4).add(this.photonChloroplast4);
     }
     return photonsGroup;
@@ -506,6 +556,28 @@ export class PlantGlucoseSimulation {
       'x': x,
       'y': y
     });
+  }
+
+  createWaters() {
+    const waterGroup = this.draw.group();
+    if (this.numWaterThisCycle === 4) {
+      for (let i = 0; i < 4; i++) {
+        const shiftX = i % 2 ? 0 : 15;
+        const shiftY = i < 2 ? shiftX + 5 : shiftX + 20;
+        const waterPlant = this.createWaterToPlant(194 + shiftX, 94 + shiftY);
+        const waterChloroplast = this.createWaterToChloroplast(620 + (2 * shiftX), 60 + (2 * shiftY));
+        waterGroup.add(waterPlant).add(waterChloroplast);
+      }
+    }
+    return waterGroup;
+  }
+
+  createWaterToPlant(x: number, y: number) {
+    return this.draw.ellipse(8, 12).fill('#0066CC').attr({ 'cx': x, 'cy': y });
+  }
+
+  createWaterToChloroplast(x: number, y: number) {
+    return this.draw.ellipse(16, 24).fill('#0066CC').attr({ 'cx': x, 'cy': y });
   }
 
   /**
@@ -527,10 +599,10 @@ export class PlantGlucoseSimulation {
    */
   createGlucosesToStorage() {
     if (this.glucoseCreatedIncrement === 3) {
-      this.glucoseToStorage1 = this.createGlucose(450, 100);
+      this.glucoseToStorage1 = this.createGlucose(400, 100);
     } else if (this.glucoseCreatedIncrement === 4) {
-      this.glucoseToStorage1 = this.createGlucose(450, 100);
-      this.glucoseToStorage2 = this.createGlucose(525, 150);
+      this.glucoseToStorage1 = this.createGlucose(400, 100);
+      this.glucoseToStorage2 = this.createGlucose(475, 150);
     }
   }
 
@@ -675,7 +747,7 @@ export class PlantGlucoseSimulation {
           if (this.mitochondrionBattery2 != null) {
             this.resetEnergyToFull();
             this.removeMitochondrionBatteries();
-            if (this.glucoseCreatedIncrement >= 3) {
+            if (this.glucoseCreatedIncrement >= 3 && this.numWaterThisCycle > 0) {
               this.moveGlucoseFromChloroplastToStorage(animationCallback);
             } else {
               // there is no glucose to move to storage, so
@@ -766,8 +838,6 @@ export class PlantGlucoseSimulation {
   }
 
   resetSimulation() {
-    this.enableControlButtons();
-    this.playBackControl.showPlayButton();
     this.simulationState = SimulationState.Stopped;
 
     if (this.isAnimationPlaying()) {
@@ -776,6 +846,11 @@ export class PlantGlucoseSimulation {
     }
     if (this.photonsGroup != null) {
       this.photonsGroup.remove();
+    }
+    if (this.waterGroup != null) {
+      this.waterGroup.remove();
+      this.waterAnimation.stop();
+      this.waterAnimation = null;
     }
     this.removeGlucoses();
     this.removeMitochondrionBatteries();
@@ -793,11 +868,16 @@ export class PlantGlucoseSimulation {
     this.feedback.hideFeedback();
     this.lightSwitch.hideWaitImage();
     this.startNewTrial();
+    this.enableControlButtons();
+    this.playBackControl.showPlayButton();
   }
 
   disableControlButtons() {
     this.isControlEnabled = false;
     this.lightSwitch.disableUserInput();
+    if (this.waterSwitch) {
+      this.waterSwitch.disableUserInput();
+    }
     this.simulationSpeedSwitch.disableUserInput();
     $('#playPause').css('opacity', 0.3);
   }
@@ -805,6 +885,9 @@ export class PlantGlucoseSimulation {
   enableControlButtons() {
     this.isControlEnabled = true;
     this.lightSwitch.enableUserInput();
+    if (this.waterSwitch) {
+      this.waterSwitch.enableUserInput();
+    }
     this.simulationSpeedSwitch.enableUserInput();
     $('#playPause').css('opacity', 1);
   }
@@ -826,6 +909,9 @@ export class PlantGlucoseSimulation {
     if (this.isAnimationPlaying()) {
       this.currentAnimation.pause();
     }
+    if (this.waterAnimation != null) {
+      this.waterAnimation.pause();
+    }
     this.simulationState = SimulationState.Paused;
   }
 
@@ -840,7 +926,7 @@ export class PlantGlucoseSimulation {
         this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
   }
 
-  /**
+   /**
    * Updates the number of photons coming in from light source
    *
    * If the request comes during an animation cycle, set a variable flag and
@@ -850,13 +936,33 @@ export class PlantGlucoseSimulation {
    * @param numPhotonsNextCycle the new photon count requested by
    * the user. Possible values are 0, 1, 2, 3, or 4
    */
-   handleLightChangeRequest(numPhotonsNextCycle: number) {
+  handleLightChangeRequest(numPhotonsNextCycle: number) {
+    if (this.isAnimationPlaying()) {
+      this.lightSwitch.showWaitImage();
+      this.numPhotonsNextCycle = numPhotonsNextCycle;
+    } else {
+      // animation is stopped, so update the light setting now
+      this.updateNumPhotonsThisCycle(numPhotonsNextCycle);
+    }
+  }
+
+  /**
+   * Updates the amount of water coming in from water source
+   *
+   * If the request comes during an animation cycle, set a variable flag and
+   * show a wait image so the user knows the change will take effect
+   * at the beginning of the next animation cycle.
+   *
+   * @param numWaterNextCycle the new water count requested by the user. 
+   * Possible values are 0, 1
+   */
+   handleWaterChangeRequest(numWaterNextCycle: number) {
      if (this.isAnimationPlaying()) {
-       this.lightSwitch.showWaitImage();
-       this.numPhotonsNextCycle = numPhotonsNextCycle;
+       this.waterSwitch.showWaitImage();
+       this.numWaterNextCycle = numWaterNextCycle;
      } else {
-       // animation is stopped, so update the light setting now
-       this.updateNumPhotonsThisCycle(numPhotonsNextCycle);
+       // animation is stopped, so update the water setting now
+       this.updateNumWaterThisCycle(numWaterNextCycle);
      }
    }
 

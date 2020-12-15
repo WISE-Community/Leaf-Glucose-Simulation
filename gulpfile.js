@@ -57,7 +57,7 @@ function bundle() {
   return watchedBrowserify
     .bundle()
     .on('error', function(err) {
-      console.log(err.stack);
+      console.log(err);
     })
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('dist'));

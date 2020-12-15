@@ -9,6 +9,8 @@ A simulation that demonstrates what happens inside a leaf during Photosynthesis 
 
 [Lights Full,3/4,1/2,1/4,Off, No Graph](https://wise-community.github.io/Leaf-Glucose-Simulation/dist/index.html?numLightOptions=5&showGraph=false)
 
+[Lights On,Off, Water control enabled](https://wise-community.github.io/Leaf-Glucose-Simulation/dist/index.html?numLightOptions=2&showWater=true)
+
 ## Simulation Configuration
 
 You can configure the simulation at the beginning by passing in these GET parameters to the model:
@@ -17,6 +19,7 @@ You can configure the simulation at the beginning by passing in these GET parame
 - showLineGlucoseMade={true,false} (default: true)
 - showLineGlucoseUsed={true,false} (default: true)
 - showLineGlucoseStored={true,false} (default: true)
+- showWater={true,false} (default: false)
 
 ## Screenshots
 

@@ -1,5 +1,5 @@
-import * as $ from "jquery";
-import {PlantGlucoseSimulation} from "./plantGlucoseSimulation";
+import * as $ from 'jquery';
+import {PlantGlucoseSimulation} from './plantGlucoseSimulation';
 
 /**
  * LightSwitch2 --- Renders the light switch in on/off configuration
@@ -23,15 +23,15 @@ export class LightSwitch2 {
 
   constructor(simulation: PlantGlucoseSimulation) {
     this.simulation = simulation;
-    this.waitImageLightSwitch = $("#waitImageLightSwitch");
-    this.lightSwitchControls = $(".lightSwitch2");
+    this.waitImageLightSwitch = $('#waitImageLightSwitch');
+    this.lightSwitchControls = $('#lightSwitch2');
     this.lightSwitchControls.show();
     this.listenForUserInput();
   }
 
   listenForUserInput() {
     let lightSwitch = this;
-    $("#lightSwitchInput2").on("change", function() {
+    $('#lightSwitchInput2').on('change', function() {
       let lightSwitchValue = $(this).val();
       if (lightSwitchValue == lightSwitch.INPUT_VALUE_POWER_OFF) {
         lightSwitch.simulation.addEvent('turnLightOffButtonClicked');
@@ -52,10 +52,10 @@ export class LightSwitch2 {
   }
 
   disableUserInput() {
-    this.lightSwitchControls.prop("disabled", true);
+    this.lightSwitchControls.find('input').prop('disabled', true);
   }
 
   enableUserInput() {
-    this.lightSwitchControls.prop("disabled", false);
+    this.lightSwitchControls.find('input').prop('disabled', false);
   }
 }

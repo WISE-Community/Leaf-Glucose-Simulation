@@ -1,31 +1,36 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <meta charset='UTF-8'>
+    <meta charset="UTF-8">
     <style>
       body {
         margin: 0px;
         padding: 0px;
+        font-family: Roboto, Helvetica-Nueue, Arial, sans-serif;
       }
-      .lightSwitchInput:hover,
-      #animationSpeedSwitchInput:hover,
+      label {
+        font-weight: bold;
+      }
+      .switchInput:hover,
       #controls:hover {
         cursor: pointer;
       }
-      .lightSwitchInput {
-        width: 45px;
-        margin-top: 20px;
+      .switchInput {
+        width: 48px;
+        margin-top: 24px;
+        margin-right: -8px;
+        margin-left: -8px;
         transform: rotate(270deg);
         -moz-transform: rotate(270deg); /*do same for other browsers if required*/
       }
-      #powerSwitchDiv, #animationSpeedSwitchDiv {
-        height: 50px;
+      .switchInput5 {
+        width: 88px;
+        margin-left: -32px;
+        margin-top: 46px;
+        margin-right: -24px;
       }
-      #animationSpeedSwitchInput {
-        width: 45px;
-        margin-top: 20px;
-        transform: rotate(270deg);
-        -moz-transform: rotate(270deg); /*do same for other browsers if required*/
+      #powerSwitch {
+        position: relative;
       }
       #model {
         border: 1px solid;
@@ -37,72 +42,110 @@
       #waitImageLightSwitch {
         display: none;
         position: absolute;
-        top: 25px;
-        left: 65px;
+        top: 44px;
+        right: -12px;
         opacity: 0.7;
       }
-      .lightSwitch2, .lightSwitch3, .lightSwitch5 {
+      .controls {
+        display: flex;
+      }
+      .controls > * {
+        padding: 8px;
+        padding-right: 16px;
+      }
+      .lightSwitch, #waterSwitch {
         display: none;
+      }
+      .switch > * {
+        display: inline-block;
+        vertical-align: top;
       }
     </style>
   </head>
   <body>
-    <div style='display:flex; width: 400px; margin-bottom: 25px; justify-content: space-between'>
-      <div id='powerSwitchDiv'>
-        <div style='font-weight:bold'>Light</div>
-          <input type='range' max='1' step='1' value='1' id='lightSwitchInput2'
-              class='lightSwitchInput lightSwitch2' title='Turn light ON/OFF' />
-          <div id='lightSwitchLabel2' class='lightSwitch2'
-              style='float:right; margin-left:-8px'>
-            <div style='margin-top:5px'>ON</div>
-            <div style='margin-top:12px'>OFF</div>
+    <div class="controls">
+      <div id="powerSwitch">
+        <label>Light</label>
+        <div id="lightSwitch2" class="switch lightSwitch">
+          <input type="range" max="1" step="1" value="1" id="lightSwitchInput2"
+              name="lightSwitchInput2" class="switchInput" 
+              title="Turn light ON/OFF" aria-label="Turn light ON/OFF" />
+          <div>
+            <div style="margin-top:5px">ON</div>
+            <div style="margin-top:12px">OFF</div>
           </div>
-          <input type='range' max='2' step='1' value='2' id='lightSwitchInput3'
-              class='lightSwitchInput lightSwitch3'
-              title='Change light intensity' />
-          <div id='lightSwitchLabel3' class='lightSwitch3'
-              style='float:right; margin-left:-8px'>
+        </div>
+        <div id="lightSwitch3" class="switch lightSwitch">
+          <input type="range" max="2" step="1" value="2" id="lightSwitchInput3"
+              name="lightSwitchInput3" class="switchInput" 
+              title="Change light intensity" 
+              aria-label="Change light intensity" />
+          <div>
             <div>Full</div>
             <div>Half</div>
             <div>Off</div>
           </div>
-          <input type='range' max='4' step='1' value='4' id='lightSwitchInput5'
-              class='lightSwitchInput lightSwitch5' style="width:80px"
-              title='Change light intensity' />
-          <div id='lightSwitchLabel5' class='lightSwitch5'
-              style='float:right; margin-left:-25px; margin-top: -12px; font-size:.9em'>
+        </div>
+        <div id="lightSwitch5" class="switch lightSwitch">
+          <input type="range" max="4" step="1" value="4" id="lightSwitchInput5"
+              name="lightSwitchInput5" class="switchInput switchInput5" 
+              title="Change light intensity" 
+              aria-label="Change light intensity" />
+          <div>
             <div>100%</div>
             <div>75%</div>
             <div>50%</div>
             <div>25%</div>
             <div>Off</div>
           </div>
-        <img id='waitImageLightSwitch' src='images/wait.png' />
+        </div>
+        <img id="waitImageLightSwitch" src="images/wait.png" alt="wait" />
       </div>
-      <div id='animationSpeedSwitchDiv'>
-        <div style='font-weight:bold'>Animation Speed</div>
-        <input type='range' max='3' min='1' step='1' value='1'
-            id='animationSpeedSwitchInput' title='Change animation speed' />
-        <div style='float:right; margin-left:-8px'>
-          <div>4x Speed</div>
-          <div>2x Speed</div>
-          <div>Normal Speed</div></div>
+      <div id="waterSwitch">
+        <label for="waterSwitchInput2">Water</label>
+        <div class="switch">
+          <div>
+            <input type="range" max="1" step="1" value="1" id="waterSwitchInput2"
+                name="waterSwitchInput2" class="switchInput" 
+                title="Turn water ON/OFF" />
+          </div>
+          <div>
+            <div style="margin-top:5px">YES</div>
+            <div style="margin-top:12px">NO</div>
+          </div>
+        </div>
       </div>
-      <div id='controls'>
-        <div style='font-weight:bold'>Controls</div>
-        <img id='playPause' src='images/playCircle.png'
-            title='Play/Pause simulation' />
-        <img id='reset' src='images/replay.png' title='Reset simulation' />
+      <div id="animationSpeedSwitchDiv">
+        <label for="animationSpeedSwitchInput">Animation Speed</label>
+        <div class="switch">
+          <input type="range" max="3" min="1" step="1" value="1"
+              name="animationSpeedSwitchInput" id="animationSpeedSwitchInput"
+              title="Change animation speed" class="switchInput" />
+          <div style="text-align: left;">
+            <div>4x</div>
+            <div>2x</div>
+            <div>Normal</div>
+          </div>
+        </div>
+      </div>
+      <div id="controls">
+        <label>Controls</label>
+        <div class="switch">
+          <img id="playPause" src="images/playCircle.png" alt="Play"
+              title="Play simulation" role="button" tabindex="0" />
+          <img id="reset" src="images/replay.png" title="Reset simulation" 
+              alt="Reset" role="button" tabindex="0"/>
+        </div>
       </div>
     </div>
-    <div style='display:flex; margin-top:5px'>
-      <svg id='model' width='400' height='400' viewBox='0 0 1000 1000'
-          version='1.1' xmlns='http://www.w3.org/2000/svg'>
-        <rect x='0' y='0' width='1000' height='1000' fill='#DEEBF7' />
+    <div style="display:flex; margin-top:5px">
+      <svg id="model" width="400" height="400" viewBox="0 0 1000 1000"
+          version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="1000" height="1000" fill="#DEEBF7" />
       </svg>
-      <div id='highchartsDiv' width='400px'>
+      <div id="highchartsDiv" width="400px">
       </div>
       </div>
-      <script src='bundle.js'></script>
+      <script src="bundle.js"></script>
   </body>
 </html>

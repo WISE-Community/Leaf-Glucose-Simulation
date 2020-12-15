@@ -1,6 +1,6 @@
-import * as $ from "jquery";
-import { PlantGlucoseSimulation } from "./plantGlucoseSimulation";
-import { SimulationState } from "./simulationState";
+import * as $ from 'jquery';
+import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
+import { SimulationState } from './simulationState';
 
 /**
  * PlayBackControl --- Allows user to play, pause and reset the simulation
@@ -14,8 +14,8 @@ export class PlayBackControl {
   simulation: PlantGlucoseSimulation;
 
   constructor(simulation: PlantGlucoseSimulation) {
-    this.playPauseButton = $("#playPause");
-    this.resetButton = $("#reset");
+    this.playPauseButton = $('#playPause');
+    this.resetButton = $('#reset');
     this.simulation = simulation;
     this.listenForUserInput();
   }
@@ -24,7 +24,7 @@ export class PlayBackControl {
    * listens for user interactions with the play/pause/reset buttons
    */
   listenForUserInput() {
-    this.playPauseButton.on("click", () => {
+    this.playPauseButton.on('click', () => {
       if (this.simulation.isControlEnabled) {
         if (this.simulation.isSimulationStopped()) {
           this.simulation.addEvent('startButtonClicked');
@@ -42,17 +42,21 @@ export class PlayBackControl {
       }
     });
 
-    this.resetButton.on("click", () => {
+    this.resetButton.on('click', () => {
       this.simulation.addEvent('resetButtonClicked');
       this.simulation.resetSimulation();
     });
   }
 
   showPauseButton() {
-    this.playPauseButton.attr("src", "images/pauseCircle.png");
+    this.playPauseButton.attr('src', 'images/pauseCircle.png');
+    this.playPauseButton.attr('alt', 'Pause');
+    this.playPauseButton.attr('aria-label', 'Pause simulation');
   }
 
   showPlayButton() {
-    this.playPauseButton.attr("src", "images/playCircle.png");
+    this.playPauseButton.attr('src', 'images/playCircle.png');
+    this.playPauseButton.attr('alt', 'Play');
+    this.playPauseButton.attr('aria-label', 'Play simulation');
   }
 }
