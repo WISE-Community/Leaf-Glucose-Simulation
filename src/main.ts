@@ -12,6 +12,7 @@ import * as $ from 'jquery';
 $(document).ready(function() {
   let parameters: any = parseURLParameters();
   let feedbackPolicy = null;
+  let numDays = 20;
   let numLightOptions = 2;
   let showGraph = true;
   let showLineGlucoseMade = true;
@@ -19,6 +20,9 @@ $(document).ready(function() {
   let showLineGlucoseStored = true;
   let showWater = false;
 
+  if (parameters['numDays'] != null) {
+    numDays = parameters['numDays'];
+  }
   if (parameters['numLightOptions'] != null) {
     numLightOptions = parameters['numLightOptions'];
   }
@@ -41,7 +45,7 @@ $(document).ready(function() {
     showWater = parameters['showWater'];
   }
 
-  new PlantGlucoseSimulation('model', numLightOptions, feedbackPolicy,
+  new PlantGlucoseSimulation('model', numDays, numLightOptions, feedbackPolicy,
       showGraph, showLineGlucoseMade, showLineGlucoseUsed,
       showLineGlucoseStored, showWater);
 });

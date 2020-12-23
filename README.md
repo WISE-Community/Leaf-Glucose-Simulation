@@ -14,6 +14,7 @@ A simulation that demonstrates what happens inside a leaf during Photosynthesis 
 ## Simulation Configuration
 
 You can configure the simulation at the beginning by passing in these GET parameters to the model:
+- numDays={1+} (default: 20)
 - numLightOptions={2,3,5} (default: 2)
 - showGraph={true,false} (default: true)
 - showLineGlucoseMade={true,false} (default: true)

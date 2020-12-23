@@ -44,7 +44,6 @@ export class PlantGlucoseSimulation {
   BG_COLOR_LIGHT_25: string = '#febf2c';
   BG_COLOR_LIGHT_0: string = '#bfbfbf';
 
-  MAX_DAYS = 20;
   MITOCHONDRION_X = 500;
   MITOCHONDRION_Y = 400;
   STORAGE_X = 50;
@@ -92,6 +91,7 @@ export class PlantGlucoseSimulation {
   isLightOn: boolean = true;
   isLightOnRequestedInNextCycle: boolean = false;
   isLightOffRequestedInNextCycle: boolean = false;
+  numDays: number = 20;
   numLightOptions: number = 2;
   lightSwitch: any;
   waterSwitch: any;
@@ -148,11 +148,12 @@ export class PlantGlucoseSimulation {
    * @param showWater A boolean whether the water control should be displayed or
    * not
    */
-  constructor(elementId: string, numLightOptions: number = 2,
+  constructor(elementId: string, numDays: number = 20, numLightOptions: number = 2,
       feedbackPolicy: any = null, showGraph: boolean = true,
       showLineGlucoseMade: boolean = true, showLineGlucoseUsed: boolean = true,
       showLineGlucoseStored: boolean = true, showWater: boolean = true) {
     this.draw = SVG(elementId);
+    this.numDays = numDays;
     this.numLightOptions = numLightOptions;
     this.showWater = showWater;
     if (this.numLightOptions === 2) {
@@ -183,7 +184,7 @@ export class PlantGlucoseSimulation {
         .attr({ 'x': this.STORAGE_X, 'y': this.STORAGE_Y });
     this.graph = new Graph(this, this.BG_COLOR_LIGHT_100, this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
         this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0, showGraph, showLineGlucoseMade,
-        showLineGlucoseUsed, showLineGlucoseStored);
+        showLineGlucoseUsed, showLineGlucoseStored, numDays);
     this.feedback = new Feedback(this.draw, feedbackPolicy);
     this.wiseAPI = new WISEAPI();
     this.startNewTrial();
@@ -262,7 +263,7 @@ export class PlantGlucoseSimulation {
    */
   playAnimationCycle() {
     this.currentDayNumber++;
-    if (this.currentDayNumber > this.MAX_DAYS) {
+    if (this.currentDayNumber > this.numDays) {
       this.handleSimulationEnded();
     } else {
       this.dayDisplayCorner.updateDayText('Day ' + this.currentDayNumber);

@@ -32,7 +32,7 @@ export class Graph {
   constructor(simulation: PlantGlucoseSimulation, bgColorLight100: string, bgColorLight75: string,
       bgColorLight50: string, bgColorLight25: string, bgColorLight0: string, doShowGraph: boolean,
       showLineGlucoseMade: boolean = true, showLineGlucoseUsed: boolean = true,
-      showLineGlucoseStored: boolean = true) {
+      showLineGlucoseStored: boolean = true, numDays: number = 20) {
     this.simulation = simulation;
     this.bgColorLight100 = bgColorLight100;
     this.bgColorLight75 = bgColorLight75;
@@ -66,7 +66,7 @@ export class Graph {
           text: 'Time (Days)'
         },
         min: 0,
-        max: 21,
+        max: numDays + 1,
         tickInterval: 1
       },
       yAxis: {
