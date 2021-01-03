@@ -21,7 +21,7 @@ const watchedBrowserify = watchify(browserify({
     'src/event.ts',
     'src/feedback.ts',
     'src/graph.ts',
-    'src/lightSwitch2.ts',
+    'src/lightSwitch.ts',
     'src/lightSwitch3.ts',
     'src/lightSwitch5.ts',
     'src/main.ts',

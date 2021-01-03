@@ -27,9 +27,9 @@ export class LightSwitch3 extends LightSwitch {
   }
 
   setControls() {
-    this.waitImage = $('#waitImageLightSwitch');
+    this.waitImage = $('#waitImage');
     this.switchControls = $('#lightSwitch3');
-    this.switchInput = $('#switchInput3');
+    this.switchInput = $('#lightSwitchInput3');
   }
 
   listenForUserInput() {

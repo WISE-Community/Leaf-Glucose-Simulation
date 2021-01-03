@@ -1,6 +1,5 @@
 import { parseURLParameters } from './util';
 import { PlantGlucoseSimulation } from  './plantGlucoseSimulation';
-import { WISEAPI } from './wiseAPI';
 import * as $ from 'jquery';
 
 /**

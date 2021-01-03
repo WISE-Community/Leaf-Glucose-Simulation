@@ -17,7 +17,7 @@
       }
       .switchInput {
         width: 48px;
-        margin-top: 24px;
+        margin-top: 20px;
         margin-right: -8px;
         margin-left: -8px;
         transform: rotate(270deg);
@@ -26,7 +26,7 @@
       .switchInput5 {
         width: 88px;
         margin-left: -32px;
-        margin-top: 46px;
+        margin-top: 42px;
         margin-right: -24px;
       }
       #powerSwitch {
@@ -60,13 +60,16 @@
         display: inline-block;
         vertical-align: top;
       }
+      .switch > label {
+        display: block;
+      }
     </style>
   </head>
   <body>
     <div class="controls">
       <div id="powerSwitch">
         <div id="lightSwitch" class="switch lightSwitch">
-          <label>Light</label>
+          <label for="lightSwitchInput">Light</label>
           <input type="range" max="1" step="1" value="1" id="lightSwitchInput"
               name="lightSwitchInput" class="switchInput" 
               title="Turn light ON/OFF" aria-label="Turn light ON/OFF" />
@@ -76,7 +79,7 @@
           </div>
         </div>
         <div id="lightSwitch3" class="switch lightSwitch">
-          <label>Light</label>
+          <label for="lightSwitchInput3">Light</label>
           <input type="range" max="2" step="1" value="2" id="lightSwitchInput3"
               name="lightSwitchInput3" class="switchInput" 
               title="Change light intensity" 
@@ -88,7 +91,7 @@
           </div>
         </div>
         <div id="lightSwitch5" class="switch lightSwitch">
-          <label>Light</label>
+          <label for="lightSwitchInput5">Light</label>
           <input type="range" max="4" step="1" value="4" id="lightSwitchInput5"
               name="lightSwitchInput5" class="switchInput switchInput5" 
               title="Change light intensity" 
