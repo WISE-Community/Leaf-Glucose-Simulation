@@ -19,6 +19,7 @@ $(document).ready(function() {
   let showLineGlucoseUsed = true;
   let showLineGlucoseStored = true;
   let showWater = false;
+  let enableInputControls = true;
 
   if (parameters['numDays'] != null) {
     numDays = parameters['numDays'];
@@ -44,8 +45,11 @@ $(document).ready(function() {
   if (parameters['showWater'] != null) {
     showWater = parameters['showWater'];
   }
+  if (parameters['enableInputControls'] != null) {
+    enableInputControls = parameters['enableInputControls'];
+  }
 
   new PlantGlucoseSimulation('model', numDays, numLightOptions, feedbackPolicy,
       showGraph, showLineGlucoseMade, showLineGlucoseUsed,
-      showLineGlucoseStored, showWater);
+      showLineGlucoseStored, showWater, enableInputControls);
 });

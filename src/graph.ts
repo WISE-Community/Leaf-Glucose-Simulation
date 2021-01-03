@@ -6,6 +6,7 @@ import {PlantGlucoseSimulation} from './plantGlucoseSimulation';
  * Graph --- Graphs glucose made, used, and stored over time
  * @author Hiroki Terashima
  * @author Geoffrey Kwan
+ * @author Jonathan Lim-Breitbart
 */
 export class Graph {
   chartOptions: any;  // options provided to initialize graph with starting values
@@ -15,6 +16,8 @@ export class Graph {
   bgColorLight50: string;
   bgColorLight25: string;
   bgColorLight0: string;
+  waterColor: string;
+  waterIcons: any[];
   simulation: PlantGlucoseSimulation;
   showLineGlucoseMade: boolean;
   showLineGlucoseUsed: boolean;
@@ -30,15 +33,18 @@ export class Graph {
    * @param doShowGraph true iff this graph should be displayed
    */
   constructor(simulation: PlantGlucoseSimulation, bgColorLight100: string, bgColorLight75: string,
-      bgColorLight50: string, bgColorLight25: string, bgColorLight0: string, doShowGraph: boolean,
-      showLineGlucoseMade: boolean = true, showLineGlucoseUsed: boolean = true,
-      showLineGlucoseStored: boolean = true, numDays: number = 20) {
+      bgColorLight50: string, bgColorLight25: string, bgColorLight0: string, waterColor: string,
+      doShowGraph: boolean, showLineGlucoseMade: boolean = true, 
+      showLineGlucoseUsed: boolean = true, showLineGlucoseStored: boolean = true, 
+      numDays: number = 20) {
     this.simulation = simulation;
     this.bgColorLight100 = bgColorLight100;
     this.bgColorLight75 = bgColorLight75;
     this.bgColorLight50 = bgColorLight50;
     this.bgColorLight25 = bgColorLight25;
     this.bgColorLight0 = bgColorLight0;
+    this.waterColor = waterColor;
+    this.waterIcons = [];
     this.showLineGlucoseMade = showLineGlucoseMade;
     this.showLineGlucoseUsed = showLineGlucoseUsed;
     this.showLineGlucoseStored = showLineGlucoseStored;
@@ -48,7 +54,10 @@ export class Graph {
       chart: {
         renderTo: 'highchartsDiv',
         type: 'line',
-        width: '320'
+        width: '320',
+        style: {
+          'fontFamily': `'Roboto', Helvetica-Nueue, Arial, sans-serif`
+        }
       },
       plotOptions: {
         line: {
@@ -58,8 +67,7 @@ export class Graph {
         }
       },
       title: {
-        text: 'Glucose Over Time',
-        x: -20
+        text: 'Glucose Over Time'
       },
       xAxis: {
         title: {
@@ -71,17 +79,14 @@ export class Graph {
       },
       yAxis: {
         title: {
-          text: 'Amount of Glucose'
+          text: 'Units of Glucose'
         },
         min: 0,
         max: 80,
-        tickInterval: 20,
-        labels: {
-          enabled: false
-        }
+        tickInterval: 20
       },
       tooltip: {
-        enabled: false
+        enabled: true
       },
       series: [
         {
@@ -103,7 +108,7 @@ export class Graph {
           visible: showLineGlucoseUsed
         },
         {
-          name: 'Total Glucose Stored',
+          name: 'Glucose in Storage',
           color: '#459db6',
           lineWidth: 3,
           data: [],
@@ -127,6 +132,7 @@ export class Graph {
         series.setData([]);
     });
     this.chart.xAxis[0].removePlotBand('plantGlucoseSimulationPlotBand');
+    this.removeWaterIcons();
 
     // toggle line on/off, if user previous toggled it
     if (this.showLineGlucoseMade) {
@@ -178,15 +184,15 @@ export class Graph {
 
    /**
     * Update the graph with current trial data
-    * Update background of graph based on number of
-    * photons that came in this day
+    * Update background of graph based on number of photons that came in this day
+    * Add a water icon if water is on for this day
     *
     * @param currentTrialData contains glucose created/used/stored information
     * @param dayNumber the day number to plot the graph for
     * @param numPhotonsThisCycle number of photons that came in this day
     */
    updateGraph(currentTrialData: any, dayNumber: number,
-               numPhotonsThisCycle: number) {
+               numPhotonsThisCycle: number, numWaterThisCycle: number) {
      this.setSeriesData(0, currentTrialData.glucoseCreatedData);
      this.setSeriesData(1, currentTrialData.glucoseUsedData);
      this.setSeriesData(2, currentTrialData.glucoseStoredData);
@@ -198,6 +204,9 @@ export class Graph {
        'color': this.getColor(numPhotonsThisCycle)
      };
      this.addPlotBand(plotBandSettings);
+     if (numWaterThisCycle > 0) {
+       this.addWaterIcon();
+     }
    }
 
 
@@ -212,6 +221,27 @@ export class Graph {
    */
   addPlotBand(plotBandSettings: any) {
     this.chart.xAxis[0].addPlotBand(plotBandSettings);
+  }
+
+  addWaterIcon() {
+    const data = this.chart.series[0].data;
+    const point = data[data.length-1];
+    const waterIcon = this.chart.renderer
+        .rect(point.plotX + 52.5, this.chart.plotTop + 3, 6, 10)
+        .attr({
+          fill: this.waterColor,
+          rx: '4',
+          zIndex: 2
+        })
+        .add();
+    this.waterIcons.push(waterIcon);
+  }
+
+  removeWaterIcons() {
+    for (let i = 0; i < this.waterIcons.length; i++) {
+      this.waterIcons[i].destroy();
+    }
+    this.waterIcons = [];
   }
 
   /**

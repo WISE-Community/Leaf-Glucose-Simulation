@@ -3,10 +3,10 @@ import { EnergyIndicatorView } from './energyIndicatorView';
 import { Event } from './event';
 import { Feedback } from './feedback';
 import { Graph } from './graph';
-import { LightSwitch2 } from './lightSwitch2';
+import { LightSwitch } from './lightSwitch';
 import { LightSwitch3 } from './lightSwitch3';
 import { LightSwitch5 } from './lightSwitch5';
-import { WaterSwitch2 } from './waterSwitch2';
+import { WaterSwitch } from './waterSwitch';
 import { PlantAnimationCorner } from './plantAnimationCorner';
 import { PlayBackControl } from './playBackControl';
 import { SimulationEndFeedback } from './simulationEndFeedback';
@@ -15,7 +15,7 @@ import { SimulationState } from './simulationState';
 import * as SVG from 'svg.js';
 import 'svg.draggable.js';
 import * as $ from 'jquery';
-import {WISEAPI} from "./wiseAPI";
+import { WISEAPI } from "./wiseAPI";
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -42,7 +42,8 @@ export class PlantGlucoseSimulation {
   BG_COLOR_LIGHT_75: string = '#fff077';
   BG_COLOR_LIGHT_50: string = '#fed34b';
   BG_COLOR_LIGHT_25: string = '#febf2c';
-  BG_COLOR_LIGHT_0: string = '#bfbfbf';
+  BG_COLOR_LIGHT_0: string = '#dddddd';
+  WATER_COLOR: string = '#0066cc';
 
   MITOCHONDRION_X = 500;
   MITOCHONDRION_Y = 400;
@@ -65,8 +66,9 @@ export class PlantGlucoseSimulation {
   waterAnimation: SVG;
   currentDayNumber: number = 0;
   currentTrialData: any;
-  draw: SVG;
   dayDisplayCorner: DayDisplayCorner;
+  draw: SVG;
+  enableInputControls: boolean = true;
   energyIndicatorView: EnergyIndicatorView;
   energyLeft: number = 100;
   feedback: Feedback;
@@ -87,6 +89,7 @@ export class PlantGlucoseSimulation {
   initialGlucoseCreated: number = 0;
   initialGlucoseUsed: number = 0;
   initialGlucoseStored: number = 0;
+  instructions: any[] = [];
   isControlEnabled = true;
   isLightOn: boolean = true;
   isLightOnRequestedInNextCycle: boolean = false;
@@ -94,7 +97,7 @@ export class PlantGlucoseSimulation {
   numDays: number = 20;
   numLightOptions: number = 2;
   lightSwitch: any;
-  waterSwitch: any;
+  waterSwitch: WaterSwitch;
   mitochondrion: SVG;
   mitochondrionBattery1: SVG;
   mitochondrionBattery1StartX = this.MITOCHONDRION_X + 100;
@@ -118,6 +121,7 @@ export class PlantGlucoseSimulation {
   waterGroup: SVG;
   plantAnimationCorner: PlantAnimationCorner;
   playBackControl: PlayBackControl;
+  playSequence: any[] = [];
   showWater: boolean;
   simulationEndFeedback: SimulationEndFeedback;
   simulationSpeedSwitch: SimulationSpeedSwitch;
@@ -151,21 +155,24 @@ export class PlantGlucoseSimulation {
   constructor(elementId: string, numDays: number = 20, numLightOptions: number = 2,
       feedbackPolicy: any = null, showGraph: boolean = true,
       showLineGlucoseMade: boolean = true, showLineGlucoseUsed: boolean = true,
-      showLineGlucoseStored: boolean = true, showWater: boolean = true) {
+      showLineGlucoseStored: boolean = true, showWater: boolean = true, 
+      enableInputControls: boolean = true) {
     this.draw = SVG(elementId);
     this.numDays = numDays;
     this.numLightOptions = numLightOptions;
     this.showWater = showWater;
+    this.enableInputControls = enableInputControls;
     if (this.numLightOptions === 2) {
-      this.lightSwitch = new LightSwitch2(this);
+      this.lightSwitch = new LightSwitch(this, enableInputControls);
     } else if (this.numLightOptions === 3) {
-      this.lightSwitch = new LightSwitch3(this);
+      this.lightSwitch = new LightSwitch3(this, enableInputControls);
     } else if (this.numLightOptions === 5) {
-      this.lightSwitch = new LightSwitch5(this);
+      this.lightSwitch = new LightSwitch5(this, enableInputControls);
     }
     if (this.showWater) {
-      this.waterSwitch = new WaterSwitch2(this);
+      this.waterSwitch = new WaterSwitch(this, enableInputControls);
     }
+    this.setInputControls(this.enableInputControls);
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.playBackControl = new PlayBackControl(this);
     this.plantAnimationCorner = new PlantAnimationCorner(this.draw, this.BG_COLOR_LIGHT_100,
@@ -183,11 +190,45 @@ export class PlantGlucoseSimulation {
     this.storage = this.draw.image('./images/storage.png')
         .attr({ 'x': this.STORAGE_X, 'y': this.STORAGE_Y });
     this.graph = new Graph(this, this.BG_COLOR_LIGHT_100, this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
-        this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0, showGraph, showLineGlucoseMade,
+        this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0, this.WATER_COLOR, showGraph, showLineGlucoseMade,
         showLineGlucoseUsed, showLineGlucoseStored, numDays);
     this.feedback = new Feedback(this.draw, feedbackPolicy);
-    this.wiseAPI = new WISEAPI();
+    this.wiseAPI = new WISEAPI(this);
     this.startNewTrial();
+  }
+
+  loadInstructions(instructions: any[]) {
+    if (instructions.length > 0) {
+      this.playSequence = [];
+      this.numDays = 0;
+      for (let i = 0; i < instructions.length; i++) {
+        this.addDaysToPlaySequence(instructions[i]);
+      }
+      this.resetSimulation();
+      this.setInputValues(this.playSequence[0]);
+    }
+  }
+
+  addDaysToPlaySequence(instruction: any): any {
+    for (let i = 0; i < instruction.days; i++) {
+      this.playSequence.push({
+        light: instruction.light,
+        water: instruction.water
+      });
+      this.numDays++;
+    }
+  }
+
+  setInputControls(enable: boolean) {
+    this.lightSwitch.setEnableUserInput(enable);
+    if (this.waterSwitch) {
+      this.waterSwitch.setEnableUserInput(enable);
+    }
+  }
+
+  setInputValues(day: any) {
+    this.handleLightChangeRequest(day.light);
+    this.handleWaterChangeRequest(day.water);
   }
 
   startSimulation() {
@@ -302,8 +343,13 @@ export class PlantGlucoseSimulation {
       if (this.showWater) {
         this.moveWaterToPlantAndChloroplast();
       }
-      this.numPhotonsNextCycle = null;
-      this.numWaterNextCycle = null;
+      const nextDay = this.playSequence[this.currentDayNumber];
+      if (nextDay) {
+        this.setInputValues(nextDay);
+      } else {
+        this.numPhotonsNextCycle = null;
+        this.numWaterNextCycle = null;
+      }
     }
   }
 
@@ -325,7 +371,7 @@ export class PlantGlucoseSimulation {
     this.updateGlucoseValues(this.currentDayNumber, isGlucoseCreated,
         isGlucoseUsed);
     this.graph.updateGraph(this.currentTrialData, this.currentDayNumber,
-        this.numPhotonsThisCycle);
+        this.numPhotonsThisCycle, this.numWaterThisCycle);
 
     this.notifyStudentDataChanged();
     this.loopAnimationAfterBriefPause();
@@ -363,7 +409,7 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  convertToHighchartsTrial(trialData) {
+  convertToHighchartsTrial(trialData: any) {
     let convertedTrial = {
       id: trialData.id,
       name: trialData.name,
@@ -574,11 +620,11 @@ export class PlantGlucoseSimulation {
   }
 
   createWaterToPlant(x: number, y: number) {
-    return this.draw.ellipse(8, 12).fill('#0066CC').attr({ 'cx': x, 'cy': y });
+    return this.draw.ellipse(8, 12).fill(this.WATER_COLOR).attr({ 'cx': x, 'cy': y });
   }
 
   createWaterToChloroplast(x: number, y: number) {
-    return this.draw.ellipse(16, 24).fill('#0066CC').attr({ 'cx': x, 'cy': y });
+    return this.draw.ellipse(16, 24).fill(this.WATER_COLOR).attr({ 'cx': x, 'cy': y });
   }
 
   /**
@@ -796,8 +842,8 @@ export class PlantGlucoseSimulation {
         const glucoseUsed = false;
         this.updateGlucoseValues(this.currentDayNumber, glucoseCreated,
             glucoseUsed);
-        this.graph.updateGraph(this.currentTrialData,
-            this.currentDayNumber, this.numPhotonsThisCycle);
+        this.graph.updateGraph(this.currentTrialData, this.currentDayNumber, 
+            this.numPhotonsThisCycle, this.numWaterThisCycle);
         this.notifyStudentDataChanged();
         this.saveStudentWork();
       });
@@ -868,6 +914,9 @@ export class PlantGlucoseSimulation {
     this.graph.resetGraph();
     this.feedback.hideFeedback();
     this.lightSwitch.hideWaitImage();
+    if (!this.enableInputControls) {
+      this.setInputValues(this.playSequence[0]);
+    }
     this.startNewTrial();
     this.enableControlButtons();
     this.playBackControl.showPlayButton();
@@ -875,20 +924,14 @@ export class PlantGlucoseSimulation {
 
   disableControlButtons() {
     this.isControlEnabled = false;
-    this.lightSwitch.disableUserInput();
-    if (this.waterSwitch) {
-      this.waterSwitch.disableUserInput();
-    }
+    this.setInputControls(false);
     this.simulationSpeedSwitch.disableUserInput();
     $('#playPause').css('opacity', 0.3);
   }
 
   enableControlButtons() {
     this.isControlEnabled = true;
-    this.lightSwitch.enableUserInput();
-    if (this.waterSwitch) {
-      this.waterSwitch.enableUserInput();
-    }
+    this.setInputControls(this.enableInputControls);
     this.simulationSpeedSwitch.enableUserInput();
     $('#playPause').css('opacity', 1);
   }

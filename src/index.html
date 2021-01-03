@@ -39,7 +39,7 @@
       #highchartsDiv {
         border: 1px solid;
       }
-      #waitImageLightSwitch {
+      #waitImage {
         display: none;
         position: absolute;
         top: 44px;
@@ -65,10 +65,10 @@
   <body>
     <div class="controls">
       <div id="powerSwitch">
-        <label>Light</label>
-        <div id="lightSwitch2" class="switch lightSwitch">
-          <input type="range" max="1" step="1" value="1" id="lightSwitchInput2"
-              name="lightSwitchInput2" class="switchInput" 
+        <div id="lightSwitch" class="switch lightSwitch">
+          <label>Light</label>
+          <input type="range" max="1" step="1" value="1" id="lightSwitchInput"
+              name="lightSwitchInput" class="switchInput" 
               title="Turn light ON/OFF" aria-label="Turn light ON/OFF" />
           <div>
             <div style="margin-top:5px">ON</div>
@@ -76,6 +76,7 @@
           </div>
         </div>
         <div id="lightSwitch3" class="switch lightSwitch">
+          <label>Light</label>
           <input type="range" max="2" step="1" value="2" id="lightSwitchInput3"
               name="lightSwitchInput3" class="switchInput" 
               title="Change light intensity" 
@@ -87,6 +88,7 @@
           </div>
         </div>
         <div id="lightSwitch5" class="switch lightSwitch">
+          <label>Light</label>
           <input type="range" max="4" step="1" value="4" id="lightSwitchInput5"
               name="lightSwitchInput5" class="switchInput switchInput5" 
               title="Change light intensity" 
@@ -99,14 +101,14 @@
             <div>Off</div>
           </div>
         </div>
-        <img id="waitImageLightSwitch" src="images/wait.png" alt="wait" />
+        <img id="waitImage" src="images/wait.png" alt="wait" />
       </div>
       <div id="waterSwitch">
-        <label for="waterSwitchInput2">Water</label>
+        <label for="waterSwitchInput">Water</label>
         <div class="switch">
           <div>
-            <input type="range" max="1" step="1" value="1" id="waterSwitchInput2"
-                name="waterSwitchInput2" class="switchInput" 
+            <input type="range" max="1" step="1" value="1" id="waterSwitchInput"
+                name="waterSwitchInput" class="switchInput" 
                 title="Turn water ON/OFF" />
           </div>
           <div>

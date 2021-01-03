@@ -21,6 +21,7 @@ You can configure the simulation at the beginning by passing in these GET parame
 - showLineGlucoseUsed={true,false} (default: true)
 - showLineGlucoseStored={true,false} (default: true)
 - showWater={true,false} (default: false)
+- enableInputControls={true,false} (default: true)
 
 ## Screenshots
 

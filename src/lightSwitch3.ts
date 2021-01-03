@@ -1,5 +1,6 @@
 import * as $ from 'jquery';
-import {PlantGlucoseSimulation} from './plantGlucoseSimulation';
+import { LightSwitch } from './lightSwitch';
+import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 
 /**
  * LightSwitch3 --- Rendering the light switch in Full/Half/Off configurations
@@ -15,54 +16,36 @@ import {PlantGlucoseSimulation} from './plantGlucoseSimulation';
  *
  * @author Hiroki Terashima
  * @author Geoffrey Kwan
+ * @author Jonathan Lim-Breitbart
  */
-export class LightSwitch3 {
-  INPUT_VALUE_POWER_OFF = 0;
+export class LightSwitch3 extends LightSwitch {
   INPUT_VALUE_POWER_HALF = 1;
   INPUT_VALUE_POWER_FULL = 2;
 
-  lightSwitchControls: any;
-  simulation: PlantGlucoseSimulation;
-  waitImageLightSwitch: any;
+  constructor(simulation: PlantGlucoseSimulation, show: boolean = true) {
+    super(simulation, show);
+  }
 
-  constructor(simulation: PlantGlucoseSimulation) {
-    this.simulation = simulation;
-    this.waitImageLightSwitch = $('#waitImageLightSwitch');
-    this.lightSwitchControls = $('#lightSwitch3');
-    this.lightSwitchControls.show();
-    this.listenForUserInput();
+  setControls() {
+    this.waitImage = $('#waitImageLightSwitch');
+    this.switchControls = $('#lightSwitch3');
+    this.switchInput = $('#switchInput3');
   }
 
   listenForUserInput() {
-    let lightSwitch = this;
-    $('#lightSwitchInput3').on('change', function () {
-      let lightSwitchValue = $(this).val();
-      if (lightSwitchValue == lightSwitch.INPUT_VALUE_POWER_OFF) {
-        lightSwitch.simulation.addEvent('turnLightOffButtonClicked');
-        lightSwitch.simulation.handleLightChangeRequest(0);
-      } else if (lightSwitchValue == lightSwitch.INPUT_VALUE_POWER_HALF) {
-        lightSwitch.simulation.addEvent('turnLightHalfButtonClicked');
-        lightSwitch.simulation.handleLightChangeRequest(2);
-      } else if (lightSwitchValue == lightSwitch.INPUT_VALUE_POWER_FULL) {
-        lightSwitch.simulation.addEvent('turnLightFullButtonClicked');
-        lightSwitch.simulation.handleLightChangeRequest(4);
+    const thisSwitch = this;
+    this.switchInput.on('change', function () {
+      const switchValue = $(this).val();
+      if (switchValue == thisSwitch.INPUT_VALUE_POWER_OFF) {
+        thisSwitch.simulation.addEvent('turnLightOffButtonClicked');
+        thisSwitch.simulation.handleLightChangeRequest(0);
+      } else if (switchValue == thisSwitch.INPUT_VALUE_POWER_HALF) {
+        thisSwitch.simulation.addEvent('turnLightHalfButtonClicked');
+        thisSwitch.simulation.handleLightChangeRequest(2);
+      } else if (switchValue == thisSwitch.INPUT_VALUE_POWER_FULL) {
+        thisSwitch.simulation.addEvent('turnLightFullButtonClicked');
+        thisSwitch.simulation.handleLightChangeRequest(4);
       }
     });
-  }
-
-  hideWaitImage() {
-    this.waitImageLightSwitch.fadeOut();
-  }
-
-  showWaitImage() {
-    this.waitImageLightSwitch.show();
-  }
-
-  disableUserInput() {
-    this.lightSwitchControls.find('input').prop('disabled', true);
-  }
-
-  enableUserInput() {
-    this.lightSwitchControls.find('input').prop('disabled', false);
   }
 }

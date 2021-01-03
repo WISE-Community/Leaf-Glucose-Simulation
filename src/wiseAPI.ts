@@ -3,16 +3,22 @@
  * before/during/after the simulation.
  * @author Hiroki Terashima
  * @author Geoffrey Kwan
+ * @author Jonathan Lim-Breitbart
  */
+
+import { PlantGlucoseSimulation } from "./plantGlucoseSimulation";
+
 export class WISEAPI {
   isWISE4: boolean = false;
   isWISE5: boolean = false;
   wiseAPI: any;
   wiseWebAppObj: any;
+  simulation: PlantGlucoseSimulation;
   studentWorkFromThisNode: any;
   studentWorkFromOtherComponents: any;
 
-  constructor() {
+  constructor(simulation: PlantGlucoseSimulation) {
+    this.simulation = simulation;
     if (window.parent != null && window.parent.wiseAPI != null) {
       /*
        * the wiseAPI object is in the parent which means this model is being
@@ -27,7 +33,7 @@ export class WISEAPI {
       if (iframeId != null && iframeId.indexOf('componentApp') != -1) {
         /*
          * the iframe id is something like 'componentApp_kcb5ikb3wl' which means
-         * this model is being used in WISE5
+         * this model is being used in WISE5+
          */
         this.isWISE5 = true;
         this.getStudentWork();
@@ -35,7 +41,10 @@ export class WISEAPI {
     }
 
     // listen for messages from the parent
-    window.addEventListener('message', this.receiveMessage);
+    window.addEventListener('message', (ev) => {
+      const self = this;
+      this.receiveMessage(ev, self);
+    });
   }
 
   /**
@@ -78,7 +87,7 @@ export class WISEAPI {
    * Send a message to the parent
    * @param the message to send to the parent
    */
-  sendMessage(message) {
+  sendMessage(message: any) {
     //console.log('sending message:' + JSON.stringify(message));
     if (parent != null) {
       parent.postMessage(message, "*");
@@ -89,9 +98,9 @@ export class WISEAPI {
    * Receive a message from the parent
    * @param message the message from the parent
    */
-  receiveMessage(message: any) {
+  receiveMessage(message: any, api: WISEAPI) {
     if (message != null) {
-      let messageData = message.data;
+      const messageData = message.data;
       if (messageData != null) {
         if (messageData.messageType == 'studentWork') {
           /*
@@ -109,8 +118,23 @@ export class WISEAPI {
           this.studentWorkFromThisNode = messageData.studentWorkFromThisNode;
           this.studentWorkFromOtherComponents = messageData.studentWorkFromOtherComponents;
         } else if (messageData.messageType == 'componentStateSaved') {
-          let componentState = messageData.componentState;
+          const componentState = messageData.componentState;
+        } else if (messageData.messageType == 'handleConnectedComponentStudentDataChanged') {
+          const componentState = messageData.componentState;
+          if (componentState.componentType == 'Embedded') {
+              api.showModelStateFromEmbedded(componentState)
+          }
         }
+      }
+    }
+  }
+
+  showModelStateFromEmbedded(componentState: any) {
+    const studentData = componentState.studentData;
+    if (studentData && studentData.type === 'snap') {
+      const instructions = studentData.instructions;
+      if (instructions) {
+        this.simulation.loadInstructions(instructions);
       }
     }
   }
