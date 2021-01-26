@@ -172,7 +172,6 @@ export class PlantGlucoseSimulation {
     if (this.showWater) {
       this.waterSwitch = new WaterSwitch(this, enableInputControls);
     }
-    this.setInputControls(this.enableInputControls);
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.playBackControl = new PlayBackControl(this);
     this.plantAnimationCorner = new PlantAnimationCorner(this.draw, this.BG_COLOR_LIGHT_100,
@@ -195,6 +194,7 @@ export class PlantGlucoseSimulation {
     this.feedback = new Feedback(this.draw, feedbackPolicy);
     this.wiseAPI = new WISEAPI(this);
     this.startNewTrial();
+    this.setEnableControlButtons();
   }
 
   loadInstructions(instructions: any[]) {
@@ -227,8 +227,10 @@ export class PlantGlucoseSimulation {
   }
 
   setInputValues(day: any) {
+    if (day) {
     this.handleLightChangeRequest(day.light);
     this.handleWaterChangeRequest(day.water);
+    }
   }
 
   startSimulation() {
@@ -918,7 +920,7 @@ export class PlantGlucoseSimulation {
       this.setInputValues(this.playSequence[0]);
     }
     this.startNewTrial();
-    this.enableControlButtons();
+    this.setEnableControlButtons();
     this.playBackControl.showPlayButton();
   }
 
@@ -927,6 +929,14 @@ export class PlantGlucoseSimulation {
     this.setInputControls(false);
     this.simulationSpeedSwitch.disableUserInput();
     $('#playPause').css('opacity', 0.3);
+  }
+
+  setEnableControlButtons() {
+    if (this.enableInputControls || this.playSequence.length) {
+      this.enableControlButtons();
+    } else {
+      this.disableControlButtons();
+    }
   }
 
   enableControlButtons() {
