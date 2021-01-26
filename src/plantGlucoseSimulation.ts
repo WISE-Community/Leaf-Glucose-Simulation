@@ -95,6 +95,7 @@ export class PlantGlucoseSimulation {
   isLightOnRequestedInNextCycle: boolean = false;
   isLightOffRequestedInNextCycle: boolean = false;
   numDays: number = 20;
+  targetDays: number = 20;
   numLightOptions: number = 2;
   lightSwitch: any;
   waterSwitch: WaterSwitch;
@@ -158,7 +159,7 @@ export class PlantGlucoseSimulation {
       showLineGlucoseStored: boolean = true, showWater: boolean = true, 
       enableInputControls: boolean = true) {
     this.draw = SVG(elementId);
-    this.numDays = numDays;
+    this.numDays = this.targetDays = numDays;
     this.numLightOptions = numLightOptions;
     this.showWater = showWater;
     this.enableInputControls = enableInputControls;
@@ -206,6 +207,7 @@ export class PlantGlucoseSimulation {
       }
       this.resetSimulation();
       this.setInputValues(this.playSequence[0]);
+      this.enableControlButtons();
     }
   }
 
@@ -311,8 +313,7 @@ export class PlantGlucoseSimulation {
     } else {
       this.dayDisplayCorner.updateDayText('Day ' + this.currentDayNumber);
 
-      if (this.numWaterNextCycle != null &&
-          this.numWaterNextCycle != this.numWaterThisCycle) {
+      if (this.numWaterNextCycle != null && this.numWaterNextCycle != this.numWaterThisCycle) {
         this.updateNumWaterThisCycle(this.numWaterNextCycle);
         this.waterSwitch.hideWaitImage();
       }
@@ -819,7 +820,11 @@ export class PlantGlucoseSimulation {
   handleSimulationEnded() {
     this.addEvent('simulationEnded');
     this.pauseSimulation();
-    this.simulationEndFeedback.showSimulationEnded();
+    if (this.currentDayNumber === this.targetDays + 1) {
+      this.simulationEndFeedback.showPlantAlive();
+    } else {
+      this.simulationEndFeedback.showSimulationEnded();
+    }
     this.disableControlButtons();
     this.saveStudentWork();
   }
