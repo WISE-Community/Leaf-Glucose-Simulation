@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <title>Plant Glucose Simulation</title>
     <style>
       body {
         margin: 0px;
@@ -35,6 +36,7 @@
       #model {
         border: 1px solid;
         border-right: none;
+        background-color: #DEEBF7;
       }
       #highchartsDiv {
         border: 1px solid;
@@ -62,6 +64,10 @@
       }
       .switch > label {
         display: block;
+      }
+      .content {
+        display: flex;
+        margin-top: 5px;
       }
     </style>
   </head>
@@ -143,14 +149,14 @@
         </div>
       </div>
     </div>
-    <div style="display:flex; margin-top:5px">
-      <svg id="model" width="400" height="400" viewBox="0 0 1000 1000"
+    <div class="content">
+      <svg id="model" width="400" height="320" viewBox="0 0 1000 1000"
           version="1.1" xmlns="http://www.w3.org/2000/svg">
         <rect x="0" y="0" width="1000" height="1000" fill="#DEEBF7" />
       </svg>
-      <div id="highchartsDiv" width="400px">
+      <div id="highchartsDiv" style="width: 300px; max-width: 50%;">
       </div>
-      </div>
-      <script src="bundle.js"></script>
+    </div>
+    <script src="bundle.js"></script>
   </body>
 </html>

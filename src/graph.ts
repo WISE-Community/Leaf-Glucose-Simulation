@@ -54,7 +54,7 @@ export class Graph {
       chart: {
         renderTo: 'highchartsDiv',
         type: 'line',
-        width: '320',
+        // width: '320',
         style: {
           'fontFamily': `'Roboto', Helvetica-Nueue, Arial, sans-serif`
         }
