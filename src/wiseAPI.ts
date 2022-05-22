@@ -121,7 +121,7 @@ export class WISEAPI {
           const componentState = messageData.componentState;
         } else if (messageData.messageType == 'handleConnectedComponentStudentDataChanged') {
           const componentState = messageData.componentState;
-          if (componentState.componentType == 'Embedded') {
+          if (componentState.componentType == 'Embedded' && !componentState.isAutoSave) {
               api.showModelStateFromEmbedded(componentState)
           }
         }
