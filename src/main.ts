@@ -7,6 +7,7 @@ import * as $ from 'jquery';
  * given in the URL.
  * @author Hiroki Terashima
  * @author Geoffrey Kwan
+ * @author Jonathan Lim-Breitbart
  */
 $(document).ready(function() {
   let parameters: any = parseURLParameters();
@@ -19,6 +20,8 @@ $(document).ready(function() {
   let showLineGlucoseStored = true;
   let showWater = false;
   let enableInputControls = true;
+  let isDroughtTolerant = false;
+  let isLightIntolerant = false;
 
   if (parameters['numDays'] != null) {
     numDays = parameters['numDays'];
@@ -47,8 +50,14 @@ $(document).ready(function() {
   if (parameters['enableInputControls'] != null) {
     enableInputControls = parameters['enableInputControls'];
   }
+  if (parameters['isDroughtTolerant'] != null) {
+    isDroughtTolerant = parameters['isDroughtTolerant'];
+  }
+  if (parameters['isLightIntolerant'] != null) {
+    isLightIntolerant = parameters['isLightIntolerant'];
+  }
 
   new PlantGlucoseSimulation('model', numDays, numLightOptions, feedbackPolicy,
-      showGraph, showLineGlucoseMade, showLineGlucoseUsed,
-      showLineGlucoseStored, showWater, enableInputControls);
+      showGraph, showLineGlucoseMade, showLineGlucoseUsed, showLineGlucoseStored,
+      showWater, enableInputControls, isDroughtTolerant, isLightIntolerant);
 });
