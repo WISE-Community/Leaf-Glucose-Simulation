@@ -21,7 +21,8 @@ $(document).ready(function() {
   let showWater = false;
   let enableInputControls = true;
   let isDroughtTolerant = false;
-  let isLightIntolerant = false;
+  let isShadeTolerant = false;
+  let plantImgSrc = null;
 
   if (parameters['numDays'] != null) {
     numDays = parameters['numDays'];
@@ -53,11 +54,15 @@ $(document).ready(function() {
   if (parameters['isDroughtTolerant'] != null) {
     isDroughtTolerant = parameters['isDroughtTolerant'];
   }
-  if (parameters['isLightIntolerant'] != null) {
-    isLightIntolerant = parameters['isLightIntolerant'];
+  if (parameters['isShadeTolerant'] != null) {
+    isShadeTolerant = parameters['isShadeTolerant'];
+  }
+  if (parameters['plantImgSrc'] != null) {
+    plantImgSrc = parameters['plantImgSrc'];
   }
 
   new PlantGlucoseSimulation('model', numDays, numLightOptions, feedbackPolicy,
       showGraph, showLineGlucoseMade, showLineGlucoseUsed, showLineGlucoseStored,
-      showWater, enableInputControls, isDroughtTolerant, isLightIntolerant);
+      showWater, enableInputControls, isDroughtTolerant, isShadeTolerant,
+      plantImgSrc);
 });

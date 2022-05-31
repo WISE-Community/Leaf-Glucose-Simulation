@@ -92,7 +92,7 @@ export class PlantGlucoseSimulation {
   instructions: any[] = [];
   isControlEnabled: boolean = true;
   isDroughTolerant: boolean = false;
-  isLightIntolerant: boolean = false;
+  isShadeTolerant: boolean = false;
   isLightOn: boolean = true;
   isLightOnRequestedInNextCycle: boolean = false;
   isLightOffRequestedInNextCycle: boolean = false;
@@ -123,6 +123,7 @@ export class PlantGlucoseSimulation {
   photonsGroup: SVG;
   waterGroup: SVG;
   plantAnimationCorner: PlantAnimationCorner;
+  plantImgSrc: string;
   playBackControl: PlayBackControl;
   playSequence: any[] = [];
   showWater: boolean;
@@ -160,14 +161,15 @@ export class PlantGlucoseSimulation {
       showLineGlucoseMade: boolean = true, showLineGlucoseUsed: boolean = true,
       showLineGlucoseStored: boolean = true, showWater: boolean = true, 
       enableInputControls: boolean = true, isDroughTolerant: boolean = false,
-      isLightIntolerant: boolean = false) {
+      isShadeTolerant: boolean = false, plantImgSrc: string = null) {
     this.draw = SVG(elementId);
     this.numDays = this.targetDays = numDays;
     this.numLightOptions = numLightOptions;
     this.showWater = showWater;
     this.enableInputControls = enableInputControls;
     this.isDroughTolerant = isDroughTolerant;
-    this.isLightIntolerant = isLightIntolerant;
+    this.isShadeTolerant = isShadeTolerant;
+    this.plantImgSrc = plantImgSrc;
     if (this.numLightOptions === 2) {
       this.lightSwitch = new LightSwitch(this, enableInputControls);
     } else if (this.numLightOptions === 3) {
@@ -182,7 +184,7 @@ export class PlantGlucoseSimulation {
     this.playBackControl = new PlayBackControl(this);
     this.plantAnimationCorner = new PlantAnimationCorner(this.draw, this.BG_COLOR_LIGHT_100,
         this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50, this.BG_COLOR_LIGHT_25, 
-        this.BG_COLOR_LIGHT_0, this.showWater);
+        this.BG_COLOR_LIGHT_0, this.showWater, this.plantImgSrc);
     this.dayDisplayCorner = new DayDisplayCorner(this.draw,
         this.BG_COLOR_LIGHT_100, this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
         this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0);
@@ -850,9 +852,9 @@ export class PlantGlucoseSimulation {
       .animate(3000 * this.animationSpeedRatio)
       .during((pos, morph, eased, situation) => {
         // show the death sequence animation leaf based on time
-        if (pos < .33) {
+        if (pos < 0.33) {
           this.plantAnimationCorner.showLightGreenLeaf();
-        } else if (pos < .66) {
+        } else if (pos < 0.66) {
           this.plantAnimationCorner.showYellowLeaf();
         } else {
           this.plantAnimationCorner.showDeadLeaf();
@@ -1043,19 +1045,16 @@ export class PlantGlucoseSimulation {
 
   calculateGlucoseCreatedIncrement(): number {
     let glucoseCreatedIncrement = this.numPhotonsThisCycle;
-    if (this.isLightIntolerant) {
-      const intolerantPhotonsToCreated: any = {
-        4: 2,
-        3: 3,
-        2: 4,
+    if (this.isShadeTolerant) {
+      const shadeTolerantPhotonsToCreated: any = {
+        4: 4,
+        3: 4,
+        2: 3,
         1: 2,
         0: 0
       };
-      glucoseCreatedIncrement = intolerantPhotonsToCreated[this.numPhotonsThisCycle];
+      glucoseCreatedIncrement = shadeTolerantPhotonsToCreated[this.numPhotonsThisCycle];
     }
-    // if (this.isDroughTolerant) {
-    //   glucoseCreatedIncrement--;
-    // }
     return glucoseCreatedIncrement;
   }
 

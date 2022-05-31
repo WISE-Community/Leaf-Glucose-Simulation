@@ -25,6 +25,7 @@ export class PlantAnimationCorner {
   leafDead: SVG;
   darknessOverlay: SVG;
   wateringCan: SVG;
+  customPlant: SVG;
 
   bgColorLight100: string;
   bgColorLight75: string;
@@ -40,7 +41,7 @@ export class PlantAnimationCorner {
    * @param draw An SVG draw object to paint other elements on
    */
   constructor(draw: SVG, bgColorLight100: string, bgColorLight75: string, bgColorLight50: string,
-      bgColorLight25: string, bgColorLight0: string, showWater: boolean = false) {
+      bgColorLight25: string, bgColorLight0: string, showWater: boolean = false, plantImgSrc: string = null) {
     this.draw = draw;
     this.bgColorLight100 = bgColorLight100;
     this.bgColorLight75 = bgColorLight75;
@@ -52,33 +53,59 @@ export class PlantAnimationCorner {
     // draw the outline in the upper-left corner
     this.draw.rect(300,300).x(0).y(0).fill('white').stroke({width:2});
 
-    this.leafYellow = this.draw.image('./images/leafYellow.png', 128, 128).attr({
-      'x': 20,
-      'y': 150
-    });
+    if (plantImgSrc) {
+      this.leafGreen = this.draw.image(plantImgSrc, 280, 280).attr({
+        'x': 10,
+        'y': 50
+      });
 
-    this.leafLightGreen = this.draw.image('./images/leafLightGreen.png', 128, 128)
-      .attr({
+      this.leafYellow = this.draw.image(plantImgSrc, 280, 280).attr({
+        'x': 10,
+        'y': 50,
+        'opacity': .6
+      });
+
+      this.leafLightGreen = this.draw.image(plantImgSrc, 280, 280).attr({
+        'x': 10,
+        'y': 50,
+        'opacity': .8
+      });
+
+      this.leafDead = this.draw.image(plantImgSrc, 280, 280).attr({
+        'x': 10,
+        'y': 50,
+        'opacity': .4
+      });
+    } else {
+      this.leafGreen = this.draw.image('./images/leafGreen.png', 128, 128).attr({
         'x': 55,
         'y': 90
       });
 
-    this.leafGreen = this.draw.image('./images/leafGreen.png', 128, 128).attr({
-      'x': 55,
-      'y': 90
-    });
+      this.leafYellow = this.draw.image('./images/leafYellow.png', 128, 128).attr({
+        'x': 20,
+        'y': 150
+      });
 
-    this.draw.image('./images/pot.png', 128, 128).attr({'x': 100, 'y': 160});
+      this.leafLightGreen = this.draw.image('./images/leafLightGreen.png', 128, 128)
+        .attr({
+          'x': 55,
+          'y': 90
+        });
+      
+      this.draw.image('./images/pot.png', 128, 128).attr({'x': 100, 'y': 160});
 
-    // the dead leaf should appear above the pot
-    this.leafDead = this.draw.image('./images/leafDead.png', 128, 128).attr({
-      'x': 20,
-      'y': 150
-    });
+      this.leafDead = this.draw.image('./images/leafDead.png', 128, 128).attr({
+        'x': 20,
+        'y': 150
+      });
+    }
 
     // store all the leaf images in an array from liveliest -> dead
     this.allLeaves = [this.leafGreen, this.leafLightGreen,
         this.leafYellow, this.leafDead];
+
+    this.showGreenLeaf();
 
     // draw the ground below the pot
     this.draw.rect(300,40).x(0).y(270).fill('gray').stroke({width:2});
@@ -102,8 +129,6 @@ export class PlantAnimationCorner {
     if (!this.showWater) {
       this.wateringCan.hide();
     }
-
-    this.showGreenLeaf();
   }
 
   /**
