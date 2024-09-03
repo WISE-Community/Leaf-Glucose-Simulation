@@ -15,7 +15,7 @@ import { SimulationState } from './simulationState';
 import * as SVG from 'svg.js';
 import 'svg.draggable.js';
 import * as $ from 'jquery';
-import { WISEAPI } from "./wiseAPI";
+import { WISEAPI } from './wiseAPI';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -55,11 +55,11 @@ export class PlantGlucoseSimulation {
 
   // actual amount of time (in ms) each animation should take to complete
   animationDuration: number =
-      this.DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
+    this.DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
 
   // actual amount of time (in ms) delay before starting animation
   animationDelay: number =
-      this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
+    this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
 
   chloroplast: SVG;
   currentAnimation: SVG;
@@ -156,12 +156,21 @@ export class PlantGlucoseSimulation {
    * @param showWater A boolean whether the water control should be displayed or
    * not
    */
-  constructor(elementId: string, numDays: number = 20, numLightOptions: number = 2,
-      feedbackPolicy: any = null, showGraph: boolean = true,
-      showLineGlucoseMade: boolean = true, showLineGlucoseUsed: boolean = true,
-      showLineGlucoseStored: boolean = true, showWater: boolean = true, 
-      enableInputControls: boolean = true, isDroughTolerant: boolean = false,
-      isShadeTolerant: boolean = false, plantImgSrc: string = null) {
+  constructor(
+    elementId: string,
+    numDays: number = 20,
+    numLightOptions: number = 2,
+    feedbackPolicy: any = null,
+    showGraph: boolean = true,
+    showLineGlucoseMade: boolean = true,
+    showLineGlucoseUsed: boolean = true,
+    showLineGlucoseStored: boolean = true,
+    showWater: boolean = true,
+    enableInputControls: boolean = true,
+    isDroughTolerant: boolean = false,
+    isShadeTolerant: boolean = false,
+    plantImgSrc: string = null
+  ) {
     this.draw = SVG(elementId);
     this.numDays = this.targetDays = numDays;
     this.numLightOptions = numLightOptions;
@@ -182,23 +191,49 @@ export class PlantGlucoseSimulation {
     }
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.playBackControl = new PlayBackControl(this);
-    this.plantAnimationCorner = new PlantAnimationCorner(this.draw, this.BG_COLOR_LIGHT_100,
-        this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50, this.BG_COLOR_LIGHT_25, 
-        this.BG_COLOR_LIGHT_0, this.showWater, this.plantImgSrc);
-    this.dayDisplayCorner = new DayDisplayCorner(this.draw,
-        this.BG_COLOR_LIGHT_100, this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
-        this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0);
+    this.plantAnimationCorner = new PlantAnimationCorner(
+      this.draw,
+      this.BG_COLOR_LIGHT_100,
+      this.BG_COLOR_LIGHT_75,
+      this.BG_COLOR_LIGHT_50,
+      this.BG_COLOR_LIGHT_25,
+      this.BG_COLOR_LIGHT_0,
+      this.showWater,
+      this.plantImgSrc
+    );
+    this.dayDisplayCorner = new DayDisplayCorner(
+      this.draw,
+      this.BG_COLOR_LIGHT_100,
+      this.BG_COLOR_LIGHT_75,
+      this.BG_COLOR_LIGHT_50,
+      this.BG_COLOR_LIGHT_25,
+      this.BG_COLOR_LIGHT_0
+    );
     this.simulationEndFeedback = new SimulationEndFeedback(this.draw);
     this.energyIndicatorView = new EnergyIndicatorView(this.draw);
-    this.chloroplast = this.draw.image('./images/chloroplast.png')
-        .attr({ 'x': this.CHLOROPLAST_X, 'y': this.CHLOROPLAST_Y });
-    this.mitochondrion = this.draw.image('./images/mitochondrion.png')
-        .attr({ 'x': this.MITOCHONDRION_X, 'y': this.MITOCHONDRION_Y });
-    this.storage = this.draw.image('./images/storage.png')
-        .attr({ 'x': this.STORAGE_X, 'y': this.STORAGE_Y });
-    this.graph = new Graph(this, this.BG_COLOR_LIGHT_100, this.BG_COLOR_LIGHT_75, this.BG_COLOR_LIGHT_50,
-        this.BG_COLOR_LIGHT_25, this.BG_COLOR_LIGHT_0, this.WATER_COLOR, showGraph, showLineGlucoseMade,
-        showLineGlucoseUsed, showLineGlucoseStored, numDays);
+    this.chloroplast = this.draw
+      .image('./images/chloroplast.png')
+      .attr({ x: this.CHLOROPLAST_X, y: this.CHLOROPLAST_Y });
+    this.mitochondrion = this.draw
+      .image('./images/mitochondrion.png')
+      .attr({ x: this.MITOCHONDRION_X, y: this.MITOCHONDRION_Y });
+    this.storage = this.draw
+      .image('./images/storage.png')
+      .attr({ x: this.STORAGE_X, y: this.STORAGE_Y });
+    this.graph = new Graph(
+      this,
+      this.BG_COLOR_LIGHT_100,
+      this.BG_COLOR_LIGHT_75,
+      this.BG_COLOR_LIGHT_50,
+      this.BG_COLOR_LIGHT_25,
+      this.BG_COLOR_LIGHT_0,
+      this.WATER_COLOR,
+      showGraph,
+      showLineGlucoseMade,
+      showLineGlucoseUsed,
+      showLineGlucoseStored,
+      numDays
+    );
     this.feedback = new Feedback(this.draw, feedbackPolicy);
     this.wiseAPI = new WISEAPI(this);
     this.startNewTrial();
@@ -224,7 +259,7 @@ export class PlantGlucoseSimulation {
     for (let i = 0; i < instruction.days; i++) {
       this.playSequence.push({
         light: instruction.light,
-        water: instruction.water
+        water: instruction.water,
       });
       this.numDays++;
     }
@@ -279,7 +314,7 @@ export class PlantGlucoseSimulation {
       glucoseCreatedData: [[0, this.initialGlucoseCreated]],
       glucoseUsedData: [[0, this.initialGlucoseUsed]],
       glucoseStoredData: [[0, this.initialGlucoseStored]],
-      events: []
+      events: [],
     };
     this.trials.push(this.currentTrialData);
     this.notifyStudentDataChanged();
@@ -291,23 +326,42 @@ export class PlantGlucoseSimulation {
    * @param glucoseCreated whether glucose was created
    * @param glucoseUsed whether glucose was used
    */
-  updateGlucoseValues(dayNumber: number, glucoseCreated: boolean,
-      glucoseUsed: boolean) {
+  updateGlucoseValues(
+    dayNumber: number,
+    glucoseCreated: boolean,
+    glucoseUsed: boolean
+  ) {
     if (glucoseCreated) {
       if (this.numWaterThisCycle > 0) {
         this.totalGlucoseCreated += this.glucoseCreatedIncrement;
       }
     }
     if (glucoseUsed) {
-      this.totalGlucoseUsed += this.glucoseUsedIncrement;
-      if (this.isDroughTolerant && (this.glucoseCreatedIncrement < 2 || this.numWaterThisCycle < 4)) {
-        this.totalGlucoseUsed--;
-      }
+      this.updateGlucoseUsed();
     }
     this.totalGlucoseStored = this.totalGlucoseCreated - this.totalGlucoseUsed;
-    this.currentTrialData.glucoseCreatedData.push([dayNumber, this.totalGlucoseCreated]);
-    this.currentTrialData.glucoseUsedData.push([dayNumber, this.totalGlucoseUsed]);
-    this.currentTrialData.glucoseStoredData.push([dayNumber, this.totalGlucoseStored]);
+    this.currentTrialData.glucoseCreatedData.push([
+      dayNumber,
+      this.totalGlucoseCreated,
+    ]);
+    this.currentTrialData.glucoseUsedData.push([
+      dayNumber,
+      this.totalGlucoseUsed,
+    ]);
+    this.currentTrialData.glucoseStoredData.push([
+      dayNumber,
+      this.totalGlucoseStored,
+    ]);
+  }
+
+  updateGlucoseUsed() {
+    this.totalGlucoseUsed += this.glucoseUsedIncrement;
+    if (
+      (this.isDroughTolerant && this.numWaterThisCycle < 4) ||
+      (this.isShadeTolerant && this.numPhotonsThisCycle < 3)
+    ) {
+      this.totalGlucoseUsed--;
+    }
   }
 
   /**
@@ -325,35 +379,45 @@ export class PlantGlucoseSimulation {
     } else {
       this.dayDisplayCorner.updateDayText('Day ' + this.currentDayNumber);
 
-      if (this.numWaterNextCycle != null && this.numWaterNextCycle != this.numWaterThisCycle) {
+      if (
+        this.numWaterNextCycle != null &&
+        this.numWaterNextCycle != this.numWaterThisCycle
+      ) {
         this.updateNumWaterThisCycle(this.numWaterNextCycle);
         this.waterSwitch.hideWaitImage();
       }
 
-      if (this.numPhotonsNextCycle != null &&
-          this.numPhotonsNextCycle != this.numPhotonsThisCycle) {
+      if (
+        this.numPhotonsNextCycle != null &&
+        this.numPhotonsNextCycle != this.numPhotonsThisCycle
+      ) {
         this.updateNumPhotonsThisCycle(this.numPhotonsNextCycle);
         this.lightSwitch.hideWaitImage();
       }
 
-      if (this.glucosesInStorage.length === 0 &&
-          (this.glucoseCreatedIncrement === 0 || this.numWaterThisCycle === 0)) {
+      if (
+        this.glucosesInStorage.length === 0 &&
+        (this.glucoseCreatedIncrement === 0 || this.numWaterThisCycle === 0)
+      ) {
         // there is no energy coming in or stored. The plant dies now.
-        this.currentAnimation = this.draw.animate(
-            {'duration': this.animationDuration * 3})
-            .during((pos, morph, eased, situation) => {
-              let startingEnergy = parseInt(this.energyLeft);
-              this.drainEnergy(100 /* start */, 0 /* end */, pos);
-            })
-            .afterAll(() => {
-              this.disableControlButtons();
-              this.startPlantDeathSequence();
-            });
+        this.currentAnimation = this.draw
+          .animate({ duration: this.animationDuration * 3 })
+          .during((pos, morph, eased, situation) => {
+            let startingEnergy = parseInt(this.energyLeft);
+            this.drainEnergy(100 /* start */, 0 /* end */, pos);
+          })
+          .afterAll(() => {
+            this.disableControlButtons();
+            this.startPlantDeathSequence();
+          });
       } else if (this.numPhotonsThisCycle > 0) {
-        this.movePhotonsToPlantAndChloroplast(this.animationCallback.bind(this));
+        this.movePhotonsToPlantAndChloroplast(
+          this.animationCallback.bind(this)
+        );
       } else if (this.glucosesInStorage.length > 0) {
         this.moveGlucoseFromStorageToMitochondrion(
-            this.animationCallback.bind(this));
+          this.animationCallback.bind(this)
+        );
       }
       if (this.showWater) {
         this.moveWaterToPlantAndChloroplast();
@@ -383,10 +447,17 @@ export class PlantGlucoseSimulation {
   animationCallback() {
     const isGlucoseCreated = true;
     const isGlucoseUsed = true;
-    this.updateGlucoseValues(this.currentDayNumber, isGlucoseCreated,
-        isGlucoseUsed);
-    this.graph.updateGraph(this.currentTrialData, this.currentDayNumber,
-        this.numPhotonsThisCycle, this.numWaterThisCycle);
+    this.updateGlucoseValues(
+      this.currentDayNumber,
+      isGlucoseCreated,
+      isGlucoseUsed
+    );
+    this.graph.updateGraph(
+      this.currentTrialData,
+      this.currentDayNumber,
+      this.numPhotonsThisCycle,
+      this.numWaterThisCycle
+    );
 
     this.notifyStudentDataChanged();
     this.loopAnimationAfterBriefPause();
@@ -398,10 +469,9 @@ export class PlantGlucoseSimulation {
         messageType: 'studentDataChanged',
         isAutoSave: false,
         isSubmit: false,
-        studentData:
-            {
-              'trial': this.convertToHighchartsTrial(this.currentTrialData)
-            }
+        studentData: {
+          trial: this.convertToHighchartsTrial(this.currentTrialData),
+        },
       };
 
       this.wiseAPI.sendMessage(state);
@@ -414,10 +484,9 @@ export class PlantGlucoseSimulation {
         messageType: 'studentWork',
         isAutoSave: false,
         isSubmit: false,
-        studentData:
-            {
-              'trials': this.trials
-            }
+        studentData: {
+          trials: this.trials,
+        },
       };
 
       this.wiseAPI.sendMessage(state);
@@ -428,53 +497,61 @@ export class PlantGlucoseSimulation {
     let convertedTrial = {
       id: trialData.id,
       name: trialData.name,
-      series: []
+      series: [],
     };
 
     let glucoseCreatedSeries = this.convertToHighchartsSeries(
-        trialData.id + '-glucoseMade',
-        'Total Glucose Made',
-        '#72ae2e',
-        'shortDot',
-        'circle',
-        trialData.glucoseCreatedData);
+      trialData.id + '-glucoseMade',
+      'Total Glucose Made',
+      '#72ae2e',
+      'shortDot',
+      'circle',
+      trialData.glucoseCreatedData
+    );
 
     let glucoseUsedSeries = this.convertToHighchartsSeries(
-        trialData.id + '-glucoseUsed',
-        'Total Glucose Used',
-        '#f17d00',
-        'shortDash',
-        'circle',
-        trialData.glucoseUsedData);
+      trialData.id + '-glucoseUsed',
+      'Total Glucose Used',
+      '#f17d00',
+      'shortDash',
+      'circle',
+      trialData.glucoseUsedData
+    );
     let glucoseStoredSeries = this.convertToHighchartsSeries(
-        trialData.id + '-glucoseStored',
-        'Total Glucose Stored',
-        '#459db6',
-        'dot',
-        'circle',
-        trialData.glucoseStoredData);
+      trialData.id + '-glucoseStored',
+      'Total Glucose Stored',
+      '#459db6',
+      'dot',
+      'circle',
+      trialData.glucoseStoredData
+    );
     convertedTrial.series.push(glucoseCreatedSeries);
     convertedTrial.series.push(glucoseUsedSeries);
     convertedTrial.series.push(glucoseStoredSeries);
     return convertedTrial;
   }
 
-  convertToHighchartsSeries(seriesId, seriesName, seriesColor, dashStyle, markerSymbol, seriesData) {
+  convertToHighchartsSeries(
+    seriesId,
+    seriesName,
+    seriesColor,
+    dashStyle,
+    markerSymbol,
+    seriesData
+  ) {
     let convertedSeries = {
       id: seriesId,
       name: seriesName,
       color: seriesColor,
       dashStyle: dashStyle,
       marker: { symbol: markerSymbol },
-      data: []
+      data: [],
     };
     for (let seriesDataPoint of seriesData) {
-      convertedSeries.data.push(
-          {
-            x: seriesDataPoint[0],
-            y: seriesDataPoint[1]
-          }
-      );
+      convertedSeries.data.push({
+        x: seriesDataPoint[0],
+        y: seriesDataPoint[1],
+      });
     }
     return convertedSeries;
   }
@@ -488,81 +565,96 @@ export class PlantGlucoseSimulation {
   movePhotonsToPlantAndChloroplast(animationCallback: () => {}) {
     this.photonsGroup = this.createPhotons();
     this.currentAnimation = this.photonsGroup;
-    this.photonsGroup.animate({'duration': this.animationDuration})
-        .move(50, 50)
-        .during((pos, morph, eased, situation) => {
-          this.drainEnergy(100 /* start */, 75 /* end */, pos);
-        })
-        .animate({'duration': this.animationDuration})
-        .attr({'opacity': 0})
-        .during((pos, morph, eased, situation) => {
-          this.drainEnergy(75 /* start */, 50 /* end */, pos);
-        })
-        .afterAll(() => { 
-          this.photonsGroup.remove();
-          this.photonsGroup = null;
-          if (this.numWaterThisCycle > 0 && this.glucoseCreatedIncrement > 0) {
-            this.createGlucosesToMitochondrion();
-            this.createGlucosesToStorage();
-            this.moveGlucoseFromChloroplastToMitochondrion(animationCallback);
-          } else {
-            this.moveGlucoseFromStorageToMitochondrion(animationCallback);
-          }
-        });
+    this.photonsGroup
+      .animate({ duration: this.animationDuration })
+      .move(50, 50)
+      .during((pos, morph, eased, situation) => {
+        this.drainEnergy(100 /* start */, 75 /* end */, pos);
+      })
+      .animate({ duration: this.animationDuration })
+      .attr({ opacity: 0 })
+      .during((pos, morph, eased, situation) => {
+        this.drainEnergy(75 /* start */, 50 /* end */, pos);
+      })
+      .afterAll(() => {
+        this.photonsGroup.remove();
+        this.photonsGroup = null;
+        if (this.numWaterThisCycle > 0 && this.glucoseCreatedIncrement > 0) {
+          this.createGlucosesToMitochondrion();
+          this.createGlucosesToStorage();
+          this.moveGlucoseFromChloroplastToMitochondrion(animationCallback);
+        } else {
+          this.moveGlucoseFromStorageToMitochondrion(animationCallback);
+        }
+      });
   }
 
   moveWaterToPlantAndChloroplast() {
     this.waterGroup = this.createWaters();
-        this.waterAnimation = this.waterGroup;
-        this.waterGroup.animate({'duration': this.animationDuration})
-            .move(0, 40)
-            .animate({'duration': this.animationDuration})
-            .attr({'opacity': 0})
-            .afterAll(() => { 
-              this.waterGroup.remove();
-              this.waterGroup = null;
-              this.waterAnimation = null;
-            });
+    this.waterAnimation = this.waterGroup;
+    this.waterGroup
+      .animate({ duration: this.animationDuration })
+      .move(0, 40)
+      .animate({ duration: this.animationDuration })
+      .attr({ opacity: 0 })
+      .afterAll(() => {
+        this.waterGroup.remove();
+        this.waterGroup = null;
+        this.waterAnimation = null;
+      });
   }
 
   moveGlucoseFromChloroplastToMitochondrion(animationCallback: () => {}) {
     this.currentAnimation = this.draw.set();
     if (this.glucoseToMitochondrion2 != null) {
-      this.glucoseToMitochondrion2.animate(
-          {'delay': this.animationDelay, 'duration': this.animationDuration})
-          .dmove(20, 350)
-          .animate({'duration': this.animationDuration}).attr({'opacity': 0})
-          .afterAll(() => {
-            this.glucoseToMitochondrion2 = null;
-            this.mitochondrionBattery2 = this.createBattery(
-                this.mitochondrionBattery2StartX, this.mitochondrionBattery2StartY);
-          });
+      this.glucoseToMitochondrion2
+        .animate({
+          delay: this.animationDelay,
+          duration: this.animationDuration,
+        })
+        .dmove(20, 350)
+        .animate({ duration: this.animationDuration })
+        .attr({ opacity: 0 })
+        .afterAll(() => {
+          this.glucoseToMitochondrion2 = null;
+          this.mitochondrionBattery2 = this.createBattery(
+            this.mitochondrionBattery2StartX,
+            this.mitochondrionBattery2StartY
+          );
+        });
       this.currentAnimation.add(this.glucoseToMitochondrion2);
     }
 
-    this.glucoseToMitochondrion1.animate(
-        {'delay': this.animationDelay, 'duration': this.animationDuration})
-        .dmove(20, 350)
-        .during((pos, morph, eased, situation) => {
-          this.drainEnergy(50 /* start */, 35 /* end */, pos);
-        })
-        .animate({'duration': this.animationDuration}).attr({'opacity': 0})
-        .during((pos, morph, eased, situation) => {
-          this.drainEnergy(35 /* start */, 20 /* end */, pos);
-        })
-        .afterAll(() => {
-          this.glucoseToMitochondrion1.remove();
-          this.mitochondrionBattery1 =
-              this.createBattery(this.mitochondrionBattery1StartX,
-                  this.mitochondrionBattery1StartY);
-          if (this.glucoseCreatedIncrement === 1 && !this.glucoseToMitochondrion2) {
-            this.moveGlucoseFromStorageToMitochondrion(() => {
-              this.moveBatteryFromMitochondrionToEnergyIndicator(animationCallback);
-            }, true /* requires assist */);
-          } else {
-            this.moveBatteryFromMitochondrionToEnergyIndicator(animationCallback);
-          }
-        });
+    this.glucoseToMitochondrion1
+      .animate({ delay: this.animationDelay, duration: this.animationDuration })
+      .dmove(20, 350)
+      .during((pos, morph, eased, situation) => {
+        this.drainEnergy(50 /* start */, 35 /* end */, pos);
+      })
+      .animate({ duration: this.animationDuration })
+      .attr({ opacity: 0 })
+      .during((pos, morph, eased, situation) => {
+        this.drainEnergy(35 /* start */, 20 /* end */, pos);
+      })
+      .afterAll(() => {
+        this.glucoseToMitochondrion1.remove();
+        this.mitochondrionBattery1 = this.createBattery(
+          this.mitochondrionBattery1StartX,
+          this.mitochondrionBattery1StartY
+        );
+        if (
+          this.glucoseCreatedIncrement === 1 &&
+          !this.glucoseToMitochondrion2
+        ) {
+          this.moveGlucoseFromStorageToMitochondrion(() => {
+            this.moveBatteryFromMitochondrionToEnergyIndicator(
+              animationCallback
+            );
+          }, true /* requires assist */);
+        } else {
+          this.moveBatteryFromMitochondrionToEnergyIndicator(animationCallback);
+        }
+      });
     this.currentAnimation.add(this.glucoseToMitochondrion1);
   }
 
@@ -574,18 +666,16 @@ export class PlantGlucoseSimulation {
    * should be the new energyLeft
    */
   drainEnergy(from: number, to: number, ratio: number) {
-    this.energyLeft = from - ((from - to) * ratio);
+    this.energyLeft = from - (from - to) * ratio;
     this.energyIndicatorView.updateEnergyDisplay(this.energyLeft);
   }
 
   createPhotonToPlant(x: number, y: number) {
-    return this.draw.image('./images/photon.png', 30, 30)
-        .attr({ 'x': x, 'y': y });
+    return this.draw.image('./images/photon.png', 30, 30).attr({ x: x, y: y });
   }
 
   createPhotonToChloroplast(x: number, y: number) {
-    return this.draw.image('./images/photon.png', 50, 50)
-        .attr({ 'x': x, 'y': y });
+    return this.draw.image('./images/photon.png', 50, 50).attr({ x: x, y: y });
   }
 
   createPhotons() {
@@ -593,7 +683,7 @@ export class PlantGlucoseSimulation {
     if (this.numPhotonsThisCycle >= 1) {
       this.photonPlant1 = this.createPhotonToPlant(80, 50);
       this.photonChloroplast1 = this.createPhotonToChloroplast(440, 60);
-      photonsGroup.add(this.photonPlant1).add(this.photonChloroplast1)
+      photonsGroup.add(this.photonPlant1).add(this.photonChloroplast1);
     }
     if (this.numPhotonsThisCycle >= 2) {
       this.photonPlant2 = this.createPhotonToPlant(80, 20);
@@ -615,8 +705,8 @@ export class PlantGlucoseSimulation {
 
   createGlucose(x: number, y: number) {
     return this.draw.image('./images/glucose.png', 70, 70).attr({
-      'x': x,
-      'y': y
+      x: x,
+      y: y,
     });
   }
 
@@ -627,7 +717,10 @@ export class PlantGlucoseSimulation {
         const shiftX = i % 2 ? 0 : 15;
         const shiftY = i < 2 ? shiftX + 5 : shiftX + 20;
         const waterPlant = this.createWaterToPlant(194 + shiftX, 94 + shiftY);
-        const waterChloroplast = this.createWaterToChloroplast(620 + (2 * shiftX), 60 + (2 * shiftY));
+        const waterChloroplast = this.createWaterToChloroplast(
+          620 + 2 * shiftX,
+          60 + 2 * shiftY
+        );
         waterGroup.add(waterPlant).add(waterChloroplast);
       }
     }
@@ -635,11 +728,17 @@ export class PlantGlucoseSimulation {
   }
 
   createWaterToPlant(x: number, y: number) {
-    return this.draw.ellipse(8, 12).fill(this.WATER_COLOR).attr({ 'cx': x, 'cy': y });
+    return this.draw
+      .ellipse(8, 12)
+      .fill(this.WATER_COLOR)
+      .attr({ cx: x, cy: y });
   }
 
   createWaterToChloroplast(x: number, y: number) {
-    return this.draw.ellipse(16, 24).fill(this.WATER_COLOR).attr({ 'cx': x, 'cy': y });
+    return this.draw
+      .ellipse(16, 24)
+      .fill(this.WATER_COLOR)
+      .attr({ cx: x, cy: y });
   }
 
   /**
@@ -674,31 +773,42 @@ export class PlantGlucoseSimulation {
     let buffer = 25;
 
     // move the glucose to storage in rows
-    this.glucoseToStorage1.animate(
-        {'delay': this.animationDelay,
-        'duration': this.animationDuration})
-        .move(this.STORAGE_X + ((this.glucosesInStorage.length / 2) % 5) * 75 - buffer,
-            this.STORAGE_Y +
-            (Math.floor((this.glucosesInStorage.length / 2) / 5)) * 75 - buffer)
-        .afterAll(() => {
-          this.glucosesInStorage.push(this.glucoseToStorage1.clone());
-          this.glucoseToStorage1.remove();
-          this.glucoseToStorage1 = null;
-          animationCallback();
-        });
+    this.glucoseToStorage1
+      .animate({ delay: this.animationDelay, duration: this.animationDuration })
+      .move(
+        this.STORAGE_X +
+          ((this.glucosesInStorage.length / 2) % 5) * 75 -
+          buffer,
+        this.STORAGE_Y +
+          Math.floor(this.glucosesInStorage.length / 2 / 5) * 75 -
+          buffer
+      )
+      .afterAll(() => {
+        this.glucosesInStorage.push(this.glucoseToStorage1.clone());
+        this.glucoseToStorage1.remove();
+        this.glucoseToStorage1 = null;
+        animationCallback();
+      });
     this.currentAnimation.add(this.glucoseToStorage1);
     if (this.glucoseCreatedIncrement === 4) {
-      this.glucoseToStorage2.animate(
-          {'delay': this.animationDelay,
-          'duration': this.animationDuration})
-          .move(this.STORAGE_X + ((this.glucosesInStorage.length / 2) % 5) * 75 + buffer,
-              this.STORAGE_Y +
-              (Math.floor((this.glucosesInStorage.length / 2) / 5)) * 75 + buffer)
-          .afterAll(() => {
-            this.glucosesInStorage.push(this.glucoseToStorage2.clone());
-            this.glucoseToStorage2.remove();
-            this.glucoseToStorage2 = null;
-          });
+      this.glucoseToStorage2
+        .animate({
+          delay: this.animationDelay,
+          duration: this.animationDuration,
+        })
+        .move(
+          this.STORAGE_X +
+            ((this.glucosesInStorage.length / 2) % 5) * 75 +
+            buffer,
+          this.STORAGE_Y +
+            Math.floor(this.glucosesInStorage.length / 2 / 5) * 75 +
+            buffer
+        )
+        .afterAll(() => {
+          this.glucosesInStorage.push(this.glucoseToStorage2.clone());
+          this.glucoseToStorage2.remove();
+          this.glucoseToStorage2 = null;
+        });
       this.currentAnimation.add(this.glucoseToStorage2);
     }
   }
@@ -708,31 +818,44 @@ export class PlantGlucoseSimulation {
    * @param animationCallback A callback of animation
    */
   moveGlucoseFromStorageToMitochondrion(
-      animationCallback: () => {}, requiresAssist: boolean = false) {
+    animationCallback: () => {},
+    requiresAssist: boolean = false
+  ) {
     if (this.glucosesInStorage.length === 0) {
       animationCallback();
     } else {
       this.currentAnimation = this.draw.set();
-      const glucose1InStorage = this.glucosesInStorage[this.glucosesInStorage.length - 1];
+      let glucose1InStorage =
+        this.glucosesInStorage[this.glucosesInStorage.length - 1];
+      let glucose2InStorage = null;
 
       if (this.glucosesInStorage.length >= 2 && !requiresAssist) {
-        const glucose2InStorage = this.glucosesInStorage[this.glucosesInStorage.length - 2];
+        glucose2InStorage =
+          this.glucosesInStorage[this.glucosesInStorage.length - 2];
 
         if (glucose2InStorage != null) {
-          if (this.isDroughTolerant) {
-            this.mitochondrionBattery2 =
-              this.createBattery(this.mitochondrionBattery2StartX,
-                this.mitochondrionBattery2StartY);
+          if (
+            (this.isDroughTolerant && this.numPhotonsThisCycle > 2) ||
+            (this.isShadeTolerant && this.numWaterThisCycle > 0)
+          ) {
+            this.mitochondrionBattery2 = this.createBattery(
+              this.mitochondrionBattery2StartX,
+              this.mitochondrionBattery2StartY
+            );
           } else {
-            glucose2InStorage.animate({'duration': this.animationDuration})
-              .move(this.mitochondrionBattery2StartX,
-                this.mitochondrionBattery1StartY)
-              .animate({'duration': this.animationDuration})
+            glucose2InStorage
+              .animate({ duration: this.animationDuration })
+              .move(
+                this.mitochondrionBattery2StartX,
+                this.mitochondrionBattery1StartY
+              )
+              .animate({ duration: this.animationDuration })
               .opacity(0)
               .afterAll(() => {
-                this.mitochondrionBattery2 =
-                  this.createBattery(this.mitochondrionBattery2StartX,
-                    this.mitochondrionBattery2StartY);
+                this.mitochondrionBattery2 = this.createBattery(
+                  this.mitochondrionBattery2StartX,
+                  this.mitochondrionBattery2StartY
+                );
               });
             this.currentAnimation.add(glucose2InStorage);
           }
@@ -744,89 +867,102 @@ export class PlantGlucoseSimulation {
         moveToX = this.mitochondrionBattery2StartX;
         moveToY = this.mitochondrionBattery2StartY;
       }
-      glucose1InStorage.animate({'duration': this.animationDuration})
-          .move(moveToX, moveToY)
-          .during((pos, morph, eased, situation) => {
-            if (!requiresAssist) {
-              this.drainEnergy(100 /* start */, 75 /* end */, pos);
-            }
-          })
-          .animate({'duration': this.animationDuration})
-          .opacity(0)
-          .during((pos, morph, eased, situation) => {
-            if (!requiresAssist) {
-              this.drainEnergy(75 /* start */, 50 /* end */, pos);
-            }
-          })
-          .afterAll(() => {
-            // remove the last glucose from storage
+      glucose1InStorage
+        .animate({ duration: this.animationDuration })
+        .move(moveToX, moveToY)
+        .during((pos, morph, eased, situation) => {
+          if (!requiresAssist) {
+            this.drainEnergy(100 /* start */, 75 /* end */, pos);
+          }
+        })
+        .animate({ duration: this.animationDuration })
+        .opacity(0)
+        .during((pos, morph, eased, situation) => {
+          if (!requiresAssist) {
+            this.drainEnergy(75 /* start */, 50 /* end */, pos);
+          }
+        })
+        .afterAll(() => {
+          // remove the last glucose from storage
+          this.glucosesInStorage.splice(this.glucosesInStorage.length - 1, 1);
+          glucose1InStorage.remove();
+          glucose1InStorage = null;
+          if (
+            glucose2InStorage != null &&
+            ((!this.isDroughTolerant && this.numWaterThisCycle === 0) ||
+              (this.numPhotonsThisCycle < 3 && !this.isShadeTolerant))
+          ) {
             this.glucosesInStorage.splice(this.glucosesInStorage.length - 1, 1);
-            glucose1InStorage.remove();
-            glucose1InStorage = null;
-            if (glucose2InStorage != null && !this.isDroughTolerant) {
-              this.glucosesInStorage.splice(this.glucosesInStorage.length - 1, 1);
-              glucose2InStorage.remove();
-              glucose2InStorage = null;
-            }
-            if (this.glucoseCreatedIncrement === 1) {
-              this.mitochondrionBattery2 =
-                  this.createBattery(this.mitochondrionBattery2StartX,
-                      this.mitochondrionBattery2StartY);
-              animationCallback();
-            } else {
-              this.mitochondrionBattery1 =
-                  this.createBattery(this.mitochondrionBattery1StartX,
-                      this.mitochondrionBattery1StartY);
-              this.moveBatteryFromMitochondrionToEnergyIndicator(animationCallback);
-            }
-          });
+            glucose2InStorage.remove();
+            glucose2InStorage = null;
+          }
+          if (this.glucoseCreatedIncrement === 1) {
+            this.mitochondrionBattery2 = this.createBattery(
+              this.mitochondrionBattery2StartX,
+              this.mitochondrionBattery2StartY
+            );
+            animationCallback();
+          } else {
+            this.mitochondrionBattery1 = this.createBattery(
+              this.mitochondrionBattery1StartX,
+              this.mitochondrionBattery1StartY
+            );
+            this.moveBatteryFromMitochondrionToEnergyIndicator(
+              animationCallback
+            );
+          }
+        });
       this.currentAnimation.add(glucose1InStorage);
-      }
+    }
   }
 
   moveBatteryFromMitochondrionToEnergyIndicator(animationCallback: () => {}) {
     this.currentAnimation = this.draw.set();
     // move battery 2 to transport nutrients
     if (this.mitochondrionBattery2 != null) {
-      this.mitochondrionBattery2.animate(
-          {'delay': this.animationDelay,
-          'duration': this.animationDuration})
-          .move(this.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X,
-              this.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y)
-          .afterAll(() => {
-          });
+      this.mitochondrionBattery2
+        .animate({
+          delay: this.animationDelay,
+          duration: this.animationDuration,
+        })
+        .move(
+          this.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X,
+          this.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y
+        )
+        .afterAll(() => {});
       this.currentAnimation.add(this.mitochondrionBattery2);
     }
 
     // move mitochondrion battery 1 to repair damage
-    this.mitochondrionBattery1.animate(
-        {'delay': this.animationDelay,
-        'duration': this.animationDuration})
-        .move(this.BATTERY_EMPTY_REPAIR_DAMAGE_X,
-            this.BATTERY_EMPTY_REPAIR_DAMAGE_Y)
-        .during((pos, morph, eased, situation) => {
-          if (this.isLightOn) {
-            this.drainEnergy(20 /* start */, 5 /* end */, pos);
+    this.mitochondrionBattery1
+      .animate({ delay: this.animationDelay, duration: this.animationDuration })
+      .move(
+        this.BATTERY_EMPTY_REPAIR_DAMAGE_X,
+        this.BATTERY_EMPTY_REPAIR_DAMAGE_Y
+      )
+      .during((pos, morph, eased, situation) => {
+        if (this.isLightOn) {
+          this.drainEnergy(20 /* start */, 5 /* end */, pos);
+        } else {
+          this.drainEnergy(50 /* start */, 5 /* end */, pos);
+        }
+      })
+      .afterAll(() => {
+        if (this.mitochondrionBattery2 != null) {
+          this.resetEnergyToFull();
+          this.removeMitochondrionBatteries();
+          if (this.glucoseCreatedIncrement >= 3 && this.numWaterThisCycle > 0) {
+            this.moveGlucoseFromChloroplastToStorage(animationCallback);
           } else {
-            this.drainEnergy(50 /* start */, 5 /* end */, pos);
+            // there is no glucose to move to storage, so
+            // go directly to the callback
+            animationCallback();
           }
-        })
-        .afterAll(() => {
-          if (this.mitochondrionBattery2 != null) {
-            this.resetEnergyToFull();
-            this.removeMitochondrionBatteries();
-            if (this.glucoseCreatedIncrement >= 3 && this.numWaterThisCycle > 0) {
-              this.moveGlucoseFromChloroplastToStorage(animationCallback);
-            } else {
-              // there is no glucose to move to storage, so
-              // go directly to the callback
-              animationCallback();
-            }
-          } else {
-            this.disableControlButtons();
-            this.startPlantDeathSequence();
-          }
-        });
+        } else {
+          this.disableControlButtons();
+          this.startPlantDeathSequence();
+        }
+      });
     this.currentAnimation.add(this.mitochondrionBattery1);
   }
 
@@ -865,10 +1001,17 @@ export class PlantGlucoseSimulation {
         this.simulationEndFeedback.showPlantDied();
         const glucoseCreated = false;
         const glucoseUsed = false;
-        this.updateGlucoseValues(this.currentDayNumber, glucoseCreated,
-            glucoseUsed);
-        this.graph.updateGraph(this.currentTrialData, this.currentDayNumber, 
-            this.numPhotonsThisCycle, this.numWaterThisCycle);
+        this.updateGlucoseValues(
+          this.currentDayNumber,
+          glucoseCreated,
+          glucoseUsed
+        );
+        this.graph.updateGraph(
+          this.currentTrialData,
+          this.currentDayNumber,
+          this.numPhotonsThisCycle,
+          this.numWaterThisCycle
+        );
         this.notifyStudentDataChanged();
         this.saveStudentWork();
       });
@@ -905,7 +1048,7 @@ export class PlantGlucoseSimulation {
     this.glucosesInStorage = [];
   }
 
-  isAnimationPlaying() : boolean {
+  isAnimationPlaying(): boolean {
     return this.currentAnimation != null;
   }
 
@@ -976,7 +1119,7 @@ export class PlantGlucoseSimulation {
   addEvent(eventName: string) {
     const event: Event = {
       name: eventName,
-      timestamp: new Date().getTime()
+      timestamp: new Date().getTime(),
     };
     this.currentTrialData.events.push(event);
   }
@@ -998,12 +1141,12 @@ export class PlantGlucoseSimulation {
   updateAnimationSpeedRatio(newAnimationSpeedRatio: number) {
     this.animationSpeedRatio = newAnimationSpeedRatio;
     this.animationDuration =
-        this.DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
+      this.DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
     this.animationDelay =
-        this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
+      this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
   }
 
-   /**
+  /**
    * Updates the number of photons coming in from light source
    *
    * If the request comes during an animation cycle, set a variable flag and
@@ -1030,7 +1173,7 @@ export class PlantGlucoseSimulation {
    * show a wait image so the user knows the change will take effect
    * at the beginning of the next animation cycle.
    *
-   * @param numWaterNextCycle the new water count requested by the user. 
+   * @param numWaterNextCycle the new water count requested by the user.
    * Possible values are 0, 1
    */
   handleWaterChangeRequest(numWaterNextCycle: number) {
@@ -1051,14 +1194,15 @@ export class PlantGlucoseSimulation {
         3: 4,
         2: 3,
         1: 2,
-        0: 0
+        0: 0,
       };
-      glucoseCreatedIncrement = shadeTolerantPhotonsToCreated[this.numPhotonsThisCycle];
+      glucoseCreatedIncrement =
+        shadeTolerantPhotonsToCreated[this.numPhotonsThisCycle];
     }
     return glucoseCreatedIncrement;
   }
 
   createBattery(x: number, y: number) {
-    return this.draw.image('./images/batteryFull.png').attr({ 'x': x, 'y': y });
+    return this.draw.image('./images/batteryFull.png').attr({ x: x, y: y });
   }
 }
