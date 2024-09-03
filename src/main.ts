@@ -1,5 +1,5 @@
 import { parseURLParameters } from './util';
-import { PlantGlucoseSimulation } from  './plantGlucoseSimulation';
+import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import * as $ from 'jquery';
 
 /**
@@ -9,7 +9,7 @@ import * as $ from 'jquery';
  * @author Geoffrey Kwan
  * @author Jonathan Lim-Breitbart
  */
-$(document).ready(function() {
+$(document).ready(function () {
   let parameters: any = parseURLParameters();
   let feedbackPolicy = null;
   let numDays = 20;
@@ -19,6 +19,7 @@ $(document).ready(function() {
   let showLineGlucoseUsed = true;
   let showLineGlucoseStored = true;
   let showWater = false;
+  let showKey = true;
   let enableInputControls = true;
   let isDroughtTolerant = false;
   let isShadeTolerant = false;
@@ -48,6 +49,9 @@ $(document).ready(function() {
   if (parameters['showWater'] != null) {
     showWater = parameters['showWater'];
   }
+  if (parameters['showKey'] != null) {
+    showKey = parameters['showKey'];
+  }
   if (parameters['enableInputControls'] != null) {
     enableInputControls = parameters['enableInputControls'];
   }
@@ -61,8 +65,20 @@ $(document).ready(function() {
     plantImgSrc = parameters['plantImgSrc'];
   }
 
-  new PlantGlucoseSimulation('model', numDays, numLightOptions, feedbackPolicy,
-      showGraph, showLineGlucoseMade, showLineGlucoseUsed, showLineGlucoseStored,
-      showWater, enableInputControls, isDroughtTolerant, isShadeTolerant,
-      plantImgSrc);
+  new PlantGlucoseSimulation(
+    'model',
+    numDays,
+    numLightOptions,
+    feedbackPolicy,
+    showGraph,
+    showLineGlucoseMade,
+    showLineGlucoseUsed,
+    showLineGlucoseStored,
+    showWater,
+    showKey,
+    enableInputControls,
+    isDroughtTolerant,
+    isShadeTolerant,
+    plantImgSrc
+  );
 });

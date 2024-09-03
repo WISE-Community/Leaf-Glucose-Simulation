@@ -126,6 +126,7 @@ export class PlantGlucoseSimulation {
   plantImgSrc: string;
   playBackControl: PlayBackControl;
   playSequence: any[] = [];
+  showKey: boolean;
   showWater: boolean;
   simulationEndFeedback: SimulationEndFeedback;
   simulationSpeedSwitch: SimulationSpeedSwitch;
@@ -155,6 +156,7 @@ export class PlantGlucoseSimulation {
    * @param showGraph A boolean whether the graph should be displayed or not
    * @param showWater A boolean whether the water control should be displayed or
    * not
+   * @param showKey A boolean whether the key should be displayed or not
    */
   constructor(
     elementId: string,
@@ -166,6 +168,7 @@ export class PlantGlucoseSimulation {
     showLineGlucoseUsed: boolean = true,
     showLineGlucoseStored: boolean = true,
     showWater: boolean = true,
+    showKey: boolean = true,
     enableInputControls: boolean = true,
     isDroughTolerant: boolean = false,
     isShadeTolerant: boolean = false,
@@ -175,6 +178,7 @@ export class PlantGlucoseSimulation {
     this.numDays = this.targetDays = numDays;
     this.numLightOptions = numLightOptions;
     this.showWater = showWater;
+    this.showKey = showKey;
     this.enableInputControls = enableInputControls;
     this.isDroughTolerant = isDroughTolerant;
     this.isShadeTolerant = isShadeTolerant;
@@ -188,6 +192,9 @@ export class PlantGlucoseSimulation {
     }
     if (this.showWater) {
       this.waterSwitch = new WaterSwitch(this, enableInputControls);
+    }
+    if (!this.showKey) {
+      $('.key').hide();
     }
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.playBackControl = new PlayBackControl(this);
