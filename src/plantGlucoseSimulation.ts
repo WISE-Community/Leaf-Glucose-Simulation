@@ -112,6 +112,7 @@ export class PlantGlucoseSimulation {
   numPhotonsThisCycle: number = 4;
   numWaterNextCycle: number;
   numWaterThisCycle: number = 4;
+  public onReadyToPlay: () => void;
   photonChloroplast1: SVG;
   photonChloroplast2: SVG;
   photonChloroplast3: SVG;
@@ -197,7 +198,6 @@ export class PlantGlucoseSimulation {
       $('.key').hide();
     }
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
-    this.playBackControl = new PlayBackControl(this);
     this.plantAnimationCorner = new PlantAnimationCorner(
       this.draw,
       this.BG_COLOR_LIGHT_100,
@@ -1094,7 +1094,7 @@ export class PlantGlucoseSimulation {
     }
     this.startNewTrial();
     this.setEnableControlButtons();
-    this.playBackControl.showPlayButton();
+    this.onReadyToPlay();
   }
 
   disableControlButtons() {
@@ -1132,7 +1132,7 @@ export class PlantGlucoseSimulation {
   }
 
   pauseSimulation() {
-    this.playBackControl.showPlayButton();
+    this.onReadyToPlay();
     if (this.isAnimationPlaying()) {
       this.currentAnimation.pause();
     }

@@ -1,6 +1,8 @@
 import { parseURLParameters } from './util';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import * as $ from 'jquery';
+import { ResetButton } from './resetButton';
+import { PlayPauseButton } from './playPauseButton';
 
 /**
  * Entry point for the application. Initializes the simulation with parameters
@@ -65,7 +67,7 @@ $(document).ready(function () {
     plantImgSrc = parameters['plantImgSrc'];
   }
 
-  new PlantGlucoseSimulation(
+  const simulation = new PlantGlucoseSimulation(
     'model',
     numDays,
     numLightOptions,
@@ -81,4 +83,6 @@ $(document).ready(function () {
     isShadeTolerant,
     plantImgSrc
   );
+  new PlayPauseButton(simulation);
+  new ResetButton(simulation);
 });
