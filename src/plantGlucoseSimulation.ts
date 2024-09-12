@@ -249,7 +249,7 @@ export class PlantGlucoseSimulation {
     this.setEnableControlButtons();
   }
 
-  loadInstructions(instructions: any[]) {
+  loadInstructions(instructions: any[]): void {
     if (instructions.length > 0) {
       this.playSequence = [];
       this.numDays = 0;
@@ -262,7 +262,7 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  addDaysToPlaySequence(instruction: any): any {
+  private addDaysToPlaySequence(instruction: any): void {
     for (let i = 0; i < instruction.days; i++) {
       this.playSequence.push({
         light: instruction.light,
@@ -272,26 +272,26 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  setInputControls(enable: boolean) {
+  private setInputControls(enable: boolean): void {
     this.lightSwitch.setEnableUserInput(enable);
     if (this.waterSwitch) {
       this.waterSwitch.setEnableUserInput(enable);
     }
   }
 
-  setInputValues(day: any) {
+  private setInputValues(day: any): void {
     if (day) {
       this.handleLightChangeRequest(day.light);
       this.handleWaterChangeRequest(day.water);
     }
   }
 
-  startSimulation() {
+  startSimulation(): void {
     this.simulationState = SimulationState.Running;
     this.playAnimationCycle();
   }
 
-  resumeSimulation() {
+  resumeSimulation(): void {
     this.simulationState = SimulationState.Running;
     this.currentAnimation.play();
     if (this.waterAnimation) {
@@ -314,7 +314,7 @@ export class PlantGlucoseSimulation {
   /**
    * Initialize and adds a new trial to all trials array
    */
-  startNewTrial() {
+  startNewTrial(): void {
     this.currentTrialData = {
       id: new Date().getTime(),
       name: 'Trial ' + (this.trials.length + 1),
@@ -333,11 +333,11 @@ export class PlantGlucoseSimulation {
    * @param glucoseCreated whether glucose was created
    * @param glucoseUsed whether glucose was used
    */
-  updateGlucoseValues(
+  private updateGlucoseValues(
     dayNumber: number,
     glucoseCreated: boolean,
     glucoseUsed: boolean
-  ) {
+  ): void {
     if (glucoseCreated) {
       if (this.numWaterThisCycle > 0) {
         this.totalGlucoseCreated += this.glucoseCreatedIncrement;
@@ -361,7 +361,7 @@ export class PlantGlucoseSimulation {
     ]);
   }
 
-  updateGlucoseUsed() {
+  private updateGlucoseUsed(): void {
     this.totalGlucoseUsed += this.glucoseUsedIncrement;
     if (
       (this.isDroughTolerant && this.numWaterThisCycle < 4) ||
@@ -379,7 +379,7 @@ export class PlantGlucoseSimulation {
    * Light and water can be switched on/off during the cycle, but it will not take
    * effect until the next cycle
    */
-  playAnimationCycle() {
+  private playAnimationCycle(): void {
     this.currentDayNumber++;
     if (this.currentDayNumber > this.numDays) {
       this.handleSimulationEnded();
@@ -439,19 +439,19 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  updateNumPhotonsThisCycle(numPhotonsThisCycle: number) {
+  private updateNumPhotonsThisCycle(numPhotonsThisCycle: number): void {
     this.numPhotonsThisCycle = numPhotonsThisCycle;
     this.glucoseCreatedIncrement = this.calculateGlucoseCreatedIncrement();
     this.dayDisplayCorner.updateDayColor(numPhotonsThisCycle);
     this.plantAnimationCorner.updateBackground(numPhotonsThisCycle);
   }
 
-  updateNumWaterThisCycle(numWaterThisCycle: number) {
+  private updateNumWaterThisCycle(numWaterThisCycle: number): void {
     this.numWaterThisCycle = numWaterThisCycle;
     this.plantAnimationCorner.updateWatering(numWaterThisCycle);
   }
 
-  animationCallback() {
+  private animationCallback(): void {
     const isGlucoseCreated = true;
     const isGlucoseUsed = true;
     this.updateGlucoseValues(
@@ -470,7 +470,7 @@ export class PlantGlucoseSimulation {
     this.loopAnimationAfterBriefPause();
   }
 
-  notifyStudentDataChanged() {
+  private notifyStudentDataChanged(): void {
     if (this.wiseAPI) {
       let state = {
         messageType: 'studentDataChanged',
@@ -485,7 +485,7 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  saveStudentWork() {
+  private saveStudentWork(): void {
     if (this.wiseAPI) {
       let state = {
         messageType: 'studentWork',
@@ -500,7 +500,7 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  convertToHighchartsTrial(trialData: any) {
+  private convertToHighchartsTrial(trialData: any): any {
     let convertedTrial = {
       id: trialData.id,
       name: trialData.name,
@@ -538,14 +538,14 @@ export class PlantGlucoseSimulation {
     return convertedTrial;
   }
 
-  convertToHighchartsSeries(
+  private convertToHighchartsSeries(
     seriesId,
     seriesName,
     seriesColor,
     dashStyle,
     markerSymbol,
     seriesData
-  ) {
+  ): any {
     let convertedSeries = {
       id: seriesId,
       name: seriesName,
@@ -563,13 +563,13 @@ export class PlantGlucoseSimulation {
     return convertedSeries;
   }
 
-  loopAnimationAfterBriefPause() {
+  private loopAnimationAfterBriefPause(): void {
     window.setTimeout(() => {
       this.playAnimationCycle();
     }, this.animationDuration);
   }
 
-  movePhotonsToPlantAndChloroplast(animationCallback: () => {}) {
+  private movePhotonsToPlantAndChloroplast(animationCallback: () => {}): void {
     this.photonsGroup = this.createPhotons();
     this.currentAnimation = this.photonsGroup;
     this.photonsGroup
@@ -596,7 +596,7 @@ export class PlantGlucoseSimulation {
       });
   }
 
-  moveWaterToPlantAndChloroplast() {
+  private moveWaterToPlantAndChloroplast(): void {
     this.waterGroup = this.createWaters();
     this.waterAnimation = this.waterGroup;
     this.waterGroup
@@ -611,7 +611,9 @@ export class PlantGlucoseSimulation {
       });
   }
 
-  moveGlucoseFromChloroplastToMitochondrion(animationCallback: () => {}) {
+  private moveGlucoseFromChloroplastToMitochondrion(
+    animationCallback: () => {}
+  ): void {
     this.currentAnimation = this.draw.set();
     if (this.glucoseToMitochondrion2 != null) {
       this.glucoseToMitochondrion2
@@ -672,20 +674,20 @@ export class PlantGlucoseSimulation {
    * @param ratio A number between 0 -> 1 ratio between from and to that
    * should be the new energyLeft
    */
-  drainEnergy(from: number, to: number, ratio: number) {
+  private drainEnergy(from: number, to: number, ratio: number): void {
     this.energyLeft = from - (from - to) * ratio;
     this.energyIndicatorView.updateEnergyDisplay(this.energyLeft);
   }
 
-  createPhotonToPlant(x: number, y: number) {
+  private createPhotonToPlant(x: number, y: number): any {
     return this.draw.image('./images/photon.png', 30, 30).attr({ x: x, y: y });
   }
 
-  createPhotonToChloroplast(x: number, y: number) {
+  private createPhotonToChloroplast(x: number, y: number): any {
     return this.draw.image('./images/photon.png', 50, 50).attr({ x: x, y: y });
   }
 
-  createPhotons() {
+  private createPhotons(): any {
     const photonsGroup = this.draw.group();
     if (this.numPhotonsThisCycle >= 1) {
       this.photonPlant1 = this.createPhotonToPlant(80, 50);
@@ -710,14 +712,14 @@ export class PlantGlucoseSimulation {
     return photonsGroup;
   }
 
-  createGlucose(x: number, y: number) {
+  private createGlucose(x: number, y: number): any {
     return this.draw.image('./images/glucose.png', 70, 70).attr({
       x: x,
       y: y,
     });
   }
 
-  createWaters() {
+  private createWaters(): any {
     const waterGroup = this.draw.group();
     if (this.numWaterThisCycle === 4) {
       for (let i = 0; i < 4; i++) {
@@ -734,14 +736,14 @@ export class PlantGlucoseSimulation {
     return waterGroup;
   }
 
-  createWaterToPlant(x: number, y: number) {
+  private createWaterToPlant(x: number, y: number): any {
     return this.draw
       .ellipse(8, 12)
       .fill(this.WATER_COLOR)
       .attr({ cx: x, cy: y });
   }
 
-  createWaterToChloroplast(x: number, y: number) {
+  private createWaterToChloroplast(x: number, y: number): any {
     return this.draw
       .ellipse(16, 24)
       .fill(this.WATER_COLOR)
@@ -752,7 +754,7 @@ export class PlantGlucoseSimulation {
    * Create glucose that will be moved from chloroplast
    * to mitochondrion and returns a group containing them
    */
-  createGlucosesToMitochondrion() {
+  private createGlucosesToMitochondrion(): void {
     if (this.glucoseCreatedIncrement >= 1) {
       this.glucoseToMitochondrion1 = this.createGlucose(600, 150);
     }
@@ -765,7 +767,7 @@ export class PlantGlucoseSimulation {
    * Create glucose that will be moved from chloroplast
    * to storage and returns a group containing them
    */
-  createGlucosesToStorage() {
+  private createGlucosesToStorage(): void {
     if (this.glucoseCreatedIncrement === 3) {
       this.glucoseToStorage1 = this.createGlucose(400, 100);
     } else if (this.glucoseCreatedIncrement === 4) {
@@ -774,7 +776,9 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  moveGlucoseFromChloroplastToStorage(animationCallback: () => {}) {
+  private moveGlucoseFromChloroplastToStorage(
+    animationCallback: () => {}
+  ): void {
     this.currentAnimation = this.draw.set();
 
     let buffer = 25;
@@ -824,10 +828,10 @@ export class PlantGlucoseSimulation {
    * Move the glucose to center of mitochondrion during light OFF cycle
    * @param animationCallback A callback of animation
    */
-  moveGlucoseFromStorageToMitochondrion(
+  private moveGlucoseFromStorageToMitochondrion(
     animationCallback: () => {},
     requiresAssist: boolean = false
-  ) {
+  ): void {
     if (this.glucosesInStorage.length === 0) {
       animationCallback();
     } else {
@@ -923,7 +927,9 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  moveBatteryFromMitochondrionToEnergyIndicator(animationCallback: () => {}) {
+  private moveBatteryFromMitochondrionToEnergyIndicator(
+    animationCallback: () => {}
+  ): void {
     this.currentAnimation = this.draw.set();
     // move battery 2 to transport nutrients
     if (this.mitochondrionBattery2 != null) {
@@ -973,12 +979,12 @@ export class PlantGlucoseSimulation {
     this.currentAnimation.add(this.mitochondrionBattery1);
   }
 
-  resetEnergyToFull() {
+  private resetEnergyToFull(): void {
     this.energyLeft = 100;
     this.energyIndicatorView.updateEnergyDisplay(this.energyLeft);
   }
 
-  handleSimulationEnded() {
+  private handleSimulationEnded(): void {
     this.addEvent('simulationEnded');
     this.pauseSimulation();
     if (this.currentDayNumber === this.targetDays + 1) {
@@ -990,7 +996,7 @@ export class PlantGlucoseSimulation {
     this.saveStudentWork();
   }
 
-  startPlantDeathSequence() {
+  private startPlantDeathSequence(): void {
     this.currentAnimation = this.draw
       .animate(3000 * this.animationSpeedRatio)
       .during((pos, morph, eased, situation) => {
@@ -1024,7 +1030,7 @@ export class PlantGlucoseSimulation {
       });
   }
 
-  removeMitochondrionBatteries() {
+  private removeMitochondrionBatteries(): void {
     if (this.mitochondrionBattery1 != null) {
       this.mitochondrionBattery1.remove();
       this.mitochondrionBattery1 = null;
@@ -1035,7 +1041,7 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  removeGlucoses() {
+  private removeGlucoses(): void {
     if (this.glucoseToStorage1 != null) {
       this.glucoseToStorage1.remove();
     }
@@ -1055,11 +1061,11 @@ export class PlantGlucoseSimulation {
     this.glucosesInStorage = [];
   }
 
-  isAnimationPlaying(): boolean {
+  private isAnimationPlaying(): boolean {
     return this.currentAnimation != null;
   }
 
-  resetSimulation() {
+  resetSimulation(): void {
     this.simulationState = SimulationState.Stopped;
 
     if (this.isAnimationPlaying()) {
@@ -1097,14 +1103,14 @@ export class PlantGlucoseSimulation {
     this.onReadyToPlay();
   }
 
-  disableControlButtons() {
+  private disableControlButtons(): void {
     this.isControlEnabled = false;
     this.setInputControls(false);
     this.simulationSpeedSwitch.disableUserInput();
     $('#playPause').css('opacity', 0.3);
   }
 
-  setEnableControlButtons() {
+  private setEnableControlButtons(): void {
     if (this.enableInputControls || this.playSequence.length) {
       this.enableControlButtons();
     } else {
@@ -1112,7 +1118,7 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  enableControlButtons() {
+  private enableControlButtons(): void {
     this.isControlEnabled = true;
     this.setInputControls(this.enableInputControls);
     this.simulationSpeedSwitch.enableUserInput();
@@ -1123,7 +1129,7 @@ export class PlantGlucoseSimulation {
    * Add an event to the current trial data
    * @param eventName the name of the event
    */
-  addEvent(eventName: string) {
+  addEvent(eventName: string): void {
     const event: Event = {
       name: eventName,
       timestamp: new Date().getTime(),
@@ -1131,7 +1137,7 @@ export class PlantGlucoseSimulation {
     this.currentTrialData.events.push(event);
   }
 
-  pauseSimulation() {
+  pauseSimulation(): void {
     this.onReadyToPlay();
     if (this.isAnimationPlaying()) {
       this.currentAnimation.pause();
@@ -1145,7 +1151,7 @@ export class PlantGlucoseSimulation {
   /**
    * @param newAnimationSpeedRatio A number for the new animation speed
    */
-  updateAnimationSpeedRatio(newAnimationSpeedRatio: number) {
+  updateAnimationSpeedRatio(newAnimationSpeedRatio: number): void {
     this.animationSpeedRatio = newAnimationSpeedRatio;
     this.animationDuration =
       this.DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
@@ -1163,7 +1169,7 @@ export class PlantGlucoseSimulation {
    * @param numPhotonsNextCycle the new photon count requested by
    * the user. Possible values are 0, 1, 2, 3, or 4
    */
-  handleLightChangeRequest(numPhotonsNextCycle: number) {
+  handleLightChangeRequest(numPhotonsNextCycle: number): void {
     if (this.isAnimationPlaying()) {
       this.lightSwitch.showWaitImage();
       this.numPhotonsNextCycle = numPhotonsNextCycle;
@@ -1183,7 +1189,7 @@ export class PlantGlucoseSimulation {
    * @param numWaterNextCycle the new water count requested by the user.
    * Possible values are 0, 1
    */
-  handleWaterChangeRequest(numWaterNextCycle: number) {
+  handleWaterChangeRequest(numWaterNextCycle: number): void {
     if (this.isAnimationPlaying()) {
       this.waterSwitch.showWaitImage();
       this.numWaterNextCycle = numWaterNextCycle;
@@ -1193,7 +1199,7 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  calculateGlucoseCreatedIncrement(): number {
+  private calculateGlucoseCreatedIncrement(): number {
     let glucoseCreatedIncrement = this.numPhotonsThisCycle;
     if (this.isShadeTolerant) {
       const shadeTolerantPhotonsToCreated: any = {
@@ -1209,7 +1215,7 @@ export class PlantGlucoseSimulation {
     return glucoseCreatedIncrement;
   }
 
-  createBattery(x: number, y: number) {
+  private createBattery(x: number, y: number): any {
     return this.draw.image('./images/batteryFull.png').attr({ x: x, y: y });
   }
 }
