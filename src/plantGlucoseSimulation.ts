@@ -250,16 +250,14 @@ export class PlantGlucoseSimulation {
   }
 
   loadInstructions(instructions: any[]): void {
-    if (instructions.length > 0) {
-      this.playSequence = [];
-      this.numDays = 0;
-      for (let i = 0; i < instructions.length; i++) {
-        this.addDaysToPlaySequence(instructions[i]);
-      }
-      this.resetSimulation();
-      this.setInputValues(this.playSequence[0]);
-      this.enableControlButtons();
+    this.playSequence = [];
+    this.numDays = 0;
+    for (let i = 0; i < instructions.length; i++) {
+      this.addDaysToPlaySequence(instructions[i]);
     }
+    this.resetSimulation();
+    this.setInputValues(this.playSequence[0]);
+    this.enableControlButtons();
   }
 
   private addDaysToPlaySequence(instruction: any): void {

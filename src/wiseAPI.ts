@@ -6,7 +6,7 @@
  * @author Jonathan Lim-Breitbart
  */
 
-import { PlantGlucoseSimulation } from "./plantGlucoseSimulation";
+import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 
 export class WISEAPI {
   isWISE4: boolean = false;
@@ -59,7 +59,7 @@ export class WISEAPI {
       let componentState = {
         isAutoSave: false,
         isSubmit: false,
-        studentData: trialData
+        studentData: trialData,
       };
       this.saveWISE5State(componentState);
     }
@@ -90,7 +90,7 @@ export class WISEAPI {
   sendMessage(message: any) {
     //console.log('sending message:' + JSON.stringify(message));
     if (parent != null) {
-      parent.postMessage(message, "*");
+      parent.postMessage(message, '*');
     }
   }
 
@@ -108,21 +108,28 @@ export class WISEAPI {
            * other components
            */
           this.studentWorkFromThisNode = messageData.studentWorkFromThisNode;
-          this.studentWorkFromOtherComponents = messageData.studentWorkFromOtherComponents;
-
+          this.studentWorkFromOtherComponents =
+            messageData.studentWorkFromOtherComponents;
         } else if (messageData.messageType == 'nodeSubmitClicked') {
           /*
            * the student has clicked the submit button and the student
            * work has been included in the message data
            */
           this.studentWorkFromThisNode = messageData.studentWorkFromThisNode;
-          this.studentWorkFromOtherComponents = messageData.studentWorkFromOtherComponents;
+          this.studentWorkFromOtherComponents =
+            messageData.studentWorkFromOtherComponents;
         } else if (messageData.messageType == 'componentStateSaved') {
           const componentState = messageData.componentState;
-        } else if (messageData.messageType == 'handleConnectedComponentStudentDataChanged') {
+        } else if (
+          messageData.messageType ==
+          'handleConnectedComponentStudentDataChanged'
+        ) {
           const componentState = messageData.componentState;
-          if (componentState.componentType == 'Embedded' && !componentState.isAutoSave) {
-              api.showModelStateFromEmbedded(componentState)
+          if (
+            componentState.componentType == 'Embedded' &&
+            !componentState.isAutoSave
+          ) {
+            api.showModelStateFromEmbedded(componentState);
           }
         }
       }
@@ -132,8 +139,8 @@ export class WISEAPI {
   showModelStateFromEmbedded(componentState: any) {
     const studentData = componentState.studentData;
     if (studentData && studentData.type === 'snap') {
-      const instructions = studentData.instructions;
-      if (instructions) {
+      const instructions = studentData.instructions ?? [];
+      if (instructions.length > 0) {
         this.simulation.loadInstructions(instructions);
       }
     }
@@ -144,7 +151,7 @@ export class WISEAPI {
    */
   getStudentWork() {
     let getStudentWorkRequest = {
-      messageType: "getStudentWork"
+      messageType: 'getStudentWork',
     };
     this.sendMessage(getStudentWorkRequest);
   }
