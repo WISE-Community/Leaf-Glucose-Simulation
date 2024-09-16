@@ -139,7 +139,7 @@ export class WISEAPI {
   showModelStateFromEmbedded(componentState: any) {
     const studentData = componentState.studentData;
     if (studentData && studentData.type === 'snap') {
-      const instructions = studentData.instructions ?? [];
+      const instructions = studentData.instructions || [];
       if (instructions.length > 0) {
         this.simulation.loadInstructions(instructions);
       }
