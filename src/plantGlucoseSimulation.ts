@@ -8,7 +8,6 @@ import { LightSwitch3 } from './lightSwitch3';
 import { LightSwitch5 } from './lightSwitch5';
 import { WaterSwitch } from './waterSwitch';
 import { PlantAnimationCorner } from './plantAnimationCorner';
-import { PlayBackControl } from './playBackControl';
 import { SimulationEndFeedback } from './simulationEndFeedback';
 import { SimulationSpeedSwitch } from './simulationSpeedSwitch';
 import { SimulationState } from './simulationState';
@@ -125,7 +124,6 @@ export class PlantGlucoseSimulation {
   waterGroup: SVG;
   plantAnimationCorner: PlantAnimationCorner;
   plantImgSrc: string;
-  playBackControl: PlayBackControl;
   playSequence: any[] = [];
   showKey: boolean;
   showWater: boolean;
@@ -147,7 +145,7 @@ export class PlantGlucoseSimulation {
   /**
    * Instantiates variables with initial values for objects
    * within the simulation. Controlling the simulation (play/pause/reset)
-   * is done through the PlayBackControl and SimulationSpeedSwitch class.
+   * is done through the PlayPauseButton, ResetButton, and and SimulationSpeedSwitch class.
    * @param elementId A string containing the id of the DOM element where
    * the simulation should be displayed
    * @param numLightOptions A number containing the number of options for light.
