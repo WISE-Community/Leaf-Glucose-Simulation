@@ -16,7 +16,8 @@ type SVG = typeof SVG;
 import 'svg.draggable.js';
 import * as $ from 'jquery';
 import { WISEAPI } from './wiseAPI';
-import { Battery1, Battery2 } from './battery';
+import { Battery1 } from './battery1';
+import { Battery2 } from './battery2';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
