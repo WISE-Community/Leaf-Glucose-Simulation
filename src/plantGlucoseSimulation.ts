@@ -12,9 +12,11 @@ import { SimulationEndFeedback } from './simulationEndFeedback';
 import { SimulationSpeedSwitch } from './simulationSpeedSwitch';
 import { SimulationState } from './simulationState';
 import * as SVG from 'svg.js';
+type SVG = typeof SVG;
 import 'svg.draggable.js';
 import * as $ from 'jquery';
 import { WISEAPI } from './wiseAPI';
+import { Battery1, Battery2 } from './battery';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -66,7 +68,7 @@ export class PlantGlucoseSimulation {
   currentDayNumber: number = 0;
   currentTrialData: any;
   dayDisplayCorner: DayDisplayCorner;
-  draw: SVG;
+  draw: SVG.Doc;
   enableInputControls: boolean = true;
   energyIndicatorView: EnergyIndicatorView;
   energyLeft: number = 100;
@@ -101,12 +103,12 @@ export class PlantGlucoseSimulation {
   lightSwitch: any;
   waterSwitch: WaterSwitch;
   mitochondrion: SVG;
-  mitochondrionBattery1: SVG;
+  mitochondrionBattery1: Battery1;
   mitochondrionBattery1StartX = this.MITOCHONDRION_X + 100;
   mitochondrionBattery1StartY = this.MITOCHONDRION_Y + 100;
   mitochondrionBattery2StartX = this.MITOCHONDRION_X + 175;
   mitochondrionBattery2StartY = this.MITOCHONDRION_Y + 50;
-  mitochondrionBattery2: SVG;
+  mitochondrionBattery2: Battery2;
   numPhotonsNextCycle: number;
   numPhotonsThisCycle: number = 4;
   numWaterNextCycle: number;
@@ -622,10 +624,7 @@ export class PlantGlucoseSimulation {
         .attr({ opacity: 0 })
         .afterAll(() => {
           this.glucoseToMitochondrion2 = null;
-          this.mitochondrionBattery2 = this.createBattery(
-            this.mitochondrionBattery2StartX,
-            this.mitochondrionBattery2StartY
-          );
+          this.mitochondrionBattery2 = new Battery2(this);
         });
       this.currentAnimation.add(this.glucoseToMitochondrion2);
     }
@@ -643,10 +642,7 @@ export class PlantGlucoseSimulation {
       })
       .afterAll(() => {
         this.glucoseToMitochondrion1.remove();
-        this.mitochondrionBattery1 = this.createBattery(
-          this.mitochondrionBattery1StartX,
-          this.mitochondrionBattery1StartY
-        );
+        this.mitochondrionBattery1 = new Battery1(this);
         if (
           this.glucoseCreatedIncrement === 1 &&
           !this.glucoseToMitochondrion2
@@ -670,7 +666,7 @@ export class PlantGlucoseSimulation {
    * @param ratio A number between 0 -> 1 ratio between from and to that
    * should be the new energyLeft
    */
-  private drainEnergy(from: number, to: number, ratio: number): void {
+  drainEnergy(from: number, to: number, ratio: number): void {
     this.energyLeft = from - (from - to) * ratio;
     this.energyIndicatorView.updateEnergyDisplay(this.energyLeft);
   }
@@ -845,10 +841,7 @@ export class PlantGlucoseSimulation {
             (this.isDroughTolerant && this.numPhotonsThisCycle > 2) ||
             (this.isShadeTolerant && this.numWaterThisCycle > 0)
           ) {
-            this.mitochondrionBattery2 = this.createBattery(
-              this.mitochondrionBattery2StartX,
-              this.mitochondrionBattery2StartY
-            );
+            this.mitochondrionBattery2 = new Battery2(this);
           } else {
             glucose2InStorage
               .animate({ duration: this.animationDuration })
@@ -859,10 +852,7 @@ export class PlantGlucoseSimulation {
               .animate({ duration: this.animationDuration })
               .opacity(0)
               .afterAll(() => {
-                this.mitochondrionBattery2 = this.createBattery(
-                  this.mitochondrionBattery2StartX,
-                  this.mitochondrionBattery2StartY
-                );
+                this.mitochondrionBattery2 = new Battery2(this);
               });
             this.currentAnimation.add(glucose2InStorage);
           }
@@ -904,16 +894,10 @@ export class PlantGlucoseSimulation {
             glucose2InStorage = null;
           }
           if (this.glucoseCreatedIncrement === 1) {
-            this.mitochondrionBattery2 = this.createBattery(
-              this.mitochondrionBattery2StartX,
-              this.mitochondrionBattery2StartY
-            );
+            this.mitochondrionBattery2 = new Battery2(this);
             animationCallback();
           } else {
-            this.mitochondrionBattery1 = this.createBattery(
-              this.mitochondrionBattery1StartX,
-              this.mitochondrionBattery1StartY
-            );
+            this.mitochondrionBattery1 = new Battery1(this);
             this.moveBatteryFromMitochondrionToEnergyIndicator(
               animationCallback
             );
@@ -929,50 +913,28 @@ export class PlantGlucoseSimulation {
     this.currentAnimation = this.draw.set();
     // move battery 2 to transport nutrients
     if (this.mitochondrionBattery2 != null) {
-      this.mitochondrionBattery2
-        .animate({
-          delay: this.animationDelay,
-          duration: this.animationDuration,
-        })
-        .move(
-          this.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X,
-          this.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y
-        )
-        .afterAll(() => {});
-      this.currentAnimation.add(this.mitochondrionBattery2);
+      this.mitochondrionBattery2.animate();
+      this.currentAnimation.add(this.mitochondrionBattery2.getImage());
     }
 
     // move mitochondrion battery 1 to repair damage
-    this.mitochondrionBattery1
-      .animate({ delay: this.animationDelay, duration: this.animationDuration })
-      .move(
-        this.BATTERY_EMPTY_REPAIR_DAMAGE_X,
-        this.BATTERY_EMPTY_REPAIR_DAMAGE_Y
-      )
-      .during((pos, morph, eased, situation) => {
-        if (this.isLightOn) {
-          this.drainEnergy(20 /* start */, 5 /* end */, pos);
+    this.mitochondrionBattery1.animate().afterAll(() => {
+      if (this.mitochondrionBattery2 != null) {
+        this.resetEnergyToFull();
+        this.removeMitochondrionBatteries();
+        if (this.glucoseCreatedIncrement >= 3 && this.numWaterThisCycle > 0) {
+          this.moveGlucoseFromChloroplastToStorage(animationCallback);
         } else {
-          this.drainEnergy(50 /* start */, 5 /* end */, pos);
+          // there is no glucose to move to storage, so
+          // go directly to the callback
+          animationCallback();
         }
-      })
-      .afterAll(() => {
-        if (this.mitochondrionBattery2 != null) {
-          this.resetEnergyToFull();
-          this.removeMitochondrionBatteries();
-          if (this.glucoseCreatedIncrement >= 3 && this.numWaterThisCycle > 0) {
-            this.moveGlucoseFromChloroplastToStorage(animationCallback);
-          } else {
-            // there is no glucose to move to storage, so
-            // go directly to the callback
-            animationCallback();
-          }
-        } else {
-          this.disableControlButtons();
-          this.startPlantDeathSequence();
-        }
-      });
-    this.currentAnimation.add(this.mitochondrionBattery1);
+      } else {
+        this.disableControlButtons();
+        this.startPlantDeathSequence();
+      }
+    });
+    this.currentAnimation.add(this.mitochondrionBattery1.getImage());
   }
 
   private resetEnergyToFull(): void {
@@ -1209,9 +1171,5 @@ export class PlantGlucoseSimulation {
         shadeTolerantPhotonsToCreated[this.numPhotonsThisCycle];
     }
     return glucoseCreatedIncrement;
-  }
-
-  private createBattery(x: number, y: number): any {
-    return this.draw.image('./images/batteryFull.png').attr({ x: x, y: y });
   }
 }
