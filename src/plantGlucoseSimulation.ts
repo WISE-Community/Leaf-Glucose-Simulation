@@ -780,9 +780,6 @@ export class PlantGlucoseSimulation {
     animationCallback: () => {}
   ): void {
     this.currentAnimation = this.draw.set();
-
-    let buffer = 25;
-
     // move the glucose to storage in rows
     this.glucoseToStorage1.animate().afterAll(() => {
       this.glucosesInStorage.push(this.glucoseToStorage1.clone());
