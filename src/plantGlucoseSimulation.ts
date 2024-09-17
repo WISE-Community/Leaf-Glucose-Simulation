@@ -18,6 +18,8 @@ import * as $ from 'jquery';
 import { WISEAPI } from './wiseAPI';
 import { Battery1 } from './battery1';
 import { Battery2 } from './battery2';
+import { GlucoseToStorage1 } from './glucoseToStorage1';
+import { GlucoseToStorage2 } from './glucoseToStorage2';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -52,6 +54,11 @@ export class PlantGlucoseSimulation {
   STORAGE_X = 50;
   STORAGE_Y = 375;
 
+  GLUCOSE_TO_STORAGE1_START_X = 400;
+  GLUCOSE_TO_STORAGE1_START_Y = 100;
+  GLUCOSE_TO_STORAGE2_START_X = 475;
+  GLUCOSE_TO_STORAGE2_START_Y = 150;
+
   // ratio speed for each animation to complete. 0 = stop -> 1 = full speed
   animationSpeedRatio: number = 1;
 
@@ -85,8 +92,8 @@ export class PlantGlucoseSimulation {
 
   glucoseToMitochondrion1: SVG;
   glucoseToMitochondrion2: SVG;
-  glucoseToStorage1: SVG;
-  glucoseToStorage2: SVG;
+  glucoseToStorage1: GlucoseToStorage1;
+  glucoseToStorage2: GlucoseToStorage2;
   glucosesInStorage: SVG[] = [];
   initialGlucoseCreated: number = 0;
   initialGlucoseUsed: number = 0;
@@ -762,10 +769,10 @@ export class PlantGlucoseSimulation {
    */
   private createGlucosesToStorage(): void {
     if (this.glucoseCreatedIncrement === 3) {
-      this.glucoseToStorage1 = this.createGlucose(400, 100);
+      this.glucoseToStorage1 = new GlucoseToStorage1(this);
     } else if (this.glucoseCreatedIncrement === 4) {
-      this.glucoseToStorage1 = this.createGlucose(400, 100);
-      this.glucoseToStorage2 = this.createGlucose(475, 150);
+      this.glucoseToStorage1 = new GlucoseToStorage1(this);
+      this.glucoseToStorage2 = new GlucoseToStorage2(this);
     }
   }
 
@@ -777,43 +784,20 @@ export class PlantGlucoseSimulation {
     let buffer = 25;
 
     // move the glucose to storage in rows
-    this.glucoseToStorage1
-      .animate({ delay: this.animationDelay, duration: this.animationDuration })
-      .move(
-        this.STORAGE_X +
-          ((this.glucosesInStorage.length / 2) % 5) * 75 -
-          buffer,
-        this.STORAGE_Y +
-          Math.floor(this.glucosesInStorage.length / 2 / 5) * 75 -
-          buffer
-      )
-      .afterAll(() => {
-        this.glucosesInStorage.push(this.glucoseToStorage1.clone());
-        this.glucoseToStorage1.remove();
-        this.glucoseToStorage1 = null;
-        animationCallback();
-      });
-    this.currentAnimation.add(this.glucoseToStorage1);
+    this.glucoseToStorage1.animate().afterAll(() => {
+      this.glucosesInStorage.push(this.glucoseToStorage1.clone());
+      this.glucoseToStorage1.remove();
+      this.glucoseToStorage1 = null;
+      animationCallback();
+    });
+    this.currentAnimation.add(this.glucoseToStorage1.getImage());
     if (this.glucoseCreatedIncrement === 4) {
-      this.glucoseToStorage2
-        .animate({
-          delay: this.animationDelay,
-          duration: this.animationDuration,
-        })
-        .move(
-          this.STORAGE_X +
-            ((this.glucosesInStorage.length / 2) % 5) * 75 +
-            buffer,
-          this.STORAGE_Y +
-            Math.floor(this.glucosesInStorage.length / 2 / 5) * 75 +
-            buffer
-        )
-        .afterAll(() => {
-          this.glucosesInStorage.push(this.glucoseToStorage2.clone());
-          this.glucoseToStorage2.remove();
-          this.glucoseToStorage2 = null;
-        });
-      this.currentAnimation.add(this.glucoseToStorage2);
+      this.glucoseToStorage2.animate().afterAll(() => {
+        this.glucosesInStorage.push(this.glucoseToStorage2.clone());
+        this.glucoseToStorage2.remove();
+        this.glucoseToStorage2 = null;
+      });
+      this.currentAnimation.add(this.glucoseToStorage2.getImage());
     }
   }
 
