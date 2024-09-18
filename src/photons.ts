@@ -4,14 +4,6 @@ type SVG = typeof SVG.Doc;
 
 export class Photons {
   private group: SVG.G;
-  private photonChloroplast1: SVG.Image;
-  private photonChloroplast2: SVG.Image;
-  private photonChloroplast3: SVG.Image;
-  private photonChloroplast4: SVG.Image;
-  private photonPlant1: SVG.Image;
-  private photonPlant2: SVG.Image;
-  private photonPlant3: SVG.Image;
-  private photonPlant4: SVG.Image;
   protected simulation: PlantGlucoseSimulation;
 
   constructor(simulation: PlantGlucoseSimulation) {
@@ -19,37 +11,32 @@ export class Photons {
     this.group = this.simulation.draw.group();
 
     if (this.simulation.numPhotonsThisCycle >= 1) {
-      this.photonPlant1 = this.createPhotonToPlant(80, 50);
-      this.photonChloroplast1 = this.createPhotonToChloroplast(440, 60);
-      this.group.add(this.photonPlant1).add(this.photonChloroplast1);
+      this.createPhotons(80, 50, 440, 60);
     }
     if (this.simulation.numPhotonsThisCycle >= 2) {
-      this.photonPlant2 = this.createPhotonToPlant(80, 20);
-      this.photonChloroplast2 = this.createPhotonToChloroplast(480, 30);
-      this.group.add(this.photonPlant2).add(this.photonChloroplast2);
+      this.createPhotons(80, 20, 480, 30);
     }
     if (this.simulation.numPhotonsThisCycle >= 3) {
-      this.photonPlant3 = this.createPhotonToPlant(30, 50);
-      this.photonChloroplast3 = this.createPhotonToChloroplast(340, 60);
-      this.group.add(this.photonPlant3).add(this.photonChloroplast3);
+      this.createPhotons(30, 50, 340, 60);
     }
     if (this.simulation.numPhotonsThisCycle === 4) {
-      this.photonPlant4 = this.createPhotonToPlant(50, 20);
-      this.photonChloroplast4 = this.createPhotonToChloroplast(380, 30);
-      this.group.add(this.photonPlant4).add(this.photonChloroplast4);
+      this.createPhotons(50, 20, 380, 30);
     }
   }
 
-  private createPhotonToPlant(x: number, y: number): any {
-    return this.simulation.draw
+  private createPhotons(
+    toPlant_X: number,
+    toPlant_Y: number,
+    toChloroplast_X: number,
+    toChloroplast_Y: number
+  ): void {
+    const photonToPlant = this.simulation.draw
       .image('./images/photon.png', 30, 30)
-      .attr({ x: x, y: y });
-  }
-
-  private createPhotonToChloroplast(x: number, y: number): any {
-    return this.simulation.draw
+      .attr({ x: toPlant_X, y: toPlant_Y });
+    const photonToChloroplast = this.simulation.draw
       .image('./images/photon.png', 50, 50)
-      .attr({ x: x, y: y });
+      .attr({ x: toChloroplast_X, y: toChloroplast_Y });
+    this.group.add(photonToPlant).add(photonToChloroplast);
   }
 
   animate(): any {
