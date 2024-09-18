@@ -18,6 +18,12 @@ import * as $ from 'jquery';
 import { WISEAPI } from './wiseAPI';
 import { Battery1 } from './battery1';
 import { Battery2 } from './battery2';
+import { GlucoseToStorage1 } from './glucoseToStorage1';
+import { GlucoseToStorage2 } from './glucoseToStorage2';
+import { GlucoseToMitochondrion1 } from './glucoseToMitochondrion1';
+import { GlucoseToMitochondrion2 } from './glucoseToMitochondrion2';
+import { Photons } from './photons';
+import { Waters } from './waters';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -52,6 +58,16 @@ export class PlantGlucoseSimulation {
   STORAGE_X = 50;
   STORAGE_Y = 375;
 
+  GLUCOSE_TO_STORAGE1_START_X = 400;
+  GLUCOSE_TO_STORAGE1_START_Y = 100;
+  GLUCOSE_TO_STORAGE2_START_X = 475;
+  GLUCOSE_TO_STORAGE2_START_Y = 150;
+
+  GLUCOSE_TO_MITOCHONDRION1_START_X = 600;
+  GLUCOSE_TO_MITOCHONDRION1_START_Y = 150;
+  GLUCOSE_TO_MITOCHONDRION2_START_X = 675;
+  GLUCOSE_TO_MITOCHONDRION2_START_Y = 100;
+
   // ratio speed for each animation to complete. 0 = stop -> 1 = full speed
   animationSpeedRatio: number = 1;
 
@@ -83,10 +99,10 @@ export class PlantGlucoseSimulation {
   glucoseCreatedIncrement: number = 4;
   glucoseUsedIncrement: number = 2;
 
-  glucoseToMitochondrion1: SVG;
-  glucoseToMitochondrion2: SVG;
-  glucoseToStorage1: SVG;
-  glucoseToStorage2: SVG;
+  glucoseToMitochondrion1: GlucoseToMitochondrion1;
+  glucoseToMitochondrion2: GlucoseToMitochondrion2;
+  glucoseToStorage1: GlucoseToStorage1;
+  glucoseToStorage2: GlucoseToStorage2;
   glucosesInStorage: SVG[] = [];
   initialGlucoseCreated: number = 0;
   initialGlucoseUsed: number = 0;
@@ -115,16 +131,9 @@ export class PlantGlucoseSimulation {
   numWaterNextCycle: number;
   numWaterThisCycle: number = 4;
   public onReadyToPlay: () => void;
-  photonChloroplast1: SVG;
-  photonChloroplast2: SVG;
-  photonChloroplast3: SVG;
-  photonChloroplast4: SVG;
-  photonPlant1: SVG;
-  photonPlant2: SVG;
-  photonPlant3: SVG;
-  photonPlant4: SVG;
-  photonsGroup: SVG;
-  waterGroup: SVG;
+
+  private photonsGroup: Photons;
+  private waterGroup: Waters;
   plantAnimationCorner: PlantAnimationCorner;
   plantImgSrc: string;
   playSequence: any[] = [];
@@ -569,45 +578,29 @@ export class PlantGlucoseSimulation {
   }
 
   private movePhotonsToPlantAndChloroplast(animationCallback: () => {}): void {
-    this.photonsGroup = this.createPhotons();
-    this.currentAnimation = this.photonsGroup;
-    this.photonsGroup
-      .animate({ duration: this.animationDuration })
-      .move(50, 50)
-      .during((pos, morph, eased, situation) => {
-        this.drainEnergy(100 /* start */, 75 /* end */, pos);
-      })
-      .animate({ duration: this.animationDuration })
-      .attr({ opacity: 0 })
-      .during((pos, morph, eased, situation) => {
-        this.drainEnergy(75 /* start */, 50 /* end */, pos);
-      })
-      .afterAll(() => {
-        this.photonsGroup.remove();
-        this.photonsGroup = null;
-        if (this.numWaterThisCycle > 0 && this.glucoseCreatedIncrement > 0) {
-          this.createGlucosesToMitochondrion();
-          this.createGlucosesToStorage();
-          this.moveGlucoseFromChloroplastToMitochondrion(animationCallback);
-        } else {
-          this.moveGlucoseFromStorageToMitochondrion(animationCallback);
-        }
-      });
+    this.photonsGroup = new Photons(this);
+    this.currentAnimation = this.photonsGroup.getGroup();
+    this.photonsGroup.animate().afterAll(() => {
+      this.photonsGroup.remove();
+      this.photonsGroup = null;
+      if (this.numWaterThisCycle > 0 && this.glucoseCreatedIncrement > 0) {
+        this.createGlucosesToMitochondrion();
+        this.createGlucosesToStorage();
+        this.moveGlucoseFromChloroplastToMitochondrion(animationCallback);
+      } else {
+        this.moveGlucoseFromStorageToMitochondrion(animationCallback);
+      }
+    });
   }
 
   private moveWaterToPlantAndChloroplast(): void {
-    this.waterGroup = this.createWaters();
-    this.waterAnimation = this.waterGroup;
-    this.waterGroup
-      .animate({ duration: this.animationDuration })
-      .move(0, 40)
-      .animate({ duration: this.animationDuration })
-      .attr({ opacity: 0 })
-      .afterAll(() => {
-        this.waterGroup.remove();
-        this.waterGroup = null;
-        this.waterAnimation = null;
-      });
+    this.waterGroup = new Waters(this);
+    this.waterAnimation = this.waterGroup.getGroup();
+    this.waterGroup.animate().afterAll(() => {
+      this.waterGroup.remove();
+      this.waterGroup = null;
+      this.waterAnimation = null;
+    });
   }
 
   private moveGlucoseFromChloroplastToMitochondrion(
@@ -615,32 +608,16 @@ export class PlantGlucoseSimulation {
   ): void {
     this.currentAnimation = this.draw.set();
     if (this.glucoseToMitochondrion2 != null) {
-      this.glucoseToMitochondrion2
-        .animate({
-          delay: this.animationDelay,
-          duration: this.animationDuration,
-        })
-        .dmove(20, 350)
-        .animate({ duration: this.animationDuration })
-        .attr({ opacity: 0 })
-        .afterAll(() => {
-          this.glucoseToMitochondrion2 = null;
-          this.mitochondrionBattery2 = new Battery2(this);
-        });
-      this.currentAnimation.add(this.glucoseToMitochondrion2);
+      this.glucoseToMitochondrion2.animate().afterAll(() => {
+        this.glucoseToMitochondrion2 = null;
+        this.mitochondrionBattery2 = new Battery2(this);
+      });
+      this.currentAnimation.add(this.glucoseToMitochondrion2.getImage());
     }
 
     this.glucoseToMitochondrion1
-      .animate({ delay: this.animationDelay, duration: this.animationDuration })
-      .dmove(20, 350)
-      .during((pos, morph, eased, situation) => {
-        this.drainEnergy(50 /* start */, 35 /* end */, pos);
-      })
-      .animate({ duration: this.animationDuration })
-      .attr({ opacity: 0 })
-      .during((pos, morph, eased, situation) => {
-        this.drainEnergy(35 /* start */, 20 /* end */, pos);
-      })
+      .animate()
+
       .afterAll(() => {
         this.glucoseToMitochondrion1.remove();
         this.mitochondrionBattery1 = new Battery1(this);
@@ -657,7 +634,7 @@ export class PlantGlucoseSimulation {
           this.moveBatteryFromMitochondrionToEnergyIndicator(animationCallback);
         }
       });
-    this.currentAnimation.add(this.glucoseToMitochondrion1);
+    this.currentAnimation.add(this.glucoseToMitochondrion1.getImage());
   }
 
   /**
@@ -672,87 +649,16 @@ export class PlantGlucoseSimulation {
     this.energyIndicatorView.updateEnergyDisplay(this.energyLeft);
   }
 
-  private createPhotonToPlant(x: number, y: number): any {
-    return this.draw.image('./images/photon.png', 30, 30).attr({ x: x, y: y });
-  }
-
-  private createPhotonToChloroplast(x: number, y: number): any {
-    return this.draw.image('./images/photon.png', 50, 50).attr({ x: x, y: y });
-  }
-
-  private createPhotons(): any {
-    const photonsGroup = this.draw.group();
-    if (this.numPhotonsThisCycle >= 1) {
-      this.photonPlant1 = this.createPhotonToPlant(80, 50);
-      this.photonChloroplast1 = this.createPhotonToChloroplast(440, 60);
-      photonsGroup.add(this.photonPlant1).add(this.photonChloroplast1);
-    }
-    if (this.numPhotonsThisCycle >= 2) {
-      this.photonPlant2 = this.createPhotonToPlant(80, 20);
-      this.photonChloroplast2 = this.createPhotonToChloroplast(480, 30);
-      photonsGroup.add(this.photonPlant2).add(this.photonChloroplast2);
-    }
-    if (this.numPhotonsThisCycle >= 3) {
-      this.photonPlant3 = this.createPhotonToPlant(30, 50);
-      this.photonChloroplast3 = this.createPhotonToChloroplast(340, 60);
-      photonsGroup.add(this.photonPlant3).add(this.photonChloroplast3);
-    }
-    if (this.numPhotonsThisCycle === 4) {
-      this.photonPlant4 = this.createPhotonToPlant(50, 20);
-      this.photonChloroplast4 = this.createPhotonToChloroplast(380, 30);
-      photonsGroup.add(this.photonPlant4).add(this.photonChloroplast4);
-    }
-    return photonsGroup;
-  }
-
-  private createGlucose(x: number, y: number): any {
-    return this.draw.image('./images/glucose.png', 70, 70).attr({
-      x: x,
-      y: y,
-    });
-  }
-
-  private createWaters(): any {
-    const waterGroup = this.draw.group();
-    if (this.numWaterThisCycle === 4) {
-      for (let i = 0; i < 4; i++) {
-        const shiftX = i % 2 ? 0 : 15;
-        const shiftY = i < 2 ? shiftX + 5 : shiftX + 20;
-        const waterPlant = this.createWaterToPlant(194 + shiftX, 94 + shiftY);
-        const waterChloroplast = this.createWaterToChloroplast(
-          620 + 2 * shiftX,
-          60 + 2 * shiftY
-        );
-        waterGroup.add(waterPlant).add(waterChloroplast);
-      }
-    }
-    return waterGroup;
-  }
-
-  private createWaterToPlant(x: number, y: number): any {
-    return this.draw
-      .ellipse(8, 12)
-      .fill(this.WATER_COLOR)
-      .attr({ cx: x, cy: y });
-  }
-
-  private createWaterToChloroplast(x: number, y: number): any {
-    return this.draw
-      .ellipse(16, 24)
-      .fill(this.WATER_COLOR)
-      .attr({ cx: x, cy: y });
-  }
-
   /**
    * Create glucose that will be moved from chloroplast
    * to mitochondrion and returns a group containing them
    */
   private createGlucosesToMitochondrion(): void {
     if (this.glucoseCreatedIncrement >= 1) {
-      this.glucoseToMitochondrion1 = this.createGlucose(600, 150);
+      this.glucoseToMitochondrion1 = new GlucoseToMitochondrion1(this);
     }
     if (this.glucoseCreatedIncrement >= 2) {
-      this.glucoseToMitochondrion2 = this.createGlucose(675, 100);
+      this.glucoseToMitochondrion2 = new GlucoseToMitochondrion2(this);
     }
   }
 
@@ -762,10 +668,10 @@ export class PlantGlucoseSimulation {
    */
   private createGlucosesToStorage(): void {
     if (this.glucoseCreatedIncrement === 3) {
-      this.glucoseToStorage1 = this.createGlucose(400, 100);
+      this.glucoseToStorage1 = new GlucoseToStorage1(this);
     } else if (this.glucoseCreatedIncrement === 4) {
-      this.glucoseToStorage1 = this.createGlucose(400, 100);
-      this.glucoseToStorage2 = this.createGlucose(475, 150);
+      this.glucoseToStorage1 = new GlucoseToStorage1(this);
+      this.glucoseToStorage2 = new GlucoseToStorage2(this);
     }
   }
 
@@ -773,47 +679,21 @@ export class PlantGlucoseSimulation {
     animationCallback: () => {}
   ): void {
     this.currentAnimation = this.draw.set();
-
-    let buffer = 25;
-
     // move the glucose to storage in rows
-    this.glucoseToStorage1
-      .animate({ delay: this.animationDelay, duration: this.animationDuration })
-      .move(
-        this.STORAGE_X +
-          ((this.glucosesInStorage.length / 2) % 5) * 75 -
-          buffer,
-        this.STORAGE_Y +
-          Math.floor(this.glucosesInStorage.length / 2 / 5) * 75 -
-          buffer
-      )
-      .afterAll(() => {
-        this.glucosesInStorage.push(this.glucoseToStorage1.clone());
-        this.glucoseToStorage1.remove();
-        this.glucoseToStorage1 = null;
-        animationCallback();
-      });
-    this.currentAnimation.add(this.glucoseToStorage1);
+    this.glucoseToStorage1.animate().afterAll(() => {
+      this.glucosesInStorage.push(this.glucoseToStorage1.clone());
+      this.glucoseToStorage1.remove();
+      this.glucoseToStorage1 = null;
+      animationCallback();
+    });
+    this.currentAnimation.add(this.glucoseToStorage1.getImage());
     if (this.glucoseCreatedIncrement === 4) {
-      this.glucoseToStorage2
-        .animate({
-          delay: this.animationDelay,
-          duration: this.animationDuration,
-        })
-        .move(
-          this.STORAGE_X +
-            ((this.glucosesInStorage.length / 2) % 5) * 75 +
-            buffer,
-          this.STORAGE_Y +
-            Math.floor(this.glucosesInStorage.length / 2 / 5) * 75 +
-            buffer
-        )
-        .afterAll(() => {
-          this.glucosesInStorage.push(this.glucoseToStorage2.clone());
-          this.glucoseToStorage2.remove();
-          this.glucoseToStorage2 = null;
-        });
-      this.currentAnimation.add(this.glucoseToStorage2);
+      this.glucoseToStorage2.animate().afterAll(() => {
+        this.glucosesInStorage.push(this.glucoseToStorage2.clone());
+        this.glucoseToStorage2.remove();
+        this.glucoseToStorage2 = null;
+      });
+      this.currentAnimation.add(this.glucoseToStorage2.getImage());
     }
   }
 
