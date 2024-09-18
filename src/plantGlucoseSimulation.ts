@@ -23,6 +23,7 @@ import { GlucoseToStorage2 } from './glucoseToStorage2';
 import { GlucoseToMitochondrion1 } from './glucoseToMitochondrion1';
 import { GlucoseToMitochondrion2 } from './glucoseToMitochondrion2';
 import { Photons } from './photons';
+import { Waters } from './waters';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -132,7 +133,7 @@ export class PlantGlucoseSimulation {
   public onReadyToPlay: () => void;
 
   private photonsGroup: Photons;
-  waterGroup: SVG;
+  private waterGroup: Waters;
   plantAnimationCorner: PlantAnimationCorner;
   plantImgSrc: string;
   playSequence: any[] = [];
@@ -593,18 +594,13 @@ export class PlantGlucoseSimulation {
   }
 
   private moveWaterToPlantAndChloroplast(): void {
-    this.waterGroup = this.createWaters();
-    this.waterAnimation = this.waterGroup;
-    this.waterGroup
-      .animate({ duration: this.animationDuration })
-      .move(0, 40)
-      .animate({ duration: this.animationDuration })
-      .attr({ opacity: 0 })
-      .afterAll(() => {
-        this.waterGroup.remove();
-        this.waterGroup = null;
-        this.waterAnimation = null;
-      });
+    this.waterGroup = new Waters(this);
+    this.waterAnimation = this.waterGroup.getGroup();
+    this.waterGroup.animate().afterAll(() => {
+      this.waterGroup.remove();
+      this.waterGroup = null;
+      this.waterAnimation = null;
+    });
   }
 
   private moveGlucoseFromChloroplastToMitochondrion(
@@ -651,37 +647,6 @@ export class PlantGlucoseSimulation {
   drainEnergy(from: number, to: number, ratio: number): void {
     this.energyLeft = from - (from - to) * ratio;
     this.energyIndicatorView.updateEnergyDisplay(this.energyLeft);
-  }
-
-  private createWaters(): any {
-    const waterGroup = this.draw.group();
-    if (this.numWaterThisCycle === 4) {
-      for (let i = 0; i < 4; i++) {
-        const shiftX = i % 2 ? 0 : 15;
-        const shiftY = i < 2 ? shiftX + 5 : shiftX + 20;
-        const waterPlant = this.createWaterToPlant(194 + shiftX, 94 + shiftY);
-        const waterChloroplast = this.createWaterToChloroplast(
-          620 + 2 * shiftX,
-          60 + 2 * shiftY
-        );
-        waterGroup.add(waterPlant).add(waterChloroplast);
-      }
-    }
-    return waterGroup;
-  }
-
-  private createWaterToPlant(x: number, y: number): any {
-    return this.draw
-      .ellipse(8, 12)
-      .fill(this.WATER_COLOR)
-      .attr({ cx: x, cy: y });
-  }
-
-  private createWaterToChloroplast(x: number, y: number): any {
-    return this.draw
-      .ellipse(16, 24)
-      .fill(this.WATER_COLOR)
-      .attr({ cx: x, cy: y });
   }
 
   /**

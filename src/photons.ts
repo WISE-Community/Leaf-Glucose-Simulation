@@ -13,6 +13,7 @@ export class Photons {
   private photonPlant3: SVG.Image;
   private photonPlant4: SVG.Image;
   protected simulation: PlantGlucoseSimulation;
+
   constructor(simulation: PlantGlucoseSimulation) {
     this.simulation = simulation;
     this.group = this.simulation.draw.group();
