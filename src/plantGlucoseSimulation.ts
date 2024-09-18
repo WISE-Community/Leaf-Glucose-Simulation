@@ -22,6 +22,7 @@ import { GlucoseToStorage1 } from './glucoseToStorage1';
 import { GlucoseToStorage2 } from './glucoseToStorage2';
 import { GlucoseToMitochondrion1 } from './glucoseToMitochondrion1';
 import { GlucoseToMitochondrion2 } from './glucoseToMitochondrion2';
+import { Photons } from './photons';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -129,15 +130,8 @@ export class PlantGlucoseSimulation {
   numWaterNextCycle: number;
   numWaterThisCycle: number = 4;
   public onReadyToPlay: () => void;
-  photonChloroplast1: SVG;
-  photonChloroplast2: SVG;
-  photonChloroplast3: SVG;
-  photonChloroplast4: SVG;
-  photonPlant1: SVG;
-  photonPlant2: SVG;
-  photonPlant3: SVG;
-  photonPlant4: SVG;
-  photonsGroup: SVG;
+
+  private photonsGroup: Photons;
   waterGroup: SVG;
   plantAnimationCorner: PlantAnimationCorner;
   plantImgSrc: string;
@@ -583,30 +577,19 @@ export class PlantGlucoseSimulation {
   }
 
   private movePhotonsToPlantAndChloroplast(animationCallback: () => {}): void {
-    this.photonsGroup = this.createPhotons();
-    this.currentAnimation = this.photonsGroup;
-    this.photonsGroup
-      .animate({ duration: this.animationDuration })
-      .move(50, 50)
-      .during((pos, morph, eased, situation) => {
-        this.drainEnergy(100 /* start */, 75 /* end */, pos);
-      })
-      .animate({ duration: this.animationDuration })
-      .attr({ opacity: 0 })
-      .during((pos, morph, eased, situation) => {
-        this.drainEnergy(75 /* start */, 50 /* end */, pos);
-      })
-      .afterAll(() => {
-        this.photonsGroup.remove();
-        this.photonsGroup = null;
-        if (this.numWaterThisCycle > 0 && this.glucoseCreatedIncrement > 0) {
-          this.createGlucosesToMitochondrion();
-          this.createGlucosesToStorage();
-          this.moveGlucoseFromChloroplastToMitochondrion(animationCallback);
-        } else {
-          this.moveGlucoseFromStorageToMitochondrion(animationCallback);
-        }
-      });
+    this.photonsGroup = new Photons(this);
+    this.currentAnimation = this.photonsGroup.getGroup();
+    this.photonsGroup.animate().afterAll(() => {
+      this.photonsGroup.remove();
+      this.photonsGroup = null;
+      if (this.numWaterThisCycle > 0 && this.glucoseCreatedIncrement > 0) {
+        this.createGlucosesToMitochondrion();
+        this.createGlucosesToStorage();
+        this.moveGlucoseFromChloroplastToMitochondrion(animationCallback);
+      } else {
+        this.moveGlucoseFromStorageToMitochondrion(animationCallback);
+      }
+    });
   }
 
   private moveWaterToPlantAndChloroplast(): void {
@@ -668,39 +651,6 @@ export class PlantGlucoseSimulation {
   drainEnergy(from: number, to: number, ratio: number): void {
     this.energyLeft = from - (from - to) * ratio;
     this.energyIndicatorView.updateEnergyDisplay(this.energyLeft);
-  }
-
-  private createPhotonToPlant(x: number, y: number): any {
-    return this.draw.image('./images/photon.png', 30, 30).attr({ x: x, y: y });
-  }
-
-  private createPhotonToChloroplast(x: number, y: number): any {
-    return this.draw.image('./images/photon.png', 50, 50).attr({ x: x, y: y });
-  }
-
-  private createPhotons(): any {
-    const photonsGroup = this.draw.group();
-    if (this.numPhotonsThisCycle >= 1) {
-      this.photonPlant1 = this.createPhotonToPlant(80, 50);
-      this.photonChloroplast1 = this.createPhotonToChloroplast(440, 60);
-      photonsGroup.add(this.photonPlant1).add(this.photonChloroplast1);
-    }
-    if (this.numPhotonsThisCycle >= 2) {
-      this.photonPlant2 = this.createPhotonToPlant(80, 20);
-      this.photonChloroplast2 = this.createPhotonToChloroplast(480, 30);
-      photonsGroup.add(this.photonPlant2).add(this.photonChloroplast2);
-    }
-    if (this.numPhotonsThisCycle >= 3) {
-      this.photonPlant3 = this.createPhotonToPlant(30, 50);
-      this.photonChloroplast3 = this.createPhotonToChloroplast(340, 60);
-      photonsGroup.add(this.photonPlant3).add(this.photonChloroplast3);
-    }
-    if (this.numPhotonsThisCycle === 4) {
-      this.photonPlant4 = this.createPhotonToPlant(50, 20);
-      this.photonChloroplast4 = this.createPhotonToChloroplast(380, 30);
-      photonsGroup.add(this.photonPlant4).add(this.photonChloroplast4);
-    }
-    return photonsGroup;
   }
 
   private createWaters(): any {
