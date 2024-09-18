@@ -1,7 +1,7 @@
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
-import { Glucose } from './glucose';
+import { GlucoseToStorage } from './glucoseToStorage';
 
-export class GlucoseToStorage2 extends Glucose {
+export class GlucoseToStorage2 extends GlucoseToStorage {
   constructor(simulation: PlantGlucoseSimulation) {
     super(
       simulation,
@@ -10,19 +10,19 @@ export class GlucoseToStorage2 extends Glucose {
     );
   }
 
-  animate(): any {
-    return this.image
-      .animate({
-        delay: this.simulation.animationDelay,
-        duration: this.simulation.animationDuration,
-      })
-      .move(
-        this.simulation.STORAGE_X +
-          ((this.simulation.glucosesInStorage.length / 2) % 5) * 75 +
-          this.buffer,
-        this.simulation.STORAGE_Y +
-          Math.floor(this.simulation.glucosesInStorage.length / 2 / 5) * 75 +
-          this.buffer
-      );
+  protected moveX(): number {
+    return (
+      this.simulation.STORAGE_X +
+      ((this.simulation.glucosesInStorage.length / 2) % 5) * 75 +
+      this.buffer
+    );
+  }
+
+  protected moveY(): number {
+    return (
+      this.simulation.STORAGE_Y +
+      Math.floor(this.simulation.glucosesInStorage.length / 2 / 5) * 75 +
+      this.buffer
+    );
   }
 }
