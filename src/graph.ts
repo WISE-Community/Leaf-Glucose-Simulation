@@ -1,22 +1,24 @@
 import * as $ from 'jquery';
 import * as Highcharts from 'highcharts';
-import {PlantGlucoseSimulation} from './plantGlucoseSimulation';
+import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
+import {
+  BG_COLOR_LIGHT_0,
+  BG_COLOR_LIGHT_100,
+  BG_COLOR_LIGHT_25,
+  BG_COLOR_LIGHT_50,
+  BG_COLOR_LIGHT_75,
+  WATER_COLOR,
+} from './constants';
 
 /**
  * Graph --- Graphs glucose made, used, and stored over time
  * @author Hiroki Terashima
  * @author Geoffrey Kwan
  * @author Jonathan Lim-Breitbart
-*/
+ */
 export class Graph {
-  chartOptions: any;  // options provided to initialize graph with starting values
-  chart: Highcharts.ChartObject;  // Chart object that is rendered on the graph
-  bgColorLight100: string;
-  bgColorLight75: string;
-  bgColorLight50: string;
-  bgColorLight25: string;
-  bgColorLight0: string;
-  waterColor: string;
+  chartOptions: any; // options provided to initialize graph with starting values
+  chart: Highcharts.ChartObject; // Chart object that is rendered on the graph
   waterIcons: any[];
   simulation: PlantGlucoseSimulation;
   showLineGlucoseMade: boolean;
@@ -30,20 +32,17 @@ export class Graph {
    *   day display corner when the light is on
    * @param dayColorLightOff A hex string containing the default background color of this
    *   day display corner when the light is off
-   * @param doShowGraph true iff this graph should be displayed
+   * @param show true iff this graph should be displayed
    */
-  constructor(simulation: PlantGlucoseSimulation, bgColorLight100: string, bgColorLight75: string,
-      bgColorLight50: string, bgColorLight25: string, bgColorLight0: string, waterColor: string,
-      doShowGraph: boolean, showLineGlucoseMade: boolean = true, 
-      showLineGlucoseUsed: boolean = true, showLineGlucoseStored: boolean = true, 
-      numDays: number = 20) {
+  constructor(
+    simulation: PlantGlucoseSimulation,
+    show: boolean,
+    showLineGlucoseMade: boolean = true,
+    showLineGlucoseUsed: boolean = true,
+    showLineGlucoseStored: boolean = true,
+    numDays: number = 20
+  ) {
     this.simulation = simulation;
-    this.bgColorLight100 = bgColorLight100;
-    this.bgColorLight75 = bgColorLight75;
-    this.bgColorLight50 = bgColorLight50;
-    this.bgColorLight25 = bgColorLight25;
-    this.bgColorLight0 = bgColorLight0;
-    this.waterColor = waterColor;
     this.waterIcons = [];
     this.showLineGlucoseMade = showLineGlucoseMade;
     this.showLineGlucoseUsed = showLineGlucoseUsed;
@@ -56,37 +55,37 @@ export class Graph {
         type: 'line',
         // width: '320',
         style: {
-          'fontFamily': `'Roboto', Helvetica-Nueue, Arial, sans-serif`
-        }
+          fontFamily: `'Roboto', Helvetica-Nueue, Arial, sans-serif`,
+        },
       },
       plotOptions: {
         line: {
           marker: {
-            enabled: false
-          }
-        }
+            enabled: false,
+          },
+        },
       },
       title: {
-        text: 'Glucose Over Time'
+        text: 'Glucose Over Time',
       },
       xAxis: {
         title: {
-          text: 'Time (Days)'
+          text: 'Time (Days)',
         },
         min: 0,
         max: numDays + 1,
-        tickInterval: 1
+        tickInterval: 1,
       },
       yAxis: {
         title: {
-          text: 'Units of Glucose'
+          text: 'Units of Glucose',
         },
         min: 0,
         max: 80,
-        tickInterval: 20
+        tickInterval: 20,
       },
       tooltip: {
-        enabled: true
+        enabled: true,
       },
       series: [
         {
@@ -96,7 +95,7 @@ export class Graph {
           data: [],
           dashStyle: 'shortDot',
           showInLegend: showLineGlucoseMade,
-          visible: showLineGlucoseMade
+          visible: showLineGlucoseMade,
         },
         {
           name: 'Total Glucose Used',
@@ -105,7 +104,7 @@ export class Graph {
           data: [],
           dashStyle: 'shortDash',
           showInLegend: showLineGlucoseUsed,
-          visible: showLineGlucoseUsed
+          visible: showLineGlucoseUsed,
         },
         {
           name: 'Glucose in Storage',
@@ -114,13 +113,13 @@ export class Graph {
           data: [],
           dashStyle: 'dot',
           showInLegend: showLineGlucoseStored,
-          visible: showLineGlucoseStored
-        }
-      ]
+          visible: showLineGlucoseStored,
+        },
+      ],
     };
 
     this.chart = new Highcharts.Chart(this.chartOptions);
-    this.showHideGraph(doShowGraph);
+    this.showHideGraph(show);
     this.registerGraphLineToggleListener();
   }
 
@@ -129,7 +128,7 @@ export class Graph {
    */
   resetGraph() {
     this.chart.series.map((series) => {
-        series.setData([]);
+      series.setData([]);
     });
     this.chart.xAxis[0].removePlotBand('plantGlucoseSimulationPlotBand');
     this.removeWaterIcons();
@@ -162,10 +161,10 @@ export class Graph {
 
   /**
    * Toggles this graph's visibility on/off
-   * @param doShowGraph true iff this graph should be displayed
+   * @param show true iff this graph should be displayed
    */
-  showHideGraph(doShowGraph: boolean) {
-    if (doShowGraph) {
+  private showHideGraph(show: boolean) {
+    if (show) {
       $('#highchartsDiv').show();
     } else {
       $('#highchartsDiv').hide();
@@ -182,38 +181,46 @@ export class Graph {
     this.chart.series[seriesIndex].setData(seriesData);
   }
 
-   /**
-    * Update the graph with current trial data
-    * Update background of graph based on number of photons that came in this day
-    * Add a water icon if water is on for this day
-    *
-    * @param currentTrialData contains glucose created/used/stored information
-    * @param dayNumber the day number to plot the graph for
-    * @param numPhotonsThisCycle number of photons that came in this day
-    */
-   updateGraph(currentTrialData: any, dayNumber: number,
-               numPhotonsThisCycle: number, numWaterThisCycle: number) {
-     this.setSeriesData(0, currentTrialData.glucoseCreatedData);
-     this.setSeriesData(1, currentTrialData.glucoseUsedData);
-     this.setSeriesData(2, currentTrialData.glucoseStoredData);
+  /**
+   * Update the graph with current trial data
+   * Update background of graph based on number of photons that came in this day
+   * Add a water icon if water is on for this day
+   *
+   * @param currentTrialData contains glucose created/used/stored information
+   * @param dayNumber the day number to plot the graph for
+   * @param numPhotonsThisCycle number of photons that came in this day
+   */
+  updateGraph(
+    currentTrialData: any,
+    dayNumber: number,
+    numPhotonsThisCycle: number,
+    numWaterThisCycle: number
+  ) {
+    this.setSeriesData(0, currentTrialData.glucoseCreatedData);
+    this.setSeriesData(1, currentTrialData.glucoseUsedData);
+    this.setSeriesData(2, currentTrialData.glucoseStoredData);
 
-     let plotBandSettings = {
-       'id': 'plantGlucoseSimulationPlotBand',
-       'from': dayNumber - 1,
-       'to': dayNumber,
-       'color': this.getColor(numPhotonsThisCycle)
-     };
-     this.addPlotBand(plotBandSettings);
-     if (numWaterThisCycle > 0) {
-       this.addWaterIcon();
-     }
-   }
+    let plotBandSettings = {
+      id: 'plantGlucoseSimulationPlotBand',
+      from: dayNumber - 1,
+      to: dayNumber,
+      color: this.getColor(numPhotonsThisCycle),
+    };
+    this.addPlotBand(plotBandSettings);
+    if (numWaterThisCycle > 0) {
+      this.addWaterIcon();
+    }
+  }
 
-
-   getColor(numPhotons: number) {
-       return [this.bgColorLight0, this.bgColorLight25, this.bgColorLight50,
-           this.bgColorLight75, this.bgColorLight100][numPhotons]
-   }
+  getColor(numPhotons: number) {
+    return [
+      BG_COLOR_LIGHT_0,
+      BG_COLOR_LIGHT_25,
+      BG_COLOR_LIGHT_50,
+      BG_COLOR_LIGHT_75,
+      BG_COLOR_LIGHT_100,
+    ][numPhotons];
+  }
 
   /**
    * Adds a plot band to the graph
@@ -225,15 +232,15 @@ export class Graph {
 
   addWaterIcon() {
     const data = this.chart.series[0].data;
-    const point = data[data.length-1];
+    const point = data[data.length - 1];
     const waterIcon = this.chart.renderer
-        .rect(point.plotX + 52.5, this.chart.plotTop + 3, 6, 10)
-        .attr({
-          fill: this.waterColor,
-          rx: '4',
-          zIndex: 2
-        })
-        .add();
+      .rect(point.plotX + 52.5, this.chart.plotTop + 3, 6, 10)
+      .attr({
+        fill: WATER_COLOR,
+        rx: '4',
+        zIndex: 2,
+      })
+      .add();
     this.waterIcons.push(waterIcon);
   }
 
@@ -274,20 +281,24 @@ export class Graph {
       toggleableImages.push(simulation.storage);
     }
 
-    $('.highcharts-legend-item').on('click', {toggleableImages: toggleableImages}, function(event) {
-      // get the index of the line user toggled (0 = glucose made, 1 = used, 2 = stored)
-      let lineIndex = $('.highcharts-legend-item').index($(this));
+    $('.highcharts-legend-item').on(
+      'click',
+      { toggleableImages: toggleableImages },
+      function (event) {
+        // get the index of the line user toggled (0 = glucose made, 1 = used, 2 = stored)
+        let lineIndex = $('.highcharts-legend-item').index($(this));
 
-      // get the image object based on which line the user toggled
-      let image = event.data.toggleableImages[lineIndex];
+        // get the image object based on which line the user toggled
+        let image = event.data.toggleableImages[lineIndex];
 
-      // see if the line clicked is hidden or displayed
-      let isHidden = $(this).hasClass('highcharts-legend-item-hidden');
-      if (isHidden) {
-        image.opacity(0.5);
-      } else {
-        image.opacity(1);
+        // see if the line clicked is hidden or displayed
+        let isHidden = $(this).hasClass('highcharts-legend-item-hidden');
+        if (isHidden) {
+          image.opacity(0.5);
+        } else {
+          image.opacity(1);
+        }
       }
-    });
+    );
   }
 }

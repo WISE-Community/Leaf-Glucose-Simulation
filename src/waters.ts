@@ -1,5 +1,6 @@
 import * as SVG from 'svg.js';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
+import { WATER_COLOR } from './constants';
 type SVG = typeof SVG.Doc;
 
 export class Waters {
@@ -20,11 +21,11 @@ export class Waters {
       const shiftY = i < 2 ? shiftX + 5 : shiftX + 20;
       const waterPlant = this.simulation.draw
         .ellipse(8, 12)
-        .fill(this.simulation.WATER_COLOR)
+        .fill(WATER_COLOR)
         .attr({ cx: 194 + shiftX, cy: 94 + shiftY });
       const waterChloroplast = this.simulation.draw
         .ellipse(16, 24)
-        .fill(this.simulation.WATER_COLOR)
+        .fill(WATER_COLOR)
         .attr({ cx: 620 + 2 * shiftX, cy: 60 + 2 * shiftY });
       this.group.add(waterPlant).add(waterChloroplast);
     }

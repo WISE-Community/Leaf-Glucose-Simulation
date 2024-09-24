@@ -46,13 +46,6 @@ export class PlantGlucoseSimulation {
   // default delay before staring animation in ms
   DEFAULT_ANIMATION_DELAY: number = 250;
 
-  BG_COLOR_LIGHT_100: string = '#ffffca';
-  BG_COLOR_LIGHT_75: string = '#fff077';
-  BG_COLOR_LIGHT_50: string = '#fed34b';
-  BG_COLOR_LIGHT_25: string = '#febf2c';
-  BG_COLOR_LIGHT_0: string = '#dddddd';
-  WATER_COLOR: string = '#0066cc';
-
   MITOCHONDRION_X = 500;
   MITOCHONDRION_Y = 400;
   STORAGE_X = 50;
@@ -208,24 +201,8 @@ export class PlantGlucoseSimulation {
       $('.key').hide();
     }
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
-    this.plantAnimationCorner = new PlantAnimationCorner(
-      this.draw,
-      this.BG_COLOR_LIGHT_100,
-      this.BG_COLOR_LIGHT_75,
-      this.BG_COLOR_LIGHT_50,
-      this.BG_COLOR_LIGHT_25,
-      this.BG_COLOR_LIGHT_0,
-      this.showWater,
-      this.plantImgSrc
-    );
-    this.dayDisplayCorner = new DayDisplayCorner(
-      this.draw,
-      this.BG_COLOR_LIGHT_100,
-      this.BG_COLOR_LIGHT_75,
-      this.BG_COLOR_LIGHT_50,
-      this.BG_COLOR_LIGHT_25,
-      this.BG_COLOR_LIGHT_0
-    );
+    this.plantAnimationCorner = new PlantAnimationCorner(this);
+    this.dayDisplayCorner = new DayDisplayCorner(this);
     this.simulationEndFeedback = new SimulationEndFeedback(this.draw);
     this.energyIndicatorView = new EnergyIndicatorView(this.draw);
     this.chloroplast = this.draw
@@ -239,12 +216,6 @@ export class PlantGlucoseSimulation {
       .attr({ x: this.STORAGE_X, y: this.STORAGE_Y });
     this.graph = new Graph(
       this,
-      this.BG_COLOR_LIGHT_100,
-      this.BG_COLOR_LIGHT_75,
-      this.BG_COLOR_LIGHT_50,
-      this.BG_COLOR_LIGHT_25,
-      this.BG_COLOR_LIGHT_0,
-      this.WATER_COLOR,
       showGraph,
       showLineGlucoseMade,
       showLineGlucoseUsed,
