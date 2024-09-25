@@ -3,6 +3,7 @@ import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import * as $ from 'jquery';
 import { ResetButton } from './resetButton';
 import { PlayPauseButton } from './playPauseButton';
+import { Graph } from './graph';
 
 /**
  * Entry point for the application. Initializes the simulation with parameters
@@ -72,10 +73,6 @@ $(document).ready(function () {
     numDays,
     numLightOptions,
     feedbackPolicy,
-    showGraph,
-    showLineGlucoseMade,
-    showLineGlucoseUsed,
-    showLineGlucoseStored,
     showWater,
     showKey,
     enableInputControls,
@@ -85,4 +82,13 @@ $(document).ready(function () {
   );
   new PlayPauseButton(simulation);
   new ResetButton(simulation);
+  if (showGraph) {
+    new Graph(
+      simulation,
+      showLineGlucoseMade,
+      showLineGlucoseUsed,
+      showLineGlucoseStored,
+      numDays
+    );
+  }
 });

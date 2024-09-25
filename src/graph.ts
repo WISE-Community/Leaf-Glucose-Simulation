@@ -32,11 +32,9 @@ export class Graph {
    *   day display corner when the light is on
    * @param dayColorLightOff A hex string containing the default background color of this
    *   day display corner when the light is off
-   * @param show true iff this graph should be displayed
    */
   constructor(
     simulation: PlantGlucoseSimulation,
-    show: boolean,
     showLineGlucoseMade: boolean = true,
     showLineGlucoseUsed: boolean = true,
     showLineGlucoseStored: boolean = true,
@@ -119,14 +117,15 @@ export class Graph {
     };
 
     this.chart = new Highcharts.Chart(this.chartOptions);
-    this.showHideGraph(show);
     this.registerGraphLineToggleListener();
+    simulation.onReset = () => this.resetGraph();
+    simulation.onStudentDataChanged = () => this.updateGraph();
   }
 
   /**
    * Reset the graph to original blank slate and toggle line on/off
    */
-  resetGraph() {
+  private resetGraph(): void {
     this.chart.series.map((series) => {
       series.setData([]);
     });
@@ -160,18 +159,6 @@ export class Graph {
   }
 
   /**
-   * Toggles this graph's visibility on/off
-   * @param show true iff this graph should be displayed
-   */
-  private showHideGraph(show: boolean) {
-    if (show) {
-      $('#highchartsDiv').show();
-    } else {
-      $('#highchartsDiv').hide();
-    }
-  }
-
-  /**
    * Set the specified series data for the series index,
    * effectively updating the graph display
    * @param seriesIndex the index of the series to set
@@ -190,24 +177,19 @@ export class Graph {
    * @param dayNumber the day number to plot the graph for
    * @param numPhotonsThisCycle number of photons that came in this day
    */
-  updateGraph(
-    currentTrialData: any,
-    dayNumber: number,
-    numPhotonsThisCycle: number,
-    numWaterThisCycle: number
-  ) {
-    this.setSeriesData(0, currentTrialData.glucoseCreatedData);
-    this.setSeriesData(1, currentTrialData.glucoseUsedData);
-    this.setSeriesData(2, currentTrialData.glucoseStoredData);
+  private updateGraph(): void {
+    this.setSeriesData(0, this.simulation.currentTrialData.glucoseCreatedData);
+    this.setSeriesData(1, this.simulation.currentTrialData.glucoseUsedData);
+    this.setSeriesData(2, this.simulation.currentTrialData.glucoseStoredData);
 
     let plotBandSettings = {
       id: 'plantGlucoseSimulationPlotBand',
-      from: dayNumber - 1,
-      to: dayNumber,
-      color: this.getColor(numPhotonsThisCycle),
+      from: this.simulation.currentDayNumber - 1,
+      to: this.simulation.currentDayNumber,
+      color: this.getColor(this.simulation.numPhotonsThisCycle),
     };
     this.addPlotBand(plotBandSettings);
-    if (numWaterThisCycle > 0) {
+    if (this.simulation.numWaterThisCycle > 0) {
       this.addWaterIcon();
     }
   }

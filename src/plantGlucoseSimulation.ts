@@ -2,7 +2,6 @@ import { DayDisplayCorner } from './dayDisplayCorner';
 import { EnergyIndicatorView } from './energyIndicatorView';
 import { Event } from './event';
 import { Feedback } from './feedback';
-import { Graph } from './graph';
 import { LightSwitch } from './lightSwitch';
 import { LightSwitch3 } from './lightSwitch3';
 import { LightSwitch5 } from './lightSwitch5';
@@ -83,7 +82,6 @@ export class PlantGlucoseSimulation {
   energyIndicatorView: EnergyIndicatorView;
   energyLeft: number = 100;
   feedback: Feedback;
-  graph: Graph;
   glucoseCreatedData: any[] = [];
   glucoseUsedData: any[] = [];
   glucoseStoredData: any[] = [];
@@ -124,6 +122,8 @@ export class PlantGlucoseSimulation {
   numWaterNextCycle: number;
   numWaterThisCycle: number = 4;
   public onReadyToPlay: () => void;
+  public onReset: () => void;
+  public onStudentDataChanged: () => void;
 
   private photonsGroup: Photons;
   private waterGroup: Waters;
@@ -157,7 +157,6 @@ export class PlantGlucoseSimulation {
    * 2 = On/Off, 3 = Full/Half/Off, 5 = 100%/75%/50%/25%/0%
    * @param feedbackPolicy A string containing the identifier of the feedback
    * to use
-   * @param showGraph A boolean whether the graph should be displayed or not
    * @param showWater A boolean whether the water control should be displayed or
    * not
    * @param showKey A boolean whether the key should be displayed or not
@@ -167,10 +166,6 @@ export class PlantGlucoseSimulation {
     numDays: number = 20,
     numLightOptions: number = 2,
     feedbackPolicy: any = null,
-    showGraph: boolean = true,
-    showLineGlucoseMade: boolean = true,
-    showLineGlucoseUsed: boolean = true,
-    showLineGlucoseStored: boolean = true,
     showWater: boolean = true,
     showKey: boolean = true,
     enableInputControls: boolean = true,
@@ -214,14 +209,6 @@ export class PlantGlucoseSimulation {
     this.storage = this.draw
       .image('./images/storage.png')
       .attr({ x: this.STORAGE_X, y: this.STORAGE_Y });
-    this.graph = new Graph(
-      this,
-      showGraph,
-      showLineGlucoseMade,
-      showLineGlucoseUsed,
-      showLineGlucoseStored,
-      numDays
-    );
     this.feedback = new Feedback(this.draw, feedbackPolicy);
     this.wiseAPI = new WISEAPI(this);
     this.startNewTrial();
@@ -438,18 +425,14 @@ export class PlantGlucoseSimulation {
       isGlucoseCreated,
       isGlucoseUsed
     );
-    this.graph.updateGraph(
-      this.currentTrialData,
-      this.currentDayNumber,
-      this.numPhotonsThisCycle,
-      this.numWaterThisCycle
-    );
-
     this.notifyStudentDataChanged();
     this.loopAnimationAfterBriefPause();
   }
 
   private notifyStudentDataChanged(): void {
+    if (this.onStudentDataChanged) {
+      this.onStudentDataChanged();
+    }
     if (this.wiseAPI) {
       let state = {
         messageType: 'studentDataChanged',
@@ -829,12 +812,6 @@ export class PlantGlucoseSimulation {
           glucoseCreated,
           glucoseUsed
         );
-        this.graph.updateGraph(
-          this.currentTrialData,
-          this.currentDayNumber,
-          this.numPhotonsThisCycle,
-          this.numWaterThisCycle
-        );
         this.notifyStudentDataChanged();
         this.saveStudentWork();
       });
@@ -876,6 +853,7 @@ export class PlantGlucoseSimulation {
   }
 
   resetSimulation(): void {
+    this.onReset();
     this.simulationState = SimulationState.Stopped;
 
     if (this.isAnimationPlaying()) {
@@ -902,7 +880,6 @@ export class PlantGlucoseSimulation {
     this.totalGlucoseUsed = this.initialGlucoseUsed;
     this.totalGlucoseStored = this.initialGlucoseStored;
     this.simulationEndFeedback.hideAll();
-    this.graph.resetGraph();
     this.feedback.hideFeedback();
     this.lightSwitch.hideWaitImage();
     if (!this.enableInputControls) {
