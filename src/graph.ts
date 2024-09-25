@@ -118,8 +118,8 @@ export class Graph {
 
     this.chart = new Highcharts.Chart(this.chartOptions);
     this.registerGraphLineToggleListener();
-    simulation.onReset = () => this.resetGraph();
-    simulation.onStudentDataChanged = () => this.updateGraph();
+    simulation.resetEvent$.subscribe(() => this.resetGraph());
+    simulation.studentDataChangedEvent$.subscribe(() => this.updateGraph());
   }
 
   /**
