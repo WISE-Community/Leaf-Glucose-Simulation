@@ -1,4 +1,3 @@
-import { DayDisplayCorner } from './dayDisplayCorner';
 import { Event } from './event';
 import { Feedback } from './feedback';
 import { LightSwitch } from './lightSwitch';
@@ -31,8 +30,12 @@ import { Subject } from 'rxjs';
  * @author Jonathan Lim-Breitbart
  */
 export class PlantGlucoseSimulation {
+  private dayChangedEvent: Subject<number> = new Subject<number>();
+  public dayChangedEvent$ = this.dayChangedEvent.asObservable();
   private energyLeftEvent: Subject<number> = new Subject<number>();
   public energyLeftEvent$ = this.energyLeftEvent.asObservable();
+  private numPhotonsChangedEvent: Subject<number> = new Subject<number>();
+  public numPhotonsChangedEvent$ = this.numPhotonsChangedEvent.asObservable();
   private readyToPlayEvent: Subject<void> = new Subject<void>();
   public readyToPlayEvent$ = this.readyToPlayEvent.asObservable();
   private resetEvent: Subject<void> = new Subject<void>();
@@ -85,7 +88,6 @@ export class PlantGlucoseSimulation {
   waterAnimation: SVG;
   currentDayNumber: number = 0;
   currentTrialData: any;
-  dayDisplayCorner: DayDisplayCorner;
   draw: SVG.Doc;
   enableInputControls: boolean = true;
   energyLeft: number = 100;
@@ -201,7 +203,6 @@ export class PlantGlucoseSimulation {
     }
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.plantAnimationCorner = new PlantAnimationCorner(this);
-    this.dayDisplayCorner = new DayDisplayCorner(this);
     this.chloroplast = this.draw
       .image('./images/chloroplast.png')
       .attr({ x: this.CHLOROPLAST_X, y: this.CHLOROPLAST_Y });
@@ -352,7 +353,7 @@ export class PlantGlucoseSimulation {
     if (this.currentDayNumber > this.numDays) {
       this.handleSimulationEnded();
     } else {
-      this.dayDisplayCorner.updateDayText('Day ' + this.currentDayNumber);
+      this.dayChangedEvent.next(this.currentDayNumber);
 
       if (
         this.numWaterNextCycle != null &&
@@ -409,8 +410,8 @@ export class PlantGlucoseSimulation {
 
   private updateNumPhotonsThisCycle(numPhotonsThisCycle: number): void {
     this.numPhotonsThisCycle = numPhotonsThisCycle;
+    this.numPhotonsChangedEvent.next(numPhotonsThisCycle);
     this.glucoseCreatedIncrement = this.calculateGlucoseCreatedIncrement();
-    this.dayDisplayCorner.updateDayColor(numPhotonsThisCycle);
     this.plantAnimationCorner.updateBackground(numPhotonsThisCycle);
   }
 
@@ -872,7 +873,7 @@ export class PlantGlucoseSimulation {
     this.removeMitochondrionBatteries();
     this.resetEnergyToFull();
     this.plantAnimationCorner.showGreenLeaf();
-    this.dayDisplayCorner.updateDayText('Day 1');
+    this.dayChangedEvent.next(1);
 
     // re-initialize the variables
     this.currentDayNumber = 0;

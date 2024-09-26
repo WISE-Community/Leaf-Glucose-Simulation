@@ -6,6 +6,8 @@ import {
   BG_COLOR_LIGHT_75,
 } from './constants';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
+import * as SVG from 'svg.js';
+type SVG = typeof SVG;
 
 /**
  * DayDisplayCorner --- Displays what day it is currently in the simulaton and
@@ -14,8 +16,8 @@ import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
  * @author Geoffrey Kwan
  */
 export class DayDisplayCorner {
-  backgroundRect: SVG;
-  dayText: SVG;
+  private backgroundRect: SVG.Rect;
+  private dayText: SVG.Text;
 
   /**
    * @param draw An SVG draw object to paint other elements on
@@ -32,31 +34,31 @@ export class DayDisplayCorner {
       .fill(BG_COLOR_LIGHT_100)
       .stroke({ width: 2 });
     this.dayText = simulation.draw.text('Day 1').x(775).y(0).font({ size: 64 });
+    simulation.dayChangedEvent$.subscribe((day) => this.updateDayText(day));
+    simulation.numPhotonsChangedEvent$.subscribe((numPhotons) =>
+      this.updateDayColor(numPhotons)
+    );
   }
 
-  /**
-   * Updates the current day indicator as specified
-   * @param currentDayText A string containing the current day text
-   */
-  updateDayText(currentDayText: string) {
-    this.dayText.text(currentDayText);
+  private updateDayText(currentDay: number): void {
+    this.dayText.text(`Day ${currentDay}`);
   }
 
   /**
    * Updates the background color of this day display corner based on
    * number of photons
-   * @param numPhotonsThisCycle how many photons came in this day
+   * @param numPhotons how many photons came in this day
    */
-  updateDayColor(numPhotonsThisCycle: number) {
-    if (numPhotonsThisCycle === 4) {
+  private updateDayColor(numPhotons: number): void {
+    if (numPhotons === 4) {
       this.backgroundRect.fill(BG_COLOR_LIGHT_100);
-    } else if (numPhotonsThisCycle === 3) {
+    } else if (numPhotons === 3) {
       this.backgroundRect.fill(BG_COLOR_LIGHT_75);
-    } else if (numPhotonsThisCycle === 2) {
+    } else if (numPhotons === 2) {
       this.backgroundRect.fill(BG_COLOR_LIGHT_50);
-    } else if (numPhotonsThisCycle === 1) {
+    } else if (numPhotons === 1) {
       this.backgroundRect.fill(BG_COLOR_LIGHT_25);
-    } else if (numPhotonsThisCycle === 0) {
+    } else if (numPhotons === 0) {
       this.backgroundRect.fill(BG_COLOR_LIGHT_0);
     }
   }
