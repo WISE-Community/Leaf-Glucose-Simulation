@@ -1,4 +1,6 @@
-import * as SVG from "svg.js";
+import * as SVG from 'svg.js';
+type SVG = typeof SVG;
+import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 
 /**
  * SimulationEndFeedback --- Shows feedback that the simulation has ended,
@@ -8,7 +10,6 @@ import * as SVG from "svg.js";
  * @author Jonathan Lim-Breitbart
  */
 export class SimulationEndFeedback {
-  draw: SVG;
   plantAliveRect: SVG;
   plantAliveText: SVG;
   plantDiedRect: SVG;
@@ -20,65 +21,77 @@ export class SimulationEndFeedback {
    * Instantiates variables with initial values for the feedback
    * @param draw the SVG object where the view will be drawn on
    */
-  constructor(draw: SVG) {
-    this.draw = draw;
-
-    this.simulationEndedRect = this.draw
+  constructor(simulation: PlantGlucoseSimulation) {
+    this.simulationEndedRect = simulation.draw
       .rect(500, 100)
       .x(250)
       .y(400)
-      .fill("lightblue")
+      .fill('lightblue')
       .stroke({ width: 2 })
       .opacity(1)
-      .attr({ "fill-opacity": 1 })
+      .attr({ 'fill-opacity': 1 })
       .hide();
 
-    this.simulationEndedText = this.draw
-      .text("Simulation ended")
+    this.simulationEndedText = simulation.draw
+      .text('Simulation ended')
       .x(315)
       .y(410)
       .font({ size: 48 })
       .hide();
 
-    this.plantAliveRect = this.draw
+    this.plantAliveRect = simulation.draw
       .rect(500, 100)
       .x(250)
       .y(400)
-      .fill("#33FF00")
+      .fill('#33FF00')
       .stroke({ width: 2 })
       .opacity(1)
-      .attr({ "fill-opacity": 1 })
+      .attr({ 'fill-opacity': 1 })
       .hide();
 
-    this.plantAliveText = this.draw
-      .text("The plant is alive")
+    this.plantAliveText = simulation.draw
+      .text('The plant is alive')
       .x(315)
       .y(410)
       .font({ size: 48 })
       .hide();
 
-    this.plantDiedRect = this.draw
+    this.plantDiedRect = simulation.draw
       .rect(500, 100)
       .x(250)
       .y(400)
-      .fill("#FF0000")
+      .fill('#FF0000')
       .stroke({ width: 2 })
       .opacity(1)
-      .attr({ "fill-opacity": 1 })
+      .attr({ 'fill-opacity': 1 })
       .hide();
 
-    this.plantDiedText = this.draw
-      .text("The plant has died")
+    this.plantDiedText = simulation.draw
+      .text('The plant has died')
       .x(300)
       .y(410)
-      .font({ size: 48, fill: "white" })
+      .font({ size: 48, fill: 'white' })
       .hide();
+    simulation.resetEvent$.subscribe(() => this.hideAll());
+    simulation.statusChangedEvent$.subscribe((status: string) => {
+      switch (status) {
+        case 'died':
+          this.showPlantDied();
+          break;
+        case 'survived':
+          this.showPlantAlive();
+          break;
+        case 'ended':
+          this.showSimulationEnded();
+          break;
+      }
+    });
   }
 
   /**
    * Hide the 'Simulation Ended' and 'plant died' messages
    */
-  hideAll() {
+  private hideAll(): void {
     this.plantDiedRect.hide();
     this.plantDiedText.hide();
     this.simulationEndedRect.hide();

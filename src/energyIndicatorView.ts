@@ -1,3 +1,5 @@
+import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
+
 /**
  * EnergyIndicatorView --- object to display the energy indicator box
  * and its contents repair damage/transport nutrients energy remaining
@@ -5,11 +7,11 @@
  * @author Geoffrey Kwan
  */
 export class EnergyIndicatorView {
-  BATTERY_FULL_HEIGHT = 66;  // height of battery rectangle when full, in pixles.
-  BATTERY_FULL_COLOR = "#82c940";  // color of battery rectangle when full
-  BATTERY_HALF_FULL_COLOR = "#ff9b0c";  // color of battery rectangle when half full
-  BATTERY_NEAR_EMPTY_COLOR = "#fc0d1b";  // color of battery rectangle when near empty
-  DEFAULT_FONT_SIZE = 40;  // default font-size for text in this view
+  BATTERY_FULL_HEIGHT = 66; // height of battery rectangle when full, in pixles.
+  BATTERY_FULL_COLOR = '#82c940'; // color of battery rectangle when full
+  BATTERY_HALF_FULL_COLOR = '#ff9b0c'; // color of battery rectangle when half full
+  BATTERY_NEAR_EMPTY_COLOR = '#fc0d1b'; // color of battery rectangle when near empty
+  DEFAULT_FONT_SIZE = 40; // default font-size for text in this view
   INDICATOR_BATTERY_ORIGINAL_Y = 821; // where battery mask's y is
 
   batteryImageRepairDamage: SVG;
@@ -30,78 +32,109 @@ export class EnergyIndicatorView {
    * Instantiates elements in the energy indication view.
    * @param draw the SVG object where the view will be drawn on
    */
-  constructor(draw: SVG) {
-    this.draw = draw;
+  constructor(simulation: PlantGlucoseSimulation) {
+    this.draw = simulation.draw;
 
     // draw a border around the view
-    this.border = this.draw.rect(900, 200).x(50).y(750)
-      .fill('white').stroke({width:2}).opacity(1)
+    this.border = this.draw
+      .rect(900, 200)
+      .x(50)
+      .y(750)
+      .fill('white')
+      .stroke({ width: 2 })
+      .opacity(1)
       .attr({
-        'fill-opacity': 1
+        'fill-opacity': 1,
       });
 
     // draw the "Energy Needs" text and indication markers
-    this.energyIndicatorText = this.draw.text('Energy\nNeeds')
-      .x(100).y(760).font({size: this.DEFAULT_FONT_SIZE});
+    this.energyIndicatorText = this.draw
+      .text('Energy\nNeeds')
+      .x(100)
+      .y(760)
+      .font({ size: this.DEFAULT_FONT_SIZE });
 
     this.greenCheck = this.draw.image('./images/greenCheck.png').attr({
-      'x': 125,
-      'y': 875
+      x: 125,
+      y: 875,
     });
 
-    this.redExclamation = this.draw.image('./images/redExclamation.png')
+    this.redExclamation = this.draw
+      .image('./images/redExclamation.png')
       .attr({
-        'x': 125,
-        'y': 875
-      }).hide();
+        x: 125,
+        y: 875,
+      })
+      .hide();
 
-    this.yellowExclamation = this.draw.image('./images/yellowExclamation.png')
+    this.yellowExclamation = this.draw
+      .image('./images/yellowExclamation.png')
       .attr({
-        'x': 125,
-        'y': 875
-      }).hide();
+        x: 125,
+        y: 875,
+      })
+      .hide();
 
-    this.redX = this.draw.image('./images/redX.png')
+    this.redX = this.draw
+      .image('./images/redX.png')
       .attr({
-        'x': 125,
-        'y': 875
-      }).hide();
+        x: 125,
+        y: 875,
+      })
+      .hide();
 
     // draw the "Repair Damage" text and battery remaining indication
-    this.repairDamageRect = this.draw.rect(48, this.BATTERY_FULL_HEIGHT)
-      .x(325).y(this.INDICATOR_BATTERY_ORIGINAL_Y).fill(this.BATTERY_FULL_COLOR);
+    this.repairDamageRect = this.draw
+      .rect(48, this.BATTERY_FULL_HEIGHT)
+      .x(325)
+      .y(this.INDICATOR_BATTERY_ORIGINAL_Y)
+      .fill(this.BATTERY_FULL_COLOR);
 
-    this.batteryImageRepairDamage = this.draw.image('./images/batteryEmpty.png')
+    this.batteryImageRepairDamage = this.draw
+      .image('./images/batteryEmpty.png')
       .attr({
-        'x': 325,
-        'y': 815
+        x: 325,
+        y: 815,
       });
 
-    this.repairDamageIndicatorText = this.draw.text('Repair\nDamage')
-      .x(385).y(795).font({size: 40});
+    this.repairDamageIndicatorText = this.draw
+      .text('Repair\nDamage')
+      .x(385)
+      .y(795)
+      .font({ size: 40 });
 
     // draw the "Transport Nutrients" text and battery remaining indication
-    this.transportNutrientsRect = this.draw.rect(48, this.BATTERY_FULL_HEIGHT)
-      .x(625).y(this.INDICATOR_BATTERY_ORIGINAL_Y).fill(this.BATTERY_FULL_COLOR);
+    this.transportNutrientsRect = this.draw
+      .rect(48, this.BATTERY_FULL_HEIGHT)
+      .x(625)
+      .y(this.INDICATOR_BATTERY_ORIGINAL_Y)
+      .fill(this.BATTERY_FULL_COLOR);
 
-    this.batteryImageTransportNutrients = this.draw.image('./images/batteryEmpty.png')
+    this.batteryImageTransportNutrients = this.draw
+      .image('./images/batteryEmpty.png')
       .attr({
-        'x': 625,
-        'y': 815
+        x: 625,
+        y: 815,
       });
 
-    this.transportNutrientsIndicatorText = this.draw.text('Transport\nNutrients')
-      .x(685).y(795).font({size: 40});
+    this.transportNutrientsIndicatorText = this.draw
+      .text('Transport\nNutrients')
+      .x(685)
+      .y(795)
+      .font({ size: 40 });
 
     this.showEnergyNeeds(100);
     this.showBatteryIndicator(100);
+    simulation.energyLeftEvent$.subscribe((energyLeft) =>
+      this.updateEnergyDisplay(energyLeft)
+    );
   }
 
   /**
    * Updates the energy display section at the bottom of the window
    * @param energyRemaining an integer between 0 and 100
    */
-  updateEnergyDisplay(energyRemaining: number) {
+  private updateEnergyDisplay(energyRemaining: number): void {
     this.showEnergyNeeds(energyRemaining);
     this.showBatteryIndicator(energyRemaining);
   }
@@ -117,12 +150,13 @@ export class EnergyIndicatorView {
     if (energyRemaining < 0) {
       return;
     }
-    let newBatteryHeight = this.BATTERY_FULL_HEIGHT * energyRemaining / 100;
+    let newBatteryHeight = (this.BATTERY_FULL_HEIGHT * energyRemaining) / 100;
     this.repairDamageRect.height(newBatteryHeight);
     this.transportNutrientsRect.height(newBatteryHeight);
 
-    let newBatteryY = this.INDICATOR_BATTERY_ORIGINAL_Y +
-        (this.BATTERY_FULL_HEIGHT - newBatteryHeight);
+    let newBatteryY =
+      this.INDICATOR_BATTERY_ORIGINAL_Y +
+      (this.BATTERY_FULL_HEIGHT - newBatteryHeight);
     this.repairDamageRect.y(newBatteryY);
     this.transportNutrientsRect.y(newBatteryY);
 

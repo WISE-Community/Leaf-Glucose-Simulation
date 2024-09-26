@@ -7,7 +7,7 @@ import { ControlButton } from './controlButton';
 export class PlayPauseButton extends ControlButton {
   constructor(simulation: PlantGlucoseSimulation) {
     super(simulation, '#playPause');
-    simulation.onReadyToPlay = () => this.showPlayButton();
+    simulation.readyToPlayEvent$.subscribe(() => this.showPlayButton());
   }
 
   onClickListener(): void {
