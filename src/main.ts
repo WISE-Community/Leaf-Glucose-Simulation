@@ -5,6 +5,7 @@ import { ResetButton } from './resetButton';
 import { PlayPauseButton } from './playPauseButton';
 import { Graph } from './graph';
 import { SimulationEndFeedback } from './simulationEndFeedback';
+import { EnergyIndicatorView } from './energyIndicatorView';
 
 /**
  * Entry point for the application. Initializes the simulation with parameters
@@ -84,6 +85,7 @@ $(document).ready(function () {
   new PlayPauseButton(simulation);
   new ResetButton(simulation);
   new SimulationEndFeedback(simulation);
+  new EnergyIndicatorView(simulation);
   if (showGraph) {
     new Graph(
       simulation,

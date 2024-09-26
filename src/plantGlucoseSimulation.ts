@@ -1,5 +1,4 @@
 import { DayDisplayCorner } from './dayDisplayCorner';
-import { EnergyIndicatorView } from './energyIndicatorView';
 import { Event } from './event';
 import { Feedback } from './feedback';
 import { LightSwitch } from './lightSwitch';
@@ -32,6 +31,8 @@ import { Subject } from 'rxjs';
  * @author Jonathan Lim-Breitbart
  */
 export class PlantGlucoseSimulation {
+  private energyLeftEvent: Subject<number> = new Subject<number>();
+  public energyLeftEvent$ = this.energyLeftEvent.asObservable();
   private readyToPlayEvent: Subject<void> = new Subject<void>();
   public readyToPlayEvent$ = this.readyToPlayEvent.asObservable();
   private resetEvent: Subject<void> = new Subject<void>();
@@ -87,7 +88,6 @@ export class PlantGlucoseSimulation {
   dayDisplayCorner: DayDisplayCorner;
   draw: SVG.Doc;
   enableInputControls: boolean = true;
-  energyIndicatorView: EnergyIndicatorView;
   energyLeft: number = 100;
   feedback: Feedback;
   glucoseCreatedData: any[] = [];
@@ -202,7 +202,6 @@ export class PlantGlucoseSimulation {
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.plantAnimationCorner = new PlantAnimationCorner(this);
     this.dayDisplayCorner = new DayDisplayCorner(this);
-    this.energyIndicatorView = new EnergyIndicatorView(this.draw);
     this.chloroplast = this.draw
       .image('./images/chloroplast.png')
       .attr({ x: this.CHLOROPLAST_X, y: this.CHLOROPLAST_Y });
@@ -601,7 +600,7 @@ export class PlantGlucoseSimulation {
    */
   drainEnergy(from: number, to: number, ratio: number): void {
     this.energyLeft = from - (from - to) * ratio;
-    this.energyIndicatorView.updateEnergyDisplay(this.energyLeft);
+    this.energyLeftEvent.next(this.energyLeft);
   }
 
   /**
@@ -775,7 +774,7 @@ export class PlantGlucoseSimulation {
 
   private resetEnergyToFull(): void {
     this.energyLeft = 100;
-    this.energyIndicatorView.updateEnergyDisplay(this.energyLeft);
+    this.energyLeftEvent.next(this.energyLeft);
   }
 
   private handleSimulationEnded(): void {
