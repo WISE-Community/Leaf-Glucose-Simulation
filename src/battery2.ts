@@ -1,4 +1,8 @@
 import { Battery } from './battery';
+import {
+  BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X,
+  BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y,
+} from './constants';
 
 export class Battery2 extends Battery {
   animate(): any {
@@ -8,8 +12,8 @@ export class Battery2 extends Battery {
         duration: this.animationDuration,
       })
       .move(
-        this.simulation.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X,
-        this.simulation.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y
+        BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X,
+        BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y
       )
       .afterAll(() => {});
   }

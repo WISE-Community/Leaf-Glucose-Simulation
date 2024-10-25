@@ -9,12 +9,12 @@ export class GlucoseToMitochondrion1 extends Glucose {
       })
       .dmove(20, 350)
       .during((pos, morph, eased, situation) => {
-        this.simulation.drainEnergy(50 /* start */, 35 /* end */, pos);
+        this.simulation.drainEnergy(50, 35, pos);
       })
       .animate({ duration: this.simulation.animationDuration })
       .attr({ opacity: 0 })
       .during((pos, morph, eased, situation) => {
-        this.simulation.drainEnergy(35 /* start */, 20 /* end */, pos);
+        this.simulation.drainEnergy(35, 20, pos);
       });
   }
 

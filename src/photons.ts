@@ -44,12 +44,12 @@ export class Photons {
       .animate({ duration: this.simulation.animationDuration })
       .move(50, 50)
       .during((pos, morph, eased, situation) => {
-        this.simulation.drainEnergy(100 /* start */, 75 /* end */, pos);
+        this.simulation.drainEnergy(100, 75, pos);
       })
       .animate({ duration: this.simulation.animationDuration })
       .attr({ opacity: 0 })
       .during((pos, morph, eased, situation) => {
-        this.simulation.drainEnergy(75 /* start */, 50 /* end */, pos);
+        this.simulation.drainEnergy(75, 50, pos);
       });
   }
 

@@ -24,6 +24,11 @@ import { Subject } from 'rxjs';
 import { Chloroplast } from './chloroplast';
 import { Storage } from './storage';
 import { Mitochondrion } from './mitochondrion';
+import { GlucoseToStorage } from './glucoseToStorage';
+import {
+  DEFAULT_ANIMATION_DELAY,
+  DEFAULT_ANIMATION_DURATION,
+} from './constants';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -47,36 +52,25 @@ export class PlantGlucoseSimulation {
   public statusChangedEvent$ = this.statusChangedEvent.asObservable();
   private studentDataChangedEvent: Subject<void> = new Subject<void>();
   public studentDataChangedEvent$ = this.studentDataChangedEvent.asObservable();
-  BATTERY_EMPTY_REPAIR_DAMAGE_X: number = 325;
-  BATTERY_EMPTY_REPAIR_DAMAGE_Y: number = 815;
-  BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X: number = 625;
-  BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y: number = 815;
-
-  // default amount of time (in ms) each animation should take to complete
-  DEFAULT_ANIMATION_DURATION: number = 750;
-
-  // default delay before staring animation in ms
-  DEFAULT_ANIMATION_DELAY: number = 250;
 
   // ratio speed for each animation to complete. 0 = stop -> 1 = full speed
   animationSpeedRatio: number = 1;
 
   // actual amount of time (in ms) each animation should take to complete
   animationDuration: number =
-    this.DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
+    DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
 
   // actual amount of time (in ms) delay before starting animation
-  animationDelay: number =
-    this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
+  animationDelay: number = DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
 
   private chloroplast: Chloroplast;
-  currentAnimation: SVG;
-  waterAnimation: SVG;
+  private currentAnimation: SVG.Set;
+  waterAnimation: SVG.G;
   currentDayNumber: number = 0;
   currentTrialData: any;
   draw: SVG.Doc;
   enableInputControls: boolean = true;
-  energyLeft: number = 100;
+  private energyLeft: number = 100;
   feedback: Feedback;
   glucoseCreatedData: any[] = [];
   glucoseUsedData: any[] = [];
@@ -86,29 +80,27 @@ export class PlantGlucoseSimulation {
   glucoseCreatedIncrement: number = 4;
   glucoseUsedIncrement: number = 2;
 
-  glucoseToMitochondrion1: GlucoseToMitochondrion1;
-  glucoseToMitochondrion2: GlucoseToMitochondrion2;
-  glucoseToStorage1: GlucoseToStorage1;
-  glucoseToStorage2: GlucoseToStorage2;
-  glucosesInStorage: SVG[] = [];
-  initialGlucoseCreated: number = 0;
-  initialGlucoseUsed: number = 0;
-  initialGlucoseStored: number = 0;
+  private glucoseToMitochondrion1: GlucoseToMitochondrion1;
+  private glucoseToMitochondrion2: GlucoseToMitochondrion2;
+  private glucoseToStorage1: GlucoseToStorage1;
+  private glucoseToStorage2: GlucoseToStorage2;
+  glucosesInStorage: GlucoseToStorage[] = [];
+  private initialGlucoseCreated: number = 0;
+  private initialGlucoseUsed: number = 0;
+  private initialGlucoseStored: number = 0;
   instructions: any[] = [];
   isControlEnabled: boolean = true;
   isDroughTolerant: boolean = false;
   isShadeTolerant: boolean = false;
   isLightOn: boolean = true;
-  isLightOnRequestedInNextCycle: boolean = false;
-  isLightOffRequestedInNextCycle: boolean = false;
   numDays: number = 20;
   targetDays: number = 20;
   numLightOptions: number = 2;
   lightSwitch: any;
   waterSwitch: WaterSwitch;
   private mitochondrion: Mitochondrion;
-  mitochondrionBattery1: Battery1;
-  mitochondrionBattery2: Battery2;
+  private mitochondrionBattery1: Battery1;
+  private mitochondrionBattery2: Battery2;
   numPhotonsNextCycle: number;
   numPhotonsThisCycle: number = 4;
   numWaterNextCycle: number;
@@ -357,8 +349,7 @@ export class PlantGlucoseSimulation {
         this.currentAnimation = this.draw
           .animate({ duration: this.animationDuration * 3 })
           .during((pos, morph, eased, situation) => {
-            let startingEnergy = parseInt(this.energyLeft);
-            this.drainEnergy(100 /* start */, 0 /* end */, pos);
+            this.drainEnergy(100, 0, pos);
           })
           .afterAll(() => {
             this.disableControlButtons();
@@ -644,7 +635,7 @@ export class PlantGlucoseSimulation {
       this.currentAnimation = this.draw.set();
       let glucose1InStorage =
         this.glucosesInStorage[this.glucosesInStorage.length - 1];
-      let glucose2InStorage = null;
+      let glucose2InStorage: GlucoseToStorage = null;
 
       if (this.glucosesInStorage.length >= 2 && !requiresAssist) {
         glucose2InStorage =
@@ -658,12 +649,12 @@ export class PlantGlucoseSimulation {
             this.mitochondrionBattery2 = new Battery2(this);
           } else {
             glucose2InStorage
-              .animate({ duration: this.animationDuration })
+              .animate()
               .move(
                 this.getMitochondrionBattery2StartPosition().x,
                 this.getMitochondrionBattery1StartPosition().y
               )
-              .animate({ duration: this.animationDuration })
+              .animate()
               .opacity(0)
               .afterAll(() => {
                 this.mitochondrionBattery2 = new Battery2(this);
@@ -679,18 +670,18 @@ export class PlantGlucoseSimulation {
         moveToY = this.getMitochondrionBattery2StartPosition().y;
       }
       glucose1InStorage
-        .animate({ duration: this.animationDuration })
+        .animate()
         .move(moveToX, moveToY)
         .during((pos, morph, eased, situation) => {
           if (!requiresAssist) {
-            this.drainEnergy(100 /* start */, 75 /* end */, pos);
+            this.drainEnergy(100, 75, pos);
           }
         })
-        .animate({ duration: this.animationDuration })
+        .animate()
         .opacity(0)
         .during((pos, morph, eased, situation) => {
           if (!requiresAssist) {
-            this.drainEnergy(75 /* start */, 50 /* end */, pos);
+            this.drainEnergy(75, 50, pos);
           }
         })
         .afterAll(() => {
@@ -732,22 +723,30 @@ export class PlantGlucoseSimulation {
     }
 
     // move mitochondrion battery 1 to repair damage
-    this.mitochondrionBattery1.animate().afterAll(() => {
-      if (this.mitochondrionBattery2 != null) {
-        this.resetEnergyToFull();
-        this.removeMitochondrionBatteries();
-        if (this.glucoseCreatedIncrement >= 3 && this.numWaterThisCycle > 0) {
-          this.moveGlucoseFromChloroplastToStorage(animationCallback);
+    this.mitochondrionBattery1
+      .animate()
+      .during((pos, morph, eased, situation) => {
+        if (this.isLightOn) {
+          this.drainEnergy(20, 5, pos);
         } else {
-          // there is no glucose to move to storage, so
-          // go directly to the callback
-          animationCallback();
+          this.drainEnergy(50, 5, pos);
         }
-      } else {
-        this.disableControlButtons();
-        this.startPlantDeathSequence();
-      }
-    });
+      })
+      .afterAll(() => {
+        if (this.mitochondrionBattery2 != null) {
+          this.resetEnergyToFull();
+          this.removeMitochondrionBatteries();
+          if (this.glucoseCreatedIncrement >= 3 && this.numWaterThisCycle > 0) {
+            this.moveGlucoseFromChloroplastToStorage(animationCallback);
+          } else {
+            // there is no glucose to move to storage, so go directly to the callback
+            animationCallback();
+          }
+        } else {
+          this.disableControlButtons();
+          this.startPlantDeathSequence();
+        }
+      });
     this.currentAnimation.add(this.mitochondrionBattery1.getImage());
   }
 
@@ -919,9 +918,8 @@ export class PlantGlucoseSimulation {
   updateAnimationSpeedRatio(newAnimationSpeedRatio: number): void {
     this.animationSpeedRatio = newAnimationSpeedRatio;
     this.animationDuration =
-      this.DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
-    this.animationDelay =
-      this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
+      DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
+    this.animationDelay = DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
   }
 
   /**

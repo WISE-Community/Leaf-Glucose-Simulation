@@ -7,7 +7,6 @@ import {
   BG_COLOR_LIGHT_25,
   BG_COLOR_LIGHT_50,
   BG_COLOR_LIGHT_75,
-  WATER_COLOR,
 } from './constants';
 
 /**
@@ -19,7 +18,6 @@ import {
 export class Graph {
   chartOptions: any; // options provided to initialize graph with starting values
   chart: Highcharts.ChartObject; // Chart object that is rendered on the graph
-  waterIcons: any[];
   simulation: PlantGlucoseSimulation;
   showLineGlucoseMade: boolean;
   showLineGlucoseUsed: boolean;
@@ -41,7 +39,6 @@ export class Graph {
     numDays: number = 20
   ) {
     this.simulation = simulation;
-    this.waterIcons = [];
     this.showLineGlucoseMade = showLineGlucoseMade;
     this.showLineGlucoseUsed = showLineGlucoseUsed;
     this.showLineGlucoseStored = showLineGlucoseStored;
@@ -130,7 +127,6 @@ export class Graph {
       series.setData([]);
     });
     this.chart.xAxis[0].removePlotBand('plantGlucoseSimulationPlotBand');
-    this.removeWaterIcons();
 
     // toggle line on/off, if user previous toggled it
     if (this.showLineGlucoseMade) {
@@ -189,9 +185,6 @@ export class Graph {
       color: this.getColor(this.simulation.numPhotonsThisCycle),
     };
     this.addPlotBand(plotBandSettings);
-    if (this.simulation.numWaterThisCycle > 0) {
-      this.addWaterIcon();
-    }
   }
 
   getColor(numPhotons: number) {
@@ -210,27 +203,6 @@ export class Graph {
    */
   addPlotBand(plotBandSettings: any) {
     this.chart.xAxis[0].addPlotBand(plotBandSettings);
-  }
-
-  addWaterIcon() {
-    const data = this.chart.series[0].data;
-    const point = data[data.length - 1];
-    const waterIcon = this.chart.renderer
-      .rect(point.plotX + 52.5, this.chart.plotTop + 3, 6, 10)
-      .attr({
-        fill: WATER_COLOR,
-        rx: '4',
-        zIndex: 2,
-      })
-      .add();
-    this.waterIcons.push(waterIcon);
-  }
-
-  removeWaterIcons() {
-    for (let i = 0; i < this.waterIcons.length; i++) {
-      this.waterIcons[i].destroy();
-    }
-    this.waterIcons = [];
   }
 
   /**
