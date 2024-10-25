@@ -15,47 +15,19 @@ export class Settings {
   showWater = false;
 
   constructor(parameters: any) {
-    if (parameters['numDays'] != null) {
-      this.numDays = parameters['numDays'];
-    }
-    if (parameters['numLightOptions'] != null) {
-      this.numLightOptions = parameters['numLightOptions'];
-    }
-    if (parameters['feedbackPolicy'] != null) {
-      this.feedbackPolicy = parameters['feedbackPolicy'];
-    }
-    if (parameters['showGraph'] != null) {
-      this.showGraph = parameters['showGraph'];
-    }
-    if (parameters['showLineGlucoseMade'] != null) {
-      this.showLineGlucoseMade = parameters['showLineGlucoseMade'];
-    }
-    if (parameters['showLineGlucoseUsed'] != null) {
-      this.showLineGlucoseUsed = parameters['showLineGlucoseUsed'];
-    }
-    if (parameters['showLineGlucoseStored'] != null) {
-      this.showLineGlucoseStored = parameters['showLineGlucoseStored'];
-    }
-    if (parameters['showWater'] != null) {
-      this.showWater = parameters['showWater'];
-    }
-    if (parameters['showKey'] != null) {
-      this.showKey = parameters['showKey'];
-    }
-    if (parameters['enableInputControls'] != null) {
-      this.enableInputControls = parameters['enableInputControls'];
-    }
-    if (parameters['isDroughtTolerant'] != null) {
-      this.isDroughtTolerant = parameters['isDroughtTolerant'];
-    }
-    if (parameters['isShadeTolerant'] != null) {
-      this.isShadeTolerant = parameters['isShadeTolerant'];
-    }
-    if (parameters['plantImgSrc'] != null) {
-      this.plantImgSrc = parameters['plantImgSrc'];
-    }
-    if (parameters['showEnergyNeeds']) {
-      this.showEnergyNeeds = true;
-    }
+    this.numDays = parameters['numDays'] ?? 20;
+    this.numLightOptions = parameters['numLightOptions'] ?? 2;
+    this.feedbackPolicy = parameters['feedbackPolicy'] ?? null;
+    this.showGraph = parameters['showGraph'] ?? true;
+    this.showLineGlucoseMade = parameters['showLineGlucoseMade'] ?? true;
+    this.showLineGlucoseUsed = parameters['showLineGlucoseUsed'] ?? true;
+    this.showLineGlucoseStored = parameters['showLineGlucoseStored'] ?? true;
+    this.showWater = parameters['showWater'] ?? false;
+    this.showKey = parameters['showKey'] ?? true;
+    this.enableInputControls = parameters['enableInputControls'] ?? true;
+    this.isDroughtTolerant = parameters['isDroughtTolerant'] ?? false;
+    this.isShadeTolerant = parameters['isShadeTolerant'] ?? false;
+    this.plantImgSrc = parameters['plantImgSrc'] ?? null;
+    this.showEnergyNeeds = parameters['showEnergyNeeds'] ?? false;
   }
 }
