@@ -26,6 +26,7 @@ $(document).ready(function () {
   let showLineGlucoseStored = true;
   let showWater = false;
   let showKey = true;
+  let showEnergyNeeds = false;
   let enableInputControls = true;
   let isDroughtTolerant = false;
   let isShadeTolerant = false;
@@ -70,6 +71,9 @@ $(document).ready(function () {
   if (parameters['plantImgSrc'] != null) {
     plantImgSrc = parameters['plantImgSrc'];
   }
+  if (parameters['showEnergyNeeds']) {
+    showEnergyNeeds = true;
+  }
 
   const simulation = new PlantGlucoseSimulation(
     'model',
@@ -78,6 +82,7 @@ $(document).ready(function () {
     feedbackPolicy,
     showWater,
     showKey,
+    showEnergyNeeds,
     enableInputControls,
     isDroughtTolerant,
     isShadeTolerant,
@@ -86,7 +91,9 @@ $(document).ready(function () {
   new PlayPauseButton(simulation);
   new ResetButton(simulation);
   new SimulationEndFeedback(simulation);
-  new EnergyIndicatorView(simulation);
+  if (showEnergyNeeds) {
+    new EnergyIndicatorView(simulation);
+  }
   new DayDisplayCorner(simulation);
   if (showGraph) {
     new Graph(
