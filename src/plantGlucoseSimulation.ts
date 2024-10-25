@@ -355,8 +355,7 @@ export class PlantGlucoseSimulation {
         this.currentAnimation = this.draw
           .animate({ duration: this.animationDuration * 3 })
           .during((pos, morph, eased, situation) => {
-            let startingEnergy = parseInt(this.energyLeft);
-            this.drainEnergy(100 /* start */, 0 /* end */, pos);
+            this.drainEnergy(100, 0, pos);
           })
           .afterAll(() => {
             this.disableControlButtons();
@@ -681,14 +680,14 @@ export class PlantGlucoseSimulation {
         .move(moveToX, moveToY)
         .during((pos, morph, eased, situation) => {
           if (!requiresAssist) {
-            this.drainEnergy(100 /* start */, 75 /* end */, pos);
+            this.drainEnergy(100, 75, pos);
           }
         })
         .animate({ duration: this.animationDuration })
         .opacity(0)
         .during((pos, morph, eased, situation) => {
           if (!requiresAssist) {
-            this.drainEnergy(75 /* start */, 50 /* end */, pos);
+            this.drainEnergy(75, 50, pos);
           }
         })
         .afterAll(() => {
@@ -730,22 +729,30 @@ export class PlantGlucoseSimulation {
     }
 
     // move mitochondrion battery 1 to repair damage
-    this.mitochondrionBattery1.animate().afterAll(() => {
-      if (this.mitochondrionBattery2 != null) {
-        this.resetEnergyToFull();
-        this.removeMitochondrionBatteries();
-        if (this.glucoseCreatedIncrement >= 3 && this.numWaterThisCycle > 0) {
-          this.moveGlucoseFromChloroplastToStorage(animationCallback);
+    this.mitochondrionBattery1
+      .animate()
+      .during((pos, morph, eased, situation) => {
+        if (this.isLightOn) {
+          this.drainEnergy(20, 5, pos);
         } else {
-          // there is no glucose to move to storage, so
-          // go directly to the callback
-          animationCallback();
+          this.drainEnergy(50, 5, pos);
         }
-      } else {
-        this.disableControlButtons();
-        this.startPlantDeathSequence();
-      }
-    });
+      })
+      .afterAll(() => {
+        if (this.mitochondrionBattery2 != null) {
+          this.resetEnergyToFull();
+          this.removeMitochondrionBatteries();
+          if (this.glucoseCreatedIncrement >= 3 && this.numWaterThisCycle > 0) {
+            this.moveGlucoseFromChloroplastToStorage(animationCallback);
+          } else {
+            // there is no glucose to move to storage, so go directly to the callback
+            animationCallback();
+          }
+        } else {
+          this.disableControlButtons();
+          this.startPlantDeathSequence();
+        }
+      });
     this.currentAnimation.add(this.mitochondrionBattery1.getImage());
   }
 
