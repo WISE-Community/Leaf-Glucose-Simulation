@@ -140,6 +140,7 @@ export class PlantGlucoseSimulation {
    * @param showWater A boolean whether the water control should be displayed or
    * not
    * @param showKey A boolean whether the key should be displayed or not
+   * @showEnergyNeeds whether to show the battery and energy needs animation
    */
   constructor(
     elementId: string,
@@ -148,6 +149,7 @@ export class PlantGlucoseSimulation {
     feedbackPolicy: any = null,
     showWater: boolean = true,
     showKey: boolean = true,
+    private showEnergyNeeds: boolean = false,
     enableInputControls: boolean = true,
     isDroughTolerant: boolean = false,
     isShadeTolerant: boolean = false,
@@ -1000,5 +1002,9 @@ export class PlantGlucoseSimulation {
       x: this.mitochondrion.getX() + 175,
       y: this.mitochondrion.getY() + 50,
     };
+  }
+
+  isShowEnergyNeeds(): boolean {
+    return this.showEnergyNeeds;
   }
 }
