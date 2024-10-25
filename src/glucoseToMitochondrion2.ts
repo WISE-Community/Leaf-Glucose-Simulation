@@ -1,15 +1,6 @@
-import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import { Glucose } from './glucose';
 
 export class GlucoseToMitochondrion2 extends Glucose {
-  constructor(simulation: PlantGlucoseSimulation) {
-    super(
-      simulation,
-      simulation.GLUCOSE_TO_MITOCHONDRION2_START_X,
-      simulation.GLUCOSE_TO_MITOCHONDRION2_START_Y
-    );
-  }
-
   animate(): any {
     return this.image
       .animate({
@@ -19,5 +10,13 @@ export class GlucoseToMitochondrion2 extends Glucose {
       .dmove(20, 350)
       .animate({ duration: this.simulation.animationDuration })
       .attr({ opacity: 0 });
+  }
+
+  getStartX(): number {
+    return 675;
+  }
+
+  getStartY(): number {
+    return 100;
   }
 }

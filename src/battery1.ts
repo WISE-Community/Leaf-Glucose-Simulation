@@ -1,15 +1,6 @@
-import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import { Battery } from './battery';
 
 export class Battery1 extends Battery {
-  constructor(simulation: PlantGlucoseSimulation) {
-    super(
-      simulation,
-      simulation.mitochondrionBattery1StartX,
-      simulation.mitochondrionBattery1StartY
-    );
-  }
-
   animate(): any {
     return this.image
       .animate({
@@ -27,5 +18,13 @@ export class Battery1 extends Battery {
           this.simulation.drainEnergy(50 /* start */, 5 /* end */, pos);
         }
       });
+  }
+
+  getStartX(): number {
+    return this.simulation.getMitochondrion().getX() + 100;
+  }
+
+  getStartY(): number {
+    return this.simulation.getMitochondrion().getY() + 100;
   }
 }

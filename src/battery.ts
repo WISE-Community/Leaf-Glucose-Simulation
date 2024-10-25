@@ -5,14 +5,16 @@ type SVG = typeof SVG.Doc;
 export abstract class Battery {
   protected image: SVG.Image;
   protected simulation: PlantGlucoseSimulation;
-  constructor(simulation: PlantGlucoseSimulation, x: number, y: number) {
+  constructor(simulation: PlantGlucoseSimulation) {
     this.simulation = simulation;
     this.image = this.simulation.draw
       .image('./images/batteryFull.png')
-      .attr({ x: x, y: y });
+      .attr({ x: this.getStartX(), y: this.getStartY() });
   }
 
   abstract animate(): any;
+  abstract getStartX(): number;
+  abstract getStartY(): number;
 
   remove(): void {
     this.image.remove();

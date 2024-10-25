@@ -1,18 +1,9 @@
-import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import { GlucoseToStorage } from './glucoseToStorage';
 
 export class GlucoseToStorage1 extends GlucoseToStorage {
-  constructor(simulation: PlantGlucoseSimulation) {
-    super(
-      simulation,
-      simulation.GLUCOSE_TO_STORAGE1_START_X,
-      simulation.GLUCOSE_TO_STORAGE1_START_Y
-    );
-  }
-
   protected moveX(): number {
     return (
-      this.simulation.STORAGE_X +
+      this.simulation.getStorage().getX() +
       ((this.simulation.glucosesInStorage.length / 2) % 5) * 75 -
       this.buffer
     );
@@ -20,9 +11,17 @@ export class GlucoseToStorage1 extends GlucoseToStorage {
 
   protected moveY(): number {
     return (
-      this.simulation.STORAGE_Y +
+      this.simulation.getStorage().getY() +
       Math.floor(this.simulation.glucosesInStorage.length / 2 / 5) * 75 -
       this.buffer
     );
+  }
+
+  getStartX(): number {
+    return 400;
+  }
+
+  getStartY(): number {
+    return 100;
   }
 }

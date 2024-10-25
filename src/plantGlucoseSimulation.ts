@@ -21,6 +21,9 @@ import { GlucoseToMitochondrion2 } from './glucoseToMitochondrion2';
 import { Photons } from './photons';
 import { Waters } from './waters';
 import { Subject } from 'rxjs';
+import { Chloroplast } from './chloroplast';
+import { Storage } from './storage';
+import { Mitochondrion } from './mitochondrion';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -48,29 +51,12 @@ export class PlantGlucoseSimulation {
   BATTERY_EMPTY_REPAIR_DAMAGE_Y: number = 815;
   BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X: number = 625;
   BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y: number = 815;
-  CHLOROPLAST_X = 400;
-  CHLOROPLAST_Y = 100;
 
   // default amount of time (in ms) each animation should take to complete
   DEFAULT_ANIMATION_DURATION: number = 750;
 
   // default delay before staring animation in ms
   DEFAULT_ANIMATION_DELAY: number = 250;
-
-  MITOCHONDRION_X = 500;
-  MITOCHONDRION_Y = 400;
-  STORAGE_X = 50;
-  STORAGE_Y = 375;
-
-  GLUCOSE_TO_STORAGE1_START_X = 400;
-  GLUCOSE_TO_STORAGE1_START_Y = 100;
-  GLUCOSE_TO_STORAGE2_START_X = 475;
-  GLUCOSE_TO_STORAGE2_START_Y = 150;
-
-  GLUCOSE_TO_MITOCHONDRION1_START_X = 600;
-  GLUCOSE_TO_MITOCHONDRION1_START_Y = 150;
-  GLUCOSE_TO_MITOCHONDRION2_START_X = 675;
-  GLUCOSE_TO_MITOCHONDRION2_START_Y = 100;
 
   // ratio speed for each animation to complete. 0 = stop -> 1 = full speed
   animationSpeedRatio: number = 1;
@@ -83,7 +69,7 @@ export class PlantGlucoseSimulation {
   animationDelay: number =
     this.DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
 
-  chloroplast: SVG;
+  private chloroplast: Chloroplast;
   currentAnimation: SVG;
   waterAnimation: SVG;
   currentDayNumber: number = 0;
@@ -120,12 +106,8 @@ export class PlantGlucoseSimulation {
   numLightOptions: number = 2;
   lightSwitch: any;
   waterSwitch: WaterSwitch;
-  mitochondrion: SVG;
+  private mitochondrion: Mitochondrion;
   mitochondrionBattery1: Battery1;
-  mitochondrionBattery1StartX = this.MITOCHONDRION_X + 100;
-  mitochondrionBattery1StartY = this.MITOCHONDRION_Y + 100;
-  mitochondrionBattery2StartX = this.MITOCHONDRION_X + 175;
-  mitochondrionBattery2StartY = this.MITOCHONDRION_Y + 50;
   mitochondrionBattery2: Battery2;
   numPhotonsNextCycle: number;
   numPhotonsThisCycle: number = 4;
@@ -141,7 +123,7 @@ export class PlantGlucoseSimulation {
   showWater: boolean;
   simulationSpeedSwitch: SimulationSpeedSwitch;
   simulationState: SimulationState = SimulationState.Stopped;
-  storage: SVG;
+  private storage: Storage;
 
   // the current total amount of glucose created/used/stored
   totalGlucoseCreated = this.initialGlucoseCreated;
@@ -203,15 +185,9 @@ export class PlantGlucoseSimulation {
     }
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.plantAnimationCorner = new PlantAnimationCorner(this);
-    this.chloroplast = this.draw
-      .image('./images/chloroplast.png')
-      .attr({ x: this.CHLOROPLAST_X, y: this.CHLOROPLAST_Y });
-    this.mitochondrion = this.draw
-      .image('./images/mitochondrion.png')
-      .attr({ x: this.MITOCHONDRION_X, y: this.MITOCHONDRION_Y });
-    this.storage = this.draw
-      .image('./images/storage.png')
-      .attr({ x: this.STORAGE_X, y: this.STORAGE_Y });
+    this.chloroplast = new Chloroplast(this);
+    this.mitochondrion = new Mitochondrion(this);
+    this.storage = new Storage(this);
     this.feedback = new Feedback(this.draw, feedbackPolicy);
     this.wiseAPI = new WISEAPI(this);
     this.startNewTrial();
@@ -682,8 +658,8 @@ export class PlantGlucoseSimulation {
             glucose2InStorage
               .animate({ duration: this.animationDuration })
               .move(
-                this.mitochondrionBattery2StartX,
-                this.mitochondrionBattery1StartY
+                this.getMitochondrionBattery2StartPosition().x,
+                this.getMitochondrionBattery1StartPosition().y
               )
               .animate({ duration: this.animationDuration })
               .opacity(0)
@@ -694,11 +670,11 @@ export class PlantGlucoseSimulation {
           }
         }
       }
-      let moveToX = this.mitochondrionBattery1StartX;
-      let moveToY = this.mitochondrionBattery1StartY;
+      let moveToX = this.getMitochondrionBattery1StartPosition().x;
+      let moveToY = this.getMitochondrionBattery1StartPosition().y;
       if (requiresAssist) {
-        moveToX = this.mitochondrionBattery2StartX;
-        moveToY = this.mitochondrionBattery2StartY;
+        moveToX = this.getMitochondrionBattery2StartPosition().x;
+        moveToY = this.getMitochondrionBattery2StartPosition().y;
       }
       glucose1InStorage
         .animate({ duration: this.animationDuration })
@@ -1000,5 +976,31 @@ export class PlantGlucoseSimulation {
         shadeTolerantPhotonsToCreated[this.numPhotonsThisCycle];
     }
     return glucoseCreatedIncrement;
+  }
+
+  getStorage(): Storage {
+    return this.storage;
+  }
+
+  getChloroplast(): Chloroplast {
+    return this.chloroplast;
+  }
+
+  getMitochondrion(): Mitochondrion {
+    return this.mitochondrion;
+  }
+
+  private getMitochondrionBattery1StartPosition(): any {
+    return {
+      x: this.mitochondrion.getX() + 100,
+      y: this.mitochondrion.getY() + 100,
+    };
+  }
+
+  private getMitochondrionBattery2StartPosition(): any {
+    return {
+      x: this.mitochondrion.getX() + 175,
+      y: this.mitochondrion.getY() + 50,
+    };
   }
 }

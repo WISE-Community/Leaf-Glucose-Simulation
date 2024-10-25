@@ -6,14 +6,16 @@ export abstract class Glucose {
   protected buffer = 25;
   protected image: SVG.Image;
   protected simulation: PlantGlucoseSimulation;
-  constructor(simulation: PlantGlucoseSimulation, x: number, y: number) {
+  constructor(simulation: PlantGlucoseSimulation) {
     this.simulation = simulation;
     this.image = this.simulation.draw
       .image('./images/glucose.png', 70, 70)
-      .attr({ x: x, y: y });
+      .attr({ x: this.getStartX(), y: this.getStartY() });
   }
 
   abstract animate(): any;
+  abstract getStartX(): number;
+  abstract getStartY(): number;
 
   clone(): any {
     return this.image.clone();

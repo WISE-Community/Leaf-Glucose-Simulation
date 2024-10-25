@@ -1,15 +1,6 @@
-import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import { Battery } from './battery';
 
 export class Battery2 extends Battery {
-  constructor(simulation: PlantGlucoseSimulation) {
-    super(
-      simulation,
-      simulation.mitochondrionBattery2StartX,
-      simulation.mitochondrionBattery2StartY
-    );
-  }
-
   animate(): any {
     return this.image
       .animate({
@@ -21,5 +12,13 @@ export class Battery2 extends Battery {
         this.simulation.BATTERY_EMPTY_TRANSPORT_NUTRIENTS_Y
       )
       .afterAll(() => {});
+  }
+
+  getStartX(): number {
+    return this.simulation.getMitochondrion().getX() + 175;
+  }
+
+  getStartY(): number {
+    return this.simulation.getMitochondrion().getY() + 50;
   }
 }
