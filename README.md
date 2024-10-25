@@ -18,8 +18,9 @@ You can configure the simulation at the beginning by passing in these GET parame
 
 - numDays={1+} (default: 20)
 - numLightOptions={2,3,5} (default: 2)
-- showEnergyNeeds={true,false} (default: false). Show/hides energy needs indication section and battery animation
+- showEnergyNeeds={true,false} (default: false). Toggles energy needs indication section and battery animation
 - showGraph={true,false} (default: true)
+- showGraphBackground={true,false} (default: false). Toggles plot band background
 - showLineGlucoseMade={true,false} (default: true)
 - showLineGlucoseUsed={true,false} (default: true)
 - showLineGlucoseStored={true,false} (default: true)

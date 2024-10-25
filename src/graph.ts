@@ -17,16 +17,13 @@ import { Settings } from './settings';
  * @author Jonathan Lim-Breitbart
  */
 export class Graph {
-  chartOptions: any; // options provided to initialize graph with starting values
-  chart: Highcharts.ChartObject; // Chart object that is rendered on the graph
+  private chartOptions: any; // options provided to initialize graph with starting values
+  private chart: Highcharts.ChartObject; // Chart object that is rendered on the graph
 
   /**
    * Instantiates the graph with default options
    * @param simulation A reference to the simulation
-   * @param dayColorLightOn A hex string containing the default background color of this
-   *   day display corner when the light is on
-   * @param dayColorLightOff A hex string containing the default background color of this
-   *   day display corner when the light is off
+   * @param settings Settings for the simulation
    */
   constructor(
     private simulation: PlantGlucoseSimulation,
@@ -104,8 +101,10 @@ export class Graph {
 
     this.chart = new Highcharts.Chart(this.chartOptions);
     this.registerGraphLineToggleListener();
-    simulation.resetEvent$.subscribe(() => this.resetGraph());
-    simulation.studentDataChangedEvent$.subscribe(() => this.updateGraph());
+    this.simulation.resetEvent$.subscribe(() => this.resetGraph());
+    this.simulation.studentDataChangedEvent$.subscribe(() =>
+      this.updateGraph()
+    );
   }
 
   /**
@@ -149,7 +148,7 @@ export class Graph {
    * @param seriesIndex the index of the series to set
    * @param seriesData the data for the specified series.
    */
-  setSeriesData(seriesIndex: number, seriesData: any) {
+  private setSeriesData(seriesIndex: number, seriesData: any) {
     this.chart.series[seriesIndex].setData(seriesData);
   }
 
@@ -167,16 +166,17 @@ export class Graph {
     this.setSeriesData(1, this.simulation.currentTrialData.glucoseUsedData);
     this.setSeriesData(2, this.simulation.currentTrialData.glucoseStoredData);
 
-    let plotBandSettings = {
-      id: 'plantGlucoseSimulationPlotBand',
-      from: this.simulation.currentDayNumber - 1,
-      to: this.simulation.currentDayNumber,
-      color: this.getColor(this.simulation.numPhotonsThisCycle),
-    };
-    this.addPlotBand(plotBandSettings);
+    if (this.simulation.getSettings().showGraphBackground) {
+      this.chart.xAxis[0].addPlotBand({
+        id: 'plantGlucoseSimulationPlotBand',
+        from: this.simulation.currentDayNumber - 1,
+        to: this.simulation.currentDayNumber,
+        color: this.getColor(this.simulation.numPhotonsThisCycle),
+      });
+    }
   }
 
-  getColor(numPhotons: number) {
+  private getColor(numPhotons: number): string {
     return [
       BG_COLOR_LIGHT_0,
       BG_COLOR_LIGHT_25,
@@ -187,19 +187,11 @@ export class Graph {
   }
 
   /**
-   * Adds a plot band to the graph
-   * @param plotBandSettings settings for the plotband
-   */
-  addPlotBand(plotBandSettings: any) {
-    this.chart.xAxis[0].addPlotBand(plotBandSettings);
-  }
-
-  /**
    * Shows or hides the specified series
    * @param seriesIndex the index of series to show, 0-indexed
    * @param isDisplay true iff the series should be displayed
    */
-  displaySeries(seriesIndex: number, isDisplay: boolean) {
+  private displaySeries(seriesIndex: number, isDisplay: boolean) {
     if (isDisplay) {
       this.chart.series[seriesIndex].show();
     } else {
@@ -211,17 +203,16 @@ export class Graph {
    * listen for graph line show/hide toggles
    * and toggle corresponding image's opacity.
    */
-  registerGraphLineToggleListener() {
-    let simulation = this.simulation;
-    let toggleableImages = [];
+  private registerGraphLineToggleListener() {
+    const toggleableImages = [];
     if (this.settings.showLineGlucoseMade) {
-      toggleableImages.push(simulation.getChloroplast());
+      toggleableImages.push(this.simulation.getChloroplast());
     }
     if (this.settings.showLineGlucoseUsed) {
-      toggleableImages.push(simulation.getMitochondrion());
+      toggleableImages.push(this.simulation.getMitochondrion());
     }
     if (this.settings.showLineGlucoseStored) {
-      toggleableImages.push(simulation.getStorage());
+      toggleableImages.push(this.simulation.getStorage());
     }
 
     $('.highcharts-legend-item').on(
@@ -229,18 +220,15 @@ export class Graph {
       { toggleableImages: toggleableImages },
       function (event) {
         // get the index of the line user toggled (0 = glucose made, 1 = used, 2 = stored)
-        let lineIndex = $('.highcharts-legend-item').index($(this));
+        const lineIndex = $('.highcharts-legend-item').index($(this));
 
         // get the image object based on which line the user toggled
-        let image = event.data.toggleableImages[lineIndex];
+        const image = event.data.toggleableImages[lineIndex];
 
         // see if the line clicked is hidden or displayed
-        let isHidden = $(this).hasClass('highcharts-legend-item-hidden');
-        if (isHidden) {
-          image.opacity(0.5);
-        } else {
-          image.opacity(1);
-        }
+        image.opacity(
+          $(this).hasClass('highcharts-legend-item-hidden') ? 0.5 : 1
+        );
       }
     );
   }

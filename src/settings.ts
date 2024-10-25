@@ -8,6 +8,7 @@ export class Settings {
   plantImgSrc: string = null;
   showEnergyNeeds = false; // whether to show the battery and energy needs animation
   showGraph = true;
+  showGraphBackground = false;
   showLineGlucoseMade = true;
   showLineGlucoseUsed = true;
   showLineGlucoseStored = true;
@@ -18,6 +19,7 @@ export class Settings {
     this.numLightOptions = parameters['numLightOptions'] ?? 2;
     this.feedbackPolicy = parameters['feedbackPolicy'] ?? null;
     this.showGraph = parameters['showGraph'] ?? true;
+    this.showGraphBackground = parameters['showGraphBackground'] ?? false;
     this.showLineGlucoseMade = parameters['showLineGlucoseMade'] ?? true;
     this.showLineGlucoseUsed = parameters['showLineGlucoseUsed'] ?? true;
     this.showLineGlucoseStored = parameters['showLineGlucoseStored'] ?? true;
