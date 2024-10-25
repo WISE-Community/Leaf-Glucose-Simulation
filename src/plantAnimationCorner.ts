@@ -99,7 +99,7 @@ export class PlantAnimationCorner {
       this.leafDead,
     ];
 
-    this.showGreenLeaf();
+    this.showLeaf(this.GREEN_LEAF_INDEX);
 
     // draw the ground below the pot
     this.draw.rect(300, 40).x(0).y(270).fill('gray').stroke({ width: 2 });
@@ -129,6 +129,10 @@ export class PlantAnimationCorner {
     if (!this.simulation.getSettings().showWater) {
       this.wateringCan.hide();
     }
+
+    this.simulation.resetEvent$.subscribe(() =>
+      this.showLeaf(this.GREEN_LEAF_INDEX)
+    );
   }
 
   /**
@@ -136,27 +140,11 @@ export class PlantAnimationCorner {
    * 0 = green, 1 = light green, 2 = yellow, 3 = brown
    * @param leafIndex which leaf should be shown
    */
-  showLeaf(leafIndex: number) {
+  private showLeaf(leafIndex: number): void {
     this.allLeaves.map((leaf) => {
       leaf.hide();
     });
     this.allLeaves[leafIndex].show();
-  }
-
-  showGreenLeaf() {
-    this.showLeaf(this.GREEN_LEAF_INDEX);
-  }
-
-  showLightGreenLeaf() {
-    this.showLeaf(this.LIGHT_GREEN_LEAF_INDEX);
-  }
-
-  showYellowLeaf() {
-    this.showLeaf(this.YELLOW_LEAF_INDEX);
-  }
-
-  showDeadLeaf() {
-    this.showLeaf(this.DEAD_LEAF_INDEX);
   }
 
   /**
@@ -181,6 +169,21 @@ export class PlantAnimationCorner {
       this.turnLightOff();
       this.darknessOverlay.fill(BG_COLOR_LIGHT_0);
     }
+  }
+
+  playPlantDeathSequence(): any {
+    return this.draw
+      .animate(3000 * this.simulation.animationSpeedRatio)
+      .during((pos, morph, eased, situation) => {
+        // show the death sequence animation leaf based on time
+        if (pos < 0.33) {
+          this.showLeaf(this.LIGHT_GREEN_LEAF_INDEX);
+        } else if (pos < 0.66) {
+          this.showLeaf(this.YELLOW_LEAF_INDEX);
+        } else {
+          this.showLeaf(this.DEAD_LEAF_INDEX);
+        }
+      });
   }
 
   turnLightOff() {

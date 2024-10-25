@@ -746,28 +746,12 @@ export class PlantGlucoseSimulation {
   }
 
   private startPlantDeathSequence(): void {
-    this.currentAnimation = this.draw
-      .animate(3000 * this.animationSpeedRatio)
-      .during((pos, morph, eased, situation) => {
-        // show the death sequence animation leaf based on time
-        if (pos < 0.33) {
-          this.plantAnimationCorner.showLightGreenLeaf();
-        } else if (pos < 0.66) {
-          this.plantAnimationCorner.showYellowLeaf();
-        } else {
-          this.plantAnimationCorner.showDeadLeaf();
-        }
-      })
+    this.currentAnimation = this.plantAnimationCorner
+      .playPlantDeathSequence()
       .afterAll(() => {
         this.addEvent('plantDied');
         this.statusChangedEvent.next('died');
-        const glucoseCreated = false;
-        const glucoseUsed = false;
-        this.updateGlucoseValues(
-          this.currentDayNumber,
-          glucoseCreated,
-          glucoseUsed
-        );
+        this.updateGlucoseValues(this.currentDayNumber, false, false);
         this.notifyStudentDataChanged();
         this.saveStudentWork();
       });
@@ -827,7 +811,6 @@ export class PlantGlucoseSimulation {
     this.removeGlucoses();
     this.removeMitochondrionBatteries();
     this.resetEnergyToFull();
-    this.plantAnimationCorner.showGreenLeaf();
     this.dayChangedEvent.next(1);
 
     // re-initialize the variables
