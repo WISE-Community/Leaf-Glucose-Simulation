@@ -32,17 +32,15 @@ export class PlantAnimationCorner {
   darknessOverlay: SVG.Rect;
   wateringCan: SVG.Image;
   customPlant: SVG;
-  private showWater: boolean;
 
   /**
    * Instantiates variables with initial values for objects
    * within the plant animation corner.
    * @param draw An SVG draw object to paint other elements on
    */
-  constructor(simulation: PlantGlucoseSimulation) {
+  constructor(private simulation: PlantGlucoseSimulation) {
     this.draw = simulation.draw;
-    this.showWater = simulation.showWater;
-    const plantImgSrc = simulation.plantImgSrc || null;
+    const plantImgSrc = simulation.getSettings().plantImgSrc;
 
     // draw the outline in the upper-left corner
     this.draw.rect(300, 300).x(0).y(0).fill('white').stroke({ width: 2 });
@@ -128,7 +126,7 @@ export class PlantAnimationCorner {
         y: 8,
       })
       .rotate(-40);
-    if (!this.showWater) {
+    if (!this.simulation.getSettings().showWater) {
       this.wateringCan.hide();
     }
   }

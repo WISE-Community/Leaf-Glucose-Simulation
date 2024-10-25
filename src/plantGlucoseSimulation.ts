@@ -66,7 +66,7 @@ export class PlantGlucoseSimulation {
 
   private chloroplast: Chloroplast;
   private currentAnimation: SVG.Set;
-  waterAnimation: SVG.G;
+  private waterAnimation: SVG.G;
   currentDayNumber: number = 0;
   currentTrialData: any;
   draw: SVG.Doc;
@@ -78,8 +78,8 @@ export class PlantGlucoseSimulation {
   glucoseStoredData: any[] = [];
 
   // the amount of glucose to add/subtract each day
-  glucoseCreatedIncrement: number = 4;
-  glucoseUsedIncrement: number = 2;
+  private glucoseCreatedIncrement: number = 4;
+  private glucoseUsedIncrement: number = 2;
 
   private glucoseToMitochondrion1: GlucoseToMitochondrion1;
   private glucoseToMitochondrion2: GlucoseToMitochondrion2;
@@ -93,25 +93,23 @@ export class PlantGlucoseSimulation {
   isControlEnabled: boolean = true;
   isLightOn: boolean = true;
   numDays: number = 20;
-  targetDays: number = 20;
-  lightSwitch: any;
-  waterSwitch: WaterSwitch;
+  private targetDays: number = 20;
+  private lightSwitch: any;
+  private waterSwitch: WaterSwitch;
   private mitochondrion: Mitochondrion;
   private mitochondrionBattery1: Battery1;
   private mitochondrionBattery2: Battery2;
-  numPhotonsNextCycle: number;
+  private numPhotonsNextCycle: number;
   numPhotonsThisCycle: number = 4;
-  numWaterNextCycle: number;
+  private numWaterNextCycle: number;
   numWaterThisCycle: number = 4;
 
   private photonsGroup: Photons;
   private waterGroup: Waters;
   plantAnimationCorner: PlantAnimationCorner;
-  plantImgSrc: string;
-  playSequence: any[] = [];
-  showWater: boolean;
-  simulationSpeedSwitch: SimulationSpeedSwitch;
-  simulationState: SimulationState = SimulationState.Stopped;
+  private playSequence: any[] = [];
+  private simulationSpeedSwitch: SimulationSpeedSwitch;
+  private simulationState: SimulationState = SimulationState.Stopped;
   private storage: Storage;
 
   // the current total amount of glucose created/used/stored
@@ -119,10 +117,8 @@ export class PlantGlucoseSimulation {
   totalGlucoseUsed = this.initialGlucoseUsed;
   totalGlucoseStored = this.initialGlucoseStored;
 
-  // an array of trial data objects including the current trial
-  trials: any[] = [];
-
-  wiseAPI: WISEAPI;
+  private trials: any[] = []; // an array of trial data objects including the current trial
+  private wiseAPI: WISEAPI;
 
   /**
    * Instantiates variables with initial values for objects
@@ -135,9 +131,7 @@ export class PlantGlucoseSimulation {
   constructor(elementId: string, private settings: Settings) {
     this.draw = SVG(elementId);
     this.numDays = this.targetDays = this.settings.numDays;
-    this.showWater = this.settings.showWater;
     this.enableInputControls = this.settings.enableInputControls;
-    this.plantImgSrc = this.settings.plantImgSrc;
     if (this.settings.numLightOptions === 2) {
       this.lightSwitch = new LightSwitch(
         this,
