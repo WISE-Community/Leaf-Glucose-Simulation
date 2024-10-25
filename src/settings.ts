@@ -1,18 +1,17 @@
 export class Settings {
   enableInputControls = true;
-  feedbackPolicy: string = null;
+  feedbackPolicy: string = null; // contain the identifier of the feedback to use
   isDroughtTolerant = false;
   isShadeTolerant = false;
   numDays = 20;
-  numLightOptions = 2;
+  numLightOptions = 2; // 2 = On/Off, 3 = Full/Half/Off, 5 = 100%/75%/50%/25%/0%
   plantImgSrc: string = null;
-  showEnergyNeeds = false;
+  showEnergyNeeds = false; // whether to show the battery and energy needs animation
   showGraph = true;
-  showKey = true;
   showLineGlucoseMade = true;
   showLineGlucoseUsed = true;
   showLineGlucoseStored = true;
-  showWater = false;
+  showWater = false; // whether the water control should be displayed or not
 
   constructor(parameters: any) {
     this.numDays = parameters['numDays'] ?? 20;
@@ -23,7 +22,6 @@ export class Settings {
     this.showLineGlucoseUsed = parameters['showLineGlucoseUsed'] ?? true;
     this.showLineGlucoseStored = parameters['showLineGlucoseStored'] ?? true;
     this.showWater = parameters['showWater'] ?? false;
-    this.showKey = parameters['showKey'] ?? true;
     this.enableInputControls = parameters['enableInputControls'] ?? true;
     this.isDroughtTolerant = parameters['isDroughtTolerant'] ?? false;
     this.isShadeTolerant = parameters['isShadeTolerant'] ?? false;

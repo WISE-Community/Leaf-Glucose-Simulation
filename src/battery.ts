@@ -11,7 +11,7 @@ export abstract class Battery {
     this.image = this.simulation.draw
       .image('./images/batteryFull.png')
       .attr({ x: this.getStartX(), y: this.getStartY() });
-    if (!this.simulation.isShowEnergyNeeds()) {
+    if (!this.simulation.getSettings().showEnergyNeeds) {
       this.animationDelay = 1;
       this.animationDuration = 1;
       this.image.hide();
