@@ -29,6 +29,7 @@ import {
   DEFAULT_ANIMATION_DELAY,
   DEFAULT_ANIMATION_DURATION,
 } from './constants';
+import { Settings } from './settings';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -142,37 +143,37 @@ export class PlantGlucoseSimulation {
    * @param showKey A boolean whether the key should be displayed or not
    * @showEnergyNeeds whether to show the battery and energy needs animation
    */
-  constructor(
-    elementId: string,
-    numDays: number = 20,
-    numLightOptions: number = 2,
-    feedbackPolicy: any = null,
-    showWater: boolean = true,
-    showKey: boolean = true,
-    private showEnergyNeeds: boolean = false,
-    enableInputControls: boolean = true,
-    isDroughTolerant: boolean = false,
-    isShadeTolerant: boolean = false,
-    plantImgSrc: string = null
-  ) {
+  constructor(elementId: string, private settings: Settings) {
     this.draw = SVG(elementId);
-    this.numDays = this.targetDays = numDays;
-    this.numLightOptions = numLightOptions;
-    this.showWater = showWater;
-    this.showKey = showKey;
-    this.enableInputControls = enableInputControls;
-    this.isDroughTolerant = isDroughTolerant;
-    this.isShadeTolerant = isShadeTolerant;
-    this.plantImgSrc = plantImgSrc;
+    this.numDays = this.targetDays = this.settings.numDays;
+    this.numLightOptions = this.settings.numLightOptions;
+    this.showWater = this.settings.showWater;
+    this.showKey = this.settings.showKey;
+    this.enableInputControls = this.settings.enableInputControls;
+    this.isDroughTolerant = this.settings.isDroughtTolerant;
+    this.isShadeTolerant = this.settings.isShadeTolerant;
+    this.plantImgSrc = this.settings.plantImgSrc;
     if (this.numLightOptions === 2) {
-      this.lightSwitch = new LightSwitch(this, enableInputControls);
+      this.lightSwitch = new LightSwitch(
+        this,
+        this.settings.enableInputControls
+      );
     } else if (this.numLightOptions === 3) {
-      this.lightSwitch = new LightSwitch3(this, enableInputControls);
+      this.lightSwitch = new LightSwitch3(
+        this,
+        this.settings.enableInputControls
+      );
     } else if (this.numLightOptions === 5) {
-      this.lightSwitch = new LightSwitch5(this, enableInputControls);
+      this.lightSwitch = new LightSwitch5(
+        this,
+        this.settings.enableInputControls
+      );
     }
     if (this.showWater) {
-      this.waterSwitch = new WaterSwitch(this, enableInputControls);
+      this.waterSwitch = new WaterSwitch(
+        this,
+        this.settings.enableInputControls
+      );
     }
     if (!this.showKey) {
       $('.key').hide();
@@ -182,7 +183,7 @@ export class PlantGlucoseSimulation {
     this.chloroplast = new Chloroplast(this);
     this.mitochondrion = new Mitochondrion(this);
     this.storage = new Storage(this);
-    this.feedback = new Feedback(this.draw, feedbackPolicy);
+    this.feedback = new Feedback(this.draw, this.settings.feedbackPolicy);
     this.wiseAPI = new WISEAPI(this);
     this.startNewTrial();
     this.handleLightChangeRequest(this.numPhotonsThisCycle);
@@ -1005,6 +1006,6 @@ export class PlantGlucoseSimulation {
   }
 
   isShowEnergyNeeds(): boolean {
-    return this.showEnergyNeeds;
+    return this.settings.showEnergyNeeds;
   }
 }

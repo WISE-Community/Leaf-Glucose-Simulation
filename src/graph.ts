@@ -8,6 +8,7 @@ import {
   BG_COLOR_LIGHT_50,
   BG_COLOR_LIGHT_75,
 } from './constants';
+import { Settings } from './settings';
 
 /**
  * Graph --- Graphs glucose made, used, and stored over time
@@ -18,10 +19,6 @@ import {
 export class Graph {
   chartOptions: any; // options provided to initialize graph with starting values
   chart: Highcharts.ChartObject; // Chart object that is rendered on the graph
-  simulation: PlantGlucoseSimulation;
-  showLineGlucoseMade: boolean;
-  showLineGlucoseUsed: boolean;
-  showLineGlucoseStored: boolean;
 
   /**
    * Instantiates the graph with default options
@@ -32,17 +29,9 @@ export class Graph {
    *   day display corner when the light is off
    */
   constructor(
-    simulation: PlantGlucoseSimulation,
-    showLineGlucoseMade: boolean = true,
-    showLineGlucoseUsed: boolean = true,
-    showLineGlucoseStored: boolean = true,
-    numDays: number = 20
+    private simulation: PlantGlucoseSimulation,
+    private settings: Settings
   ) {
-    this.simulation = simulation;
-    this.showLineGlucoseMade = showLineGlucoseMade;
-    this.showLineGlucoseUsed = showLineGlucoseUsed;
-    this.showLineGlucoseStored = showLineGlucoseStored;
-
     // set the default chart options
     this.chartOptions = {
       chart: {
@@ -68,7 +57,7 @@ export class Graph {
           text: 'Time (Days)',
         },
         min: 0,
-        max: numDays + 1,
+        max: this.settings.numDays + 1,
         tickInterval: 1,
       },
       yAxis: {
@@ -89,8 +78,8 @@ export class Graph {
           lineWidth: 3,
           data: [],
           dashStyle: 'shortDot',
-          showInLegend: showLineGlucoseMade,
-          visible: showLineGlucoseMade,
+          showInLegend: this.settings.showLineGlucoseMade,
+          visible: this.settings.showLineGlucoseMade,
         },
         {
           name: 'Total Glucose Used',
@@ -98,8 +87,8 @@ export class Graph {
           lineWidth: 3,
           data: [],
           dashStyle: 'shortDash',
-          showInLegend: showLineGlucoseUsed,
-          visible: showLineGlucoseUsed,
+          showInLegend: this.settings.showLineGlucoseUsed,
+          visible: this.settings.showLineGlucoseUsed,
         },
         {
           name: 'Glucose in Storage',
@@ -107,8 +96,8 @@ export class Graph {
           lineWidth: 3,
           data: [],
           dashStyle: 'dot',
-          showInLegend: showLineGlucoseStored,
-          visible: showLineGlucoseStored,
+          showInLegend: this.settings.showLineGlucoseStored,
+          visible: this.settings.showLineGlucoseStored,
         },
       ],
     };
@@ -129,24 +118,24 @@ export class Graph {
     this.chart.xAxis[0].removePlotBand('plantGlucoseSimulationPlotBand');
 
     // toggle line on/off, if user previous toggled it
-    if (this.showLineGlucoseMade) {
-      if (this.simulation.chloroplast.opacity() === 0.5) {
+    if (this.settings.showLineGlucoseMade) {
+      if (this.simulation.getChloroplast().opacity() === 0.5) {
         this.displaySeries(0, false);
       } else {
         this.displaySeries(0, true);
       }
     }
 
-    if (this.showLineGlucoseUsed) {
-      if (this.simulation.mitochondrion.opacity() === 0.5) {
+    if (this.settings.showLineGlucoseUsed) {
+      if (this.simulation.getMitochondrion().opacity() === 0.5) {
         this.displaySeries(1, false);
       } else {
         this.displaySeries(1, true);
       }
     }
 
-    if (this.showLineGlucoseStored) {
-      if (this.simulation.storage.opacity() === 0.5) {
+    if (this.settings.showLineGlucoseStored) {
+      if (this.simulation.getStorage().opacity() === 0.5) {
         this.displaySeries(2, false);
       } else {
         this.displaySeries(2, true);
@@ -225,14 +214,14 @@ export class Graph {
   registerGraphLineToggleListener() {
     let simulation = this.simulation;
     let toggleableImages = [];
-    if (this.showLineGlucoseMade) {
-      toggleableImages.push(simulation.chloroplast);
+    if (this.settings.showLineGlucoseMade) {
+      toggleableImages.push(simulation.getChloroplast());
     }
-    if (this.showLineGlucoseUsed) {
-      toggleableImages.push(simulation.mitochondrion);
+    if (this.settings.showLineGlucoseUsed) {
+      toggleableImages.push(simulation.getMitochondrion());
     }
-    if (this.showLineGlucoseStored) {
-      toggleableImages.push(simulation.storage);
+    if (this.settings.showLineGlucoseStored) {
+      toggleableImages.push(simulation.getStorage());
     }
 
     $('.highcharts-legend-item').on(

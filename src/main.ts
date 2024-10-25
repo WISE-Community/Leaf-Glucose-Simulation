@@ -7,6 +7,7 @@ import { Graph } from './graph';
 import { SimulationEndFeedback } from './simulationEndFeedback';
 import { EnergyIndicatorView } from './energyIndicatorView';
 import { DayDisplayCorner } from './dayDisplayCorner';
+import { Settings } from './settings';
 
 /**
  * Entry point for the application. Initializes the simulation with parameters
@@ -16,92 +17,17 @@ import { DayDisplayCorner } from './dayDisplayCorner';
  * @author Jonathan Lim-Breitbart
  */
 $(document).ready(function () {
-  let parameters: any = parseURLParameters();
-  let feedbackPolicy = null;
-  let numDays = 20;
-  let numLightOptions = 2;
-  let showGraph = true;
-  let showLineGlucoseMade = true;
-  let showLineGlucoseUsed = true;
-  let showLineGlucoseStored = true;
-  let showWater = false;
-  let showKey = true;
-  let showEnergyNeeds = false;
-  let enableInputControls = true;
-  let isDroughtTolerant = false;
-  let isShadeTolerant = false;
-  let plantImgSrc = null;
-
-  if (parameters['numDays'] != null) {
-    numDays = parameters['numDays'];
-  }
-  if (parameters['numLightOptions'] != null) {
-    numLightOptions = parameters['numLightOptions'];
-  }
-  if (parameters['feedbackPolicy'] != null) {
-    feedbackPolicy = parameters['feedbackPolicy'];
-  }
-  if (parameters['showGraph'] != null) {
-    showGraph = parameters['showGraph'];
-  }
-  if (parameters['showLineGlucoseMade'] != null) {
-    showLineGlucoseMade = parameters['showLineGlucoseMade'];
-  }
-  if (parameters['showLineGlucoseUsed'] != null) {
-    showLineGlucoseUsed = parameters['showLineGlucoseUsed'];
-  }
-  if (parameters['showLineGlucoseStored'] != null) {
-    showLineGlucoseStored = parameters['showLineGlucoseStored'];
-  }
-  if (parameters['showWater'] != null) {
-    showWater = parameters['showWater'];
-  }
-  if (parameters['showKey'] != null) {
-    showKey = parameters['showKey'];
-  }
-  if (parameters['enableInputControls'] != null) {
-    enableInputControls = parameters['enableInputControls'];
-  }
-  if (parameters['isDroughtTolerant'] != null) {
-    isDroughtTolerant = parameters['isDroughtTolerant'];
-  }
-  if (parameters['isShadeTolerant'] != null) {
-    isShadeTolerant = parameters['isShadeTolerant'];
-  }
-  if (parameters['plantImgSrc'] != null) {
-    plantImgSrc = parameters['plantImgSrc'];
-  }
-  if (parameters['showEnergyNeeds']) {
-    showEnergyNeeds = true;
-  }
-
-  const simulation = new PlantGlucoseSimulation(
-    'model',
-    numDays,
-    numLightOptions,
-    feedbackPolicy,
-    showWater,
-    showKey,
-    showEnergyNeeds,
-    enableInputControls,
-    isDroughtTolerant,
-    isShadeTolerant,
-    plantImgSrc
-  );
+  const parameters: any = parseURLParameters();
+  const settings = new Settings(parameters);
+  const simulation = new PlantGlucoseSimulation('model', settings);
   new PlayPauseButton(simulation);
   new ResetButton(simulation);
   new SimulationEndFeedback(simulation);
-  if (showEnergyNeeds) {
+  if (settings.showEnergyNeeds) {
     new EnergyIndicatorView(simulation);
   }
   new DayDisplayCorner(simulation);
-  if (showGraph) {
-    new Graph(
-      simulation,
-      showLineGlucoseMade,
-      showLineGlucoseUsed,
-      showLineGlucoseStored,
-      numDays
-    );
+  if (settings.showGraph) {
+    new Graph(simulation, settings);
   }
 });
