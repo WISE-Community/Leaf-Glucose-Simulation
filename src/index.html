@@ -1,7 +1,7 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Plant Glucose Simulation</title>
     <style>
       body {
@@ -22,7 +22,9 @@
         margin-right: -8px;
         margin-left: -8px;
         transform: rotate(270deg);
-        -moz-transform: rotate(270deg); /*do same for other browsers if required*/
+        -moz-transform: rotate(
+          270deg
+        ); /*do same for other browsers if required*/
       }
       .switchInput5 {
         width: 88px;
@@ -36,7 +38,7 @@
       #model {
         border: 1px solid;
         border-right: none;
-        background-color: #DEEBF7;
+        background-color: #deebf7;
       }
       #highchartsDiv {
         border: 1px solid;
@@ -55,7 +57,8 @@
         padding: 8px;
         padding-right: 16px;
       }
-      .lightSwitch, #waterSwitch {
+      .lightSwitch,
+      #waterSwitch {
         display: none;
       }
       .switch > * {
@@ -76,20 +79,35 @@
       <div id="powerSwitch">
         <div id="lightSwitch" class="switch lightSwitch">
           <label for="lightSwitchInput">Light</label>
-          <input type="range" max="1" step="1" value="1" id="lightSwitchInput"
-              name="lightSwitchInput" class="switchInput" 
-              title="Turn light ON/OFF" aria-label="Turn light ON/OFF" />
+          <input
+            type="range"
+            max="1"
+            step="1"
+            value="1"
+            id="lightSwitchInput"
+            name="lightSwitchInput"
+            class="switchInput"
+            title="Turn light ON/OFF"
+            aria-label="Turn light ON/OFF"
+          />
           <div>
-            <div style="margin-top:5px">ON</div>
-            <div style="margin-top:12px">OFF</div>
+            <div style="margin-top: 5px">ON</div>
+            <div style="margin-top: 12px">OFF</div>
           </div>
         </div>
         <div id="lightSwitch3" class="switch lightSwitch">
           <label for="lightSwitchInput3">Light</label>
-          <input type="range" max="2" step="1" value="2" id="lightSwitchInput3"
-              name="lightSwitchInput3" class="switchInput" 
-              title="Change light intensity" 
-              aria-label="Change light intensity" />
+          <input
+            type="range"
+            max="2"
+            step="1"
+            value="2"
+            id="lightSwitchInput3"
+            name="lightSwitchInput3"
+            class="switchInput"
+            title="Change light intensity"
+            aria-label="Change light intensity"
+          />
           <div>
             <div>Full</div>
             <div>Half</div>
@@ -98,10 +116,17 @@
         </div>
         <div id="lightSwitch5" class="switch lightSwitch">
           <label for="lightSwitchInput5">Light</label>
-          <input type="range" max="4" step="1" value="4" id="lightSwitchInput5"
-              name="lightSwitchInput5" class="switchInput switchInput5" 
-              title="Change light intensity" 
-              aria-label="Change light intensity" />
+          <input
+            type="range"
+            max="4"
+            step="1"
+            value="4"
+            id="lightSwitchInput5"
+            name="lightSwitchInput5"
+            class="switchInput switchInput5"
+            title="Change light intensity"
+            aria-label="Change light intensity"
+          />
           <div>
             <div>100%</div>
             <div>75%</div>
@@ -116,23 +141,38 @@
         <label for="waterSwitchInput">Water</label>
         <div class="switch">
           <div>
-            <input type="range" max="1" step="1" value="1" id="waterSwitchInput"
-                name="waterSwitchInput" class="switchInput" 
-                title="Turn water ON/OFF" />
+            <input
+              type="range"
+              max="1"
+              step="1"
+              value="1"
+              id="waterSwitchInput"
+              name="waterSwitchInput"
+              class="switchInput"
+              title="Turn water ON/OFF"
+            />
           </div>
           <div>
-            <div style="margin-top:5px">YES</div>
-            <div style="margin-top:12px">NO</div>
+            <div style="margin-top: 5px">YES</div>
+            <div style="margin-top: 12px">NO</div>
           </div>
         </div>
       </div>
-      <div id="animationSpeedSwitchDiv">
+      <div id="animationSpeedSwitch">
         <label for="animationSpeedSwitchInput">Animation Speed</label>
         <div class="switch">
-          <input type="range" max="3" min="1" step="1" value="1"
-              name="animationSpeedSwitchInput" id="animationSpeedSwitchInput"
-              title="Change animation speed" class="switchInput" />
-          <div style="text-align: left;">
+          <input
+            type="range"
+            max="3"
+            min="1"
+            step="1"
+            value="1"
+            name="animationSpeedSwitchInput"
+            id="animationSpeedSwitchInput"
+            title="Change animation speed"
+            class="switchInput"
+          />
+          <div style="text-align: left">
             <div>4x</div>
             <div>2x</div>
             <div>Normal</div>
@@ -142,20 +182,37 @@
       <div id="controls">
         <label>Controls</label>
         <div class="switch">
-          <img id="playPause" src="images/playCircle.png" alt="Play"
-              title="Play simulation" role="button" tabindex="0" />
-          <img id="reset" src="images/replay.png" title="Reset simulation" 
-              alt="Reset" role="button" tabindex="0"/>
+          <img
+            id="playPause"
+            src="images/playCircle.png"
+            alt="Play"
+            title="Play simulation"
+            role="button"
+            tabindex="0"
+          />
+          <img
+            id="reset"
+            src="images/replay.png"
+            title="Reset simulation"
+            alt="Reset"
+            role="button"
+            tabindex="0"
+          />
         </div>
       </div>
     </div>
     <div class="content">
-      <svg id="model" width="400" height="320" viewBox="0 0 1000 1000"
-          version="1.1" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        id="model"
+        width="400"
+        height="320"
+        viewBox="0 0 1000 1000"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <rect x="0" y="0" width="1000" height="1000" fill="#DEEBF7" />
       </svg>
-      <div id="highchartsDiv" style="width: 300px; max-width: 50%;">
-      </div>
+      <div id="highchartsDiv" style="width: 300px; max-width: 50%"></div>
     </div>
     <script src="bundle.js"></script>
   </body>

@@ -70,7 +70,6 @@ export class PlantGlucoseSimulation {
   currentDayNumber: number = 0;
   currentTrialData: any;
   draw: SVG.Doc;
-  enableInputControls: boolean = true;
   private energyLeft: number = 100;
   feedback: Feedback;
   glucoseCreatedData: any[] = [];
@@ -131,7 +130,6 @@ export class PlantGlucoseSimulation {
   constructor(elementId: string, private settings: Settings) {
     this.draw = SVG(elementId);
     this.numDays = this.targetDays = this.settings.numDays;
-    this.enableInputControls = this.settings.enableInputControls;
     if (this.settings.numLightOptions === 2) {
       this.lightSwitch = new LightSwitch(
         this,
@@ -820,7 +818,7 @@ export class PlantGlucoseSimulation {
     this.totalGlucoseStored = this.initialGlucoseStored;
     this.feedback.hideFeedback();
     this.lightSwitch.hideWaitImage();
-    if (!this.enableInputControls) {
+    if (!this.settings.enableInputControls) {
       this.setInputValues(this.playSequence[0]);
     }
     this.startNewTrial();
@@ -836,7 +834,7 @@ export class PlantGlucoseSimulation {
   }
 
   private setEnableControlButtons(): void {
-    if (this.enableInputControls || this.playSequence.length) {
+    if (this.settings.enableInputControls || this.playSequence.length) {
       this.enableControlButtons();
     } else {
       this.disableControlButtons();
@@ -845,7 +843,7 @@ export class PlantGlucoseSimulation {
 
   private enableControlButtons(): void {
     this.isControlEnabled = true;
-    this.setInputControls(this.enableInputControls);
+    this.setInputControls(this.settings.enableInputControls);
     this.simulationSpeedSwitch.enableUserInput();
     $('#playPause').css('opacity', 1);
   }
