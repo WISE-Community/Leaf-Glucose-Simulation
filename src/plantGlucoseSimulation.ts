@@ -235,6 +235,8 @@ export class PlantGlucoseSimulation {
       glucoseCreatedData: [[0, this.initialGlucoseCreated]],
       glucoseUsedData: [[0, this.initialGlucoseUsed]],
       glucoseStoredData: [[0, this.initialGlucoseStored]],
+      lightLevel: [[0, this.numPhotonsThisCycle]],
+      waterLevel: [[0, this.numWaterThisCycle]],
       events: [],
     };
     this.trials.push(this.currentTrialData);
@@ -273,6 +275,11 @@ export class PlantGlucoseSimulation {
       dayNumber,
       this.totalGlucoseStored,
     ]);
+    this.currentTrialData.lightLevel.push([
+      dayNumber,
+      this.numPhotonsThisCycle,
+    ]);
+    this.currentTrialData.waterLevel.push([dayNumber, this.numWaterThisCycle]);
   }
 
   private updateGlucoseUsed(): void {

@@ -66,7 +66,12 @@ export class Graph {
         tickInterval: 20,
       },
       tooltip: {
-        enabled: true,
+        formatter: function () {
+          return this.points.reduce(function (s, point) {
+            return s + '<br/>' + point.series.name + ': ' + point.y;
+          }, '<b>Day ' + this.x + '</b>');
+        },
+        shared: true,
       },
       series: [
         {
@@ -95,6 +100,22 @@ export class Graph {
           dashStyle: 'dot',
           showInLegend: this.settings.showLineGlucoseStored,
           visible: this.settings.showLineGlucoseStored,
+        },
+        {
+          name: 'Light Level',
+          color: 'transparent',
+          borderColor: 'transparent',
+          data: [],
+          showInLegend: false,
+          visible: true,
+        },
+        {
+          name: 'Water Level',
+          color: 'transparent',
+          borderColor: 'transparent',
+          data: [],
+          showInLegend: false,
+          visible: true,
         },
       ],
     };
@@ -165,6 +186,8 @@ export class Graph {
     this.setSeriesData(0, this.simulation.currentTrialData.glucoseCreatedData);
     this.setSeriesData(1, this.simulation.currentTrialData.glucoseUsedData);
     this.setSeriesData(2, this.simulation.currentTrialData.glucoseStoredData);
+    this.setSeriesData(3, this.simulation.currentTrialData.lightLevel);
+    this.setSeriesData(4, this.simulation.currentTrialData.waterLevel);
 
     if (this.simulation.getSettings().showGraphBackground) {
       this.chart.xAxis[0].addPlotBand({
