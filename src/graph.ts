@@ -31,6 +31,7 @@ export class Graph {
   ) {
     // set the default chart options
     this.chartOptions = {
+      simulation: this.simulation,
       chart: {
         renderTo: 'highchartsDiv',
         type: 'line',
@@ -67,8 +68,32 @@ export class Graph {
       },
       tooltip: {
         formatter: function () {
-          return this.points.reduce(function (s, point) {
-            return s + '<br/>' + point.series.name + ': ' + point.y;
+          return this.points.reduce((accumulated, point) => {
+            let pointLabel = '';
+            if (point.series.name === 'Light Level') {
+              const labels =
+                this.series.chart.options.simulation.settings.lightLevelLabels;
+              let value;
+              if (labels.length === 2) {
+                value = labels[point.y / 4];
+              } else if (labels.length === 3) {
+                value = labels[point.y / 2];
+              } else {
+                value = labels[point.y];
+              }
+              pointLabel = `Light: ${value}`;
+            } else if (point.series.name === 'Water Level') {
+              const labels =
+                this.series.chart.options.simulation.settings.waterLevelLabels;
+              const value =
+                labels.length <= point.y
+                  ? labels[labels.length - 1]
+                  : labels[0];
+              pointLabel = `Water: ${value}`;
+            } else {
+              pointLabel = `${point.series.name}: ${point.y}`;
+            }
+            return `${accumulated}<br/>${pointLabel}`;
           }, '<b>Day ' + this.x + '</b>');
         },
         shared: true,

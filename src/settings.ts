@@ -3,6 +3,7 @@ export class Settings {
   feedbackPolicy: string = null; // contain the identifier of the feedback to use
   isDroughtTolerant = false;
   isShadeTolerant = false;
+  lightLevelLabels = ['OFF', 'ON'];
   numDays = 20;
   numLightOptions = 2; // 2 = On/Off, 3 = Full/Half/Off, 5 = 100%/75%/50%/25%/0%
   plantImgSrc: string = null;
@@ -14,6 +15,7 @@ export class Settings {
   showLineGlucoseStored = true;
   showSpeedControls = true;
   showWater = false; // whether the water control should be displayed or not
+  waterLevelLabels = ['NO', 'YES'];
 
   constructor(parameters: any) {
     this.numDays = parameters['numDays'] ?? 20;
@@ -31,5 +33,11 @@ export class Settings {
     this.isShadeTolerant = parameters['isShadeTolerant'] ?? false;
     this.plantImgSrc = parameters['plantImgSrc'] ?? null;
     this.showEnergyNeeds = parameters['showEnergyNeeds'] ?? false;
+    this.lightLevelLabels = parameters['lightLevelLabels']
+      ? parameters['lightLevelLabels'].split(',')
+      : ['ON', 'OFF'];
+    this.waterLevelLabels = parameters['waterLevelLabels']
+      ? parameters['waterLevelLabels'].split(',')
+      : ['NO', 'YES'];
   }
 }

@@ -8,13 +8,12 @@ import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
  *
  * Display an On/Off switch, where On = 100% water, Off = 0% water
  *
- * When the water switch is requested during an animation cycle, a wait image 
+ * When the water switch is requested during an animation cycle, a wait image
  * will be displayed.
  *
  * @author Jonathan Lim-Breitbart
  */
 export class WaterSwitch extends LightSwitch {
-
   constructor(simulation: PlantGlucoseSimulation, show: boolean = true) {
     super(simulation, show);
   }
@@ -23,12 +22,15 @@ export class WaterSwitch extends LightSwitch {
     this.waitImage = $('#waitImage');
     this.switchControls = $('#waterSwitch');
     this.switchInput = $('#waterSwitchInput');
+    const waterLevelLabels = this.simulation.getSettings().waterLevelLabels;
+    for (let i = 0; i < waterLevelLabels.length; i++) {
+      $(`.waterLevelLabel${i}`).html(waterLevelLabels[i]);
+    }
   }
-
 
   listenForUserInput() {
     const thisSwitch = this;
-    this.switchInput.on('change', function() {
+    this.switchInput.on('change', function () {
       const switchValue = $(this).val();
       if (switchValue == thisSwitch.INPUT_VALUE_POWER_OFF) {
         thisSwitch.simulation.addEvent('turnWaterOffButtonClicked');

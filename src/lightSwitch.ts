@@ -28,6 +28,7 @@ export class LightSwitch {
     this.show = show;
     this.simulation = simulation;
     this.setControls();
+    this.setLabels();
     if (this.show) {
       this.switchControls.show();
     }
@@ -40,9 +41,16 @@ export class LightSwitch {
     this.switchInput = $('#lightSwitchInput');
   }
 
+  private setLabels(): void {
+    const lightLevelLabels = this.simulation.getSettings().lightLevelLabels;
+    for (let i = 0; i < lightLevelLabels.length; i++) {
+      $(`.lightLevelLabel${i}`).html(lightLevelLabels[i]);
+    }
+  }
+
   listenForUserInput() {
     const thisSwitch = this;
-    this.switchInput.on('change', function() {
+    this.switchInput.on('change', function () {
       const switchValue = $(this).val();
       if (switchValue == thisSwitch.INPUT_VALUE_POWER_OFF) {
         thisSwitch.simulation.addEvent('turnLightOffButtonClicked');

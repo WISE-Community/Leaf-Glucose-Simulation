@@ -27,6 +27,8 @@ You can configure the simulation at the beginning by passing in these GET parame
 - showSpeedControls={true,false} (default: true)
 - showWater={true,false} (default: false)
 - enableInputControls={true,false} (default: true)
+- lightLevelLabels={comma-separated string} (default: "OFF,ON")
+- waterLevelLabels={comma-separated string} (default: "NO,YES") Ex: "250mL,500mL"
 
 ## Screenshots
 
