@@ -24,7 +24,7 @@ You can configure the simulation at the beginning by passing in these GET parame
 - showLineGlucoseMade={true,false} (default: true)
 - showLineGlucoseUsed={true,false} (default: true)
 - showLineGlucoseStored={true,false} (default: true)
-- showSpeedControls={true,false} (default: true)
+- showSpeedControls={true,false} (default: false)
 - showWater={true,false} (default: false)
 - enableInputControls={true,false} (default: true)
 - lightLevelLabels={comma-separated string} (default: "OFF,ON")

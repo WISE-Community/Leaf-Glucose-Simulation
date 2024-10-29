@@ -13,7 +13,7 @@ export class Settings {
   showLineGlucoseMade = true;
   showLineGlucoseUsed = true;
   showLineGlucoseStored = true;
-  showSpeedControls = true;
+  showSpeedControls = false;
   showWater = false; // whether the water control should be displayed or not
   waterLevelLabels = ['NO', 'YES'];
 
@@ -26,7 +26,7 @@ export class Settings {
     this.showLineGlucoseMade = parameters['showLineGlucoseMade'] ?? true;
     this.showLineGlucoseUsed = parameters['showLineGlucoseUsed'] ?? true;
     this.showLineGlucoseStored = parameters['showLineGlucoseStored'] ?? true;
-    this.showSpeedControls = parameters['showSpeedControls'] ?? true;
+    this.showSpeedControls = parameters['showSpeedControls'] ?? false;
     this.showWater = parameters['showWater'] ?? false;
     this.enableInputControls = parameters['enableInputControls'] ?? true;
     this.isDroughtTolerant = parameters['isDroughtTolerant'] ?? false;
