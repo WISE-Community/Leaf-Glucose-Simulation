@@ -35,7 +35,7 @@ export class Settings {
     this.showEnergyNeeds = parameters['showEnergyNeeds'] ?? false;
     this.lightLevelLabels = parameters['lightLevelLabels']
       ? parameters['lightLevelLabels'].split(',')
-      : ['ON', 'OFF'];
+      : ['OFF', 'ON'];
     this.waterLevelLabels = parameters['waterLevelLabels']
       ? parameters['waterLevelLabels'].split(',')
       : ['NO', 'YES'];
