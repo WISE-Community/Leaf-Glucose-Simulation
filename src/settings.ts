@@ -10,6 +10,7 @@ export class Settings {
   showEnergyNeeds = false; // whether to show the battery and energy needs animation
   showGraph = true;
   showGraphBackground = false;
+  showKey = true;
   showLineGlucoseMade = true;
   showLineGlucoseUsed = true;
   showLineGlucoseStored = true;
@@ -23,6 +24,7 @@ export class Settings {
     this.feedbackPolicy = parameters['feedbackPolicy'] ?? null;
     this.showGraph = parameters['showGraph'] ?? true;
     this.showGraphBackground = parameters['showGraphBackground'] ?? false;
+    this.showKey = parameters['showKey'] ?? true;
     this.showLineGlucoseMade = parameters['showLineGlucoseMade'] ?? true;
     this.showLineGlucoseUsed = parameters['showLineGlucoseUsed'] ?? true;
     this.showLineGlucoseStored = parameters['showLineGlucoseStored'] ?? true;

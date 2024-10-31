@@ -146,6 +146,9 @@ export class PlantGlucoseSimulation {
         this.settings.enableInputControls
       );
     }
+    if (!this.settings.showKey) {
+      $('.key').hide();
+    }
     if (this.settings.showWater) {
       this.waterSwitch = new WaterSwitch(
         this,

@@ -70,7 +70,51 @@
       }
       .content {
         display: flex;
-        margin-top: 5px;
+        margin-top: 4px;
+      }
+      .model {
+        display: flex;
+      }
+      .key {
+        padding: 8px;
+        border: 1px solid;
+        max-width: 50%;
+        margin: 0 8px;
+        width: 180px;
+      }
+      .key h2 {
+        font-size: 1.2rem;
+        margin: 0 auto 0.5em;
+        text-align: center;
+      }
+      @media (max-width: 940px) {
+        .content {
+          flex-direction: column;
+        }
+        .key {
+          margin: -1px 0 8px 0;
+          width: 685px;
+          max-width: 100%;
+        }
+
+        .key h2 {
+          text-align: start;
+        }
+      }
+      .keyItems {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .keyItem {
+        display: flex;
+        align-items: center;
+        margin: 4px;
+        font-size: 0.85rem;
+      }
+      .keyImg {
+        width: auto;
+        height: 26px;
+        margin: 0 8px;
       }
     </style>
   </head>
@@ -202,17 +246,52 @@
       </div>
     </div>
     <div class="content">
-      <svg
-        id="model"
-        width="400"
-        height="320"
-        viewBox="0 0 1000 1000"
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <rect x="0" y="0" width="1000" height="1000" fill="#DEEBF7" />
-      </svg>
-      <div id="highchartsDiv" style="width: 300px; max-width: 50%"></div>
+      <div class="model">
+        <svg
+          id="model"
+          width="400"
+          height="320"
+          viewBox="0 0 1000 1000"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect x="0" y="0" width="1000" height="1000" fill="#DEEBF7" />
+        </svg>
+        <div id="highchartsDiv" style="width: 300px; max-width: 50%"></div>
+      </div>
+      <div class="key">
+        <h2>Key</h2>
+        <div class="keyItems">
+          <div class="keyItem">
+            <span class="keyText">Photon</span>
+            <img class="keyImg" src="images/photon.png" alt="Photon" />
+          </div>
+          <div class="keyItem">
+            <span class="keyText">Glucose</span>
+            <img class="keyImg" src="images/glucose.png" alt="Glucose" />
+          </div>
+          <div class="keyItem">
+            <span class="keyText">Chloroplast</span>
+            <img
+              class="keyImg"
+              src="images/chloroplast.png"
+              alt="Chloroplast"
+            />
+          </div>
+          <div class="keyItem">
+            <span class="keyText">Mitochodrion</span>
+            <img
+              class="keyImg"
+              src="images/mitochondrion.png"
+              alt="Mitochodrion"
+            />
+          </div>
+          <div class="keyItem">
+            <span class="keyText">Vacuole</span>
+            <img class="keyImg" src="images/storage.png" alt="Vacuole" />
+          </div>
+        </div>
+      </div>
     </div>
     <script src="bundle.js"></script>
   </body>
