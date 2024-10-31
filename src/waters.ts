@@ -17,16 +17,15 @@ export class Waters {
 
   private createWaters(): void {
     for (let i = 0; i < 4; i++) {
-      const shiftX = i % 2 ? 0 : 15;
-      const shiftY = i < 2 ? shiftX + 5 : shiftX + 20;
+      const shiftX = i % 2 ? 0 : 25;
+      const shiftY = i < 2 ? shiftX + 10 : shiftX + 25;
       const waterPlant = this.simulation.draw
         .ellipse(8, 12)
         .fill(WATER_COLOR)
         .attr({ cx: 194 + shiftX, cy: 94 + shiftY });
       const waterChloroplast = this.simulation.draw
-        .ellipse(16, 24)
-        .fill(WATER_COLOR)
-        .attr({ cx: 620 + 2 * shiftX, cy: 60 + 2 * shiftY });
+        .image('./images/water.png', 70, 70)
+        .attr({ x: 580 + 2 * shiftX, y: 20 + 2 * shiftY });
       this.group.add(waterPlant).add(waterChloroplast);
     }
   }
