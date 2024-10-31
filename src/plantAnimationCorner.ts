@@ -34,6 +34,7 @@ export class PlantAnimationCorner {
   darknessOverlay: SVG.Rect;
   wateringCan: SVG.Image;
   customPlant: SVG;
+  showLightBulb: boolean = false;
 
   /**
    * Instantiates variables with initial values for objects
@@ -42,6 +43,7 @@ export class PlantAnimationCorner {
    */
   constructor(private simulation: PlantGlucoseSimulation) {
     this.draw = SVG('plantAnimation');
+    this.showLightBulb = simulation.getSettings().showLightBulb;
     const plantImgSrc = simulation.getSettings().plantImgSrc;
 
     this.draw.rect(300, 300).x(0).y(0).fill('white').stroke({ width: 2 });
@@ -107,7 +109,12 @@ export class PlantAnimationCorner {
 
     this.lightBulbOn = this.draw
       .image('./images/lightbulb20001.png', 40, 70)
-      .rotate(150);
+      .rotate(150)
+      .hide();
+
+    if (this.showLightBulb) {
+      this.lightBulbOn.show();
+    }
 
     this.lightBulbOff = this.draw
       .image('./images/lightbulb20002.png', 40, 70)
@@ -200,13 +207,17 @@ export class PlantAnimationCorner {
   }
 
   turnLightOff() {
-    this.lightBulbOn.hide();
-    this.lightBulbOff.show();
+    if (this.showLightBulb) {
+      this.lightBulbOn.hide();
+      this.lightBulbOff.show();
+    }
   }
 
   turnLightOn() {
-    this.lightBulbOff.hide();
-    this.lightBulbOn.show();
+    if (this.showLightBulb) {
+      this.lightBulbOff.hide();
+      this.lightBulbOn.show();
+    }
   }
 
   /**

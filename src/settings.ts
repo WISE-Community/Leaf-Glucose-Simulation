@@ -11,6 +11,7 @@ export class Settings {
   showGraph = true;
   showGraphBackground = false;
   showKey = true;
+  showLightBulb = false;
   showLineGlucoseMade = true;
   showLineGlucoseUsed = true;
   showLineGlucoseStored = true;
@@ -28,6 +29,7 @@ export class Settings {
     this.showGraphBackground = parameters['showGraphBackground'] ?? false;
     this.showKey = parameters['showKey'] ?? true;
     this.showOrganelles = parameters['showOrganelles'] ?? true;
+    this.showLightBulb = parameters['showLightBulb'] ?? false;
     this.showLineGlucoseMade = parameters['showLineGlucoseMade'] ?? true;
     this.showLineGlucoseUsed = parameters['showLineGlucoseUsed'] ?? true;
     this.showLineGlucoseStored = parameters['showLineGlucoseStored'] ?? true;
