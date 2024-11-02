@@ -1,6 +1,5 @@
 import * as $ from 'jquery';
 import { LightSwitch } from './lightSwitch';
-import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 
 /**
  * thisSwitch5 --- Rendering the light switch in these configurations:
@@ -23,10 +22,6 @@ export class LightSwitch5 extends LightSwitch {
   INPUT_VALUE_POWER_75 = 3;
   INPUT_VALUE_POWER_FULL = 4;
 
-  constructor(simulation: PlantGlucoseSimulation, show: boolean = true) {
-    super(simulation, show);
-  }
-
   setControls() {
     this.waitImage = $('#waitImage');
     this.switchControls = $('#lightSwitch5');
@@ -39,24 +34,19 @@ export class LightSwitch5 extends LightSwitch {
       const switchValue = $(this).val();
       if (switchValue == thisSwitch.INPUT_VALUE_POWER_OFF) {
         thisSwitch.simulation.addEvent('turnLightOffButtonClicked');
-        thisSwitch.simulation
-            .handleLightChangeRequest(thisSwitch.INPUT_VALUE_POWER_OFF);
+        thisSwitch.handleLightChangeRequest(thisSwitch.INPUT_VALUE_POWER_OFF);
       } else if (switchValue == thisSwitch.INPUT_VALUE_POWER_25) {
         thisSwitch.simulation.addEvent('turnLight25ButtonClicked');
-        thisSwitch.simulation
-            .handleLightChangeRequest(thisSwitch.INPUT_VALUE_POWER_25);
+        thisSwitch.handleLightChangeRequest(thisSwitch.INPUT_VALUE_POWER_25);
       } else if (switchValue == thisSwitch.INPUT_VALUE_POWER_50) {
         thisSwitch.simulation.addEvent('turnLight50ButtonClicked');
-        thisSwitch.simulation
-            .handleLightChangeRequest(thisSwitch.INPUT_VALUE_POWER_50);
+        thisSwitch.handleLightChangeRequest(thisSwitch.INPUT_VALUE_POWER_50);
       } else if (switchValue == thisSwitch.INPUT_VALUE_POWER_75) {
         thisSwitch.simulation.addEvent('turnLight75ButtonClicked');
-        thisSwitch.simulation
-            .handleLightChangeRequest(thisSwitch.INPUT_VALUE_POWER_75);
+        thisSwitch.handleLightChangeRequest(thisSwitch.INPUT_VALUE_POWER_75);
       } else if (switchValue == thisSwitch.INPUT_VALUE_POWER_FULL) {
         thisSwitch.simulation.addEvent('turnLightFullButtonClicked');
-        thisSwitch.simulation
-            .handleLightChangeRequest(thisSwitch.INPUT_VALUE_POWER_FULL);
+        thisSwitch.handleLightChangeRequest(thisSwitch.INPUT_VALUE_POWER_FULL);
       }
     });
   }

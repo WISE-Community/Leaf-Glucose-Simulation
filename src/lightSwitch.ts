@@ -24,15 +24,26 @@ export class LightSwitch {
   simulation: PlantGlucoseSimulation;
   waitImage: any;
 
-  constructor(simulation: PlantGlucoseSimulation, show: boolean = true) {
-    this.show = show;
+  constructor(simulation: PlantGlucoseSimulation) {
+    this.show = simulation.getSettings().enableInputControls;
     this.simulation = simulation;
     this.setControls();
     this.setLabels();
     if (this.show) {
       this.switchControls.show();
     }
+    this.simulation.inputControlsEnabledEvent$.subscribe((enable: boolean) => {
+      this.setEnableUserInput(enable);
+    });
+    this.simulation.lightChangedRequest$.subscribe((numPhotons: number) => {
+      this.handleLightChangeRequest(numPhotons);
+    });
+    this.simulation.numPhotonsChangedEvent$.subscribe(() =>
+      this.hideWaitImage()
+    );
+    this.simulation.resetEvent$.subscribe(() => this.hideWaitImage());
     this.listenForUserInput();
+    this.handleLightChangeRequest(this.simulation.numPhotonsThisCycle);
   }
 
   setControls() {
@@ -54,25 +65,45 @@ export class LightSwitch {
       const switchValue = $(this).val();
       if (switchValue == thisSwitch.INPUT_VALUE_POWER_OFF) {
         thisSwitch.simulation.addEvent('turnLightOffButtonClicked');
-        thisSwitch.simulation.handleLightChangeRequest(0);
+        thisSwitch.handleLightChangeRequest(0);
       } else if (switchValue == thisSwitch.INPUT_VALUE_POWER_ON) {
         thisSwitch.simulation.addEvent('turnLightOnButtonClicked');
-        thisSwitch.simulation.handleLightChangeRequest(4);
+        thisSwitch.handleLightChangeRequest(4);
       }
     });
+  }
+
+  /**
+   * Updates the number of photons coming in from light source
+   *
+   * If the request comes during an animation cycle, set a variable flag and
+   * show a wait image so the user knows the change will take effect
+   * at the beginning of the next animation cycle.
+   *
+   * @param numPhotonsNextCycle the new photon count requested by
+   * the user. Possible values are 0, 1, 2, 3, or 4
+   */
+  protected handleLightChangeRequest(numPhotonsNextCycle: number): void {
+    if (this.simulation.isAnimationPlaying()) {
+      this.showWaitImage();
+      this.simulation.numPhotonsNextCycle = numPhotonsNextCycle;
+    } else {
+      // animation is stopped, so update the light setting now
+      this.simulation.updateNumPhotonsThisCycle(numPhotonsNextCycle);
+    }
   }
 
   hideWaitImage() {
     this.waitImage.fadeOut();
   }
 
-  showWaitImage() {
+  protected showWaitImage() {
     if (this.show) {
       this.waitImage.show();
     }
   }
 
-  setEnableUserInput(enable: boolean) {
+  private setEnableUserInput(enable: boolean) {
     if (enable) {
       this.switchControls.find('input').prop('disabled', false);
     } else {

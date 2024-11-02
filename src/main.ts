@@ -8,6 +8,10 @@ import { SimulationEndFeedback } from './simulationEndFeedback';
 import { EnergyIndicatorView } from './energyIndicatorView';
 import { DayDisplayCorner } from './dayDisplayCorner';
 import { Settings } from './settings';
+import { LightSwitch } from './lightSwitch';
+import { LightSwitch3 } from './lightSwitch3';
+import { LightSwitch5 } from './lightSwitch5';
+import { WaterSwitch } from './waterSwitch';
 
 /**
  * Entry point for the application. Initializes the simulation with parameters
@@ -23,6 +27,16 @@ $(document).ready(function () {
   new PlayPauseButton(simulation);
   new ResetButton(simulation);
   new SimulationEndFeedback(simulation);
+  if (settings.numLightOptions === 2) {
+    new LightSwitch(simulation);
+  } else if (settings.numLightOptions === 3) {
+    new LightSwitch3(simulation);
+  } else if (settings.numLightOptions === 5) {
+    new LightSwitch5(simulation);
+  }
+  if (settings.showWater) {
+    new WaterSwitch(simulation);
+  }
   if (settings.showEnergyNeeds) {
     new EnergyIndicatorView(simulation);
   }

@@ -1,9 +1,5 @@
 import { Event } from './event';
 import { Feedback } from './feedback';
-import { LightSwitch } from './lightSwitch';
-import { LightSwitch3 } from './lightSwitch3';
-import { LightSwitch5 } from './lightSwitch5';
-import { WaterSwitch } from './waterSwitch';
 import { PlantAnimationCorner } from './plantAnimationCorner';
 import { SimulationSpeedSwitch } from './simulationSpeedSwitch';
 import { SimulationState } from './simulationState';
@@ -43,8 +39,15 @@ export class PlantGlucoseSimulation {
   public dayChangedEvent$ = this.dayChangedEvent.asObservable();
   private energyLeftEvent: Subject<number> = new Subject<number>();
   public energyLeftEvent$ = this.energyLeftEvent.asObservable();
+  private inputControlsEnabledEvent: Subject<boolean> = new Subject<boolean>();
+  public inputControlsEnabledEvent$ =
+    this.inputControlsEnabledEvent.asObservable();
   private numPhotonsChangedEvent: Subject<number> = new Subject<number>();
   public numPhotonsChangedEvent$ = this.numPhotonsChangedEvent.asObservable();
+  private numWaterChangedEvent: Subject<number> = new Subject<number>();
+  public numWaterChangedEvent$ = this.numWaterChangedEvent.asObservable();
+  private lightChangedRequest: Subject<number> = new Subject<number>();
+  public lightChangedRequest$ = this.lightChangedRequest.asObservable();
   private readyToPlayEvent: Subject<void> = new Subject<void>();
   public readyToPlayEvent$ = this.readyToPlayEvent.asObservable();
   private resetEvent: Subject<void> = new Subject<void>();
@@ -53,6 +56,8 @@ export class PlantGlucoseSimulation {
   public statusChangedEvent$ = this.statusChangedEvent.asObservable();
   private studentDataChangedEvent: Subject<void> = new Subject<void>();
   public studentDataChangedEvent$ = this.studentDataChangedEvent.asObservable();
+  private waterChangedRequest: Subject<number> = new Subject<number>();
+  public waterChangedRequest$ = this.waterChangedRequest.asObservable();
 
   // ratio speed for each animation to complete. 0 = stop -> 1 = full speed
   animationSpeedRatio: number = 1;
@@ -93,14 +98,12 @@ export class PlantGlucoseSimulation {
   isLightOn: boolean = true;
   numDays: number = 20;
   private targetDays: number = 20;
-  private lightSwitch: any;
-  private waterSwitch: WaterSwitch;
   private mitochondrion: Mitochondrion;
   private mitochondrionBattery1: Battery1;
   private mitochondrionBattery2: Battery2;
-  private numPhotonsNextCycle: number;
+  numPhotonsNextCycle: number;
   numPhotonsThisCycle: number = 4;
-  private numWaterNextCycle: number;
+  numWaterNextCycle: number;
   numWaterThisCycle: number = 4;
 
   private photonsGroup: Photons;
@@ -130,31 +133,10 @@ export class PlantGlucoseSimulation {
   constructor(elementId: string, private settings: Settings) {
     this.draw = SVG(elementId);
     this.numDays = this.targetDays = this.settings.numDays;
-    if (this.settings.numLightOptions === 2) {
-      this.lightSwitch = new LightSwitch(
-        this,
-        this.settings.enableInputControls
-      );
-    } else if (this.settings.numLightOptions === 3) {
-      this.lightSwitch = new LightSwitch3(
-        this,
-        this.settings.enableInputControls
-      );
-    } else if (this.settings.numLightOptions === 5) {
-      this.lightSwitch = new LightSwitch5(
-        this,
-        this.settings.enableInputControls
-      );
-    }
     if (!this.settings.showKey) {
       $('.key').hide();
     }
-    if (this.settings.showWater) {
-      this.waterSwitch = new WaterSwitch(
-        this,
-        this.settings.enableInputControls
-      );
-    }
+
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.plantAnimationCorner = new PlantAnimationCorner(this);
     this.chloroplast = new Chloroplast(this);
@@ -163,8 +145,6 @@ export class PlantGlucoseSimulation {
     this.feedback = new Feedback(this.draw, this.settings.feedbackPolicy);
     this.wiseAPI = new WISEAPI(this);
     this.startNewTrial();
-    this.handleLightChangeRequest(this.numPhotonsThisCycle);
-    this.handleWaterChangeRequest(this.numWaterThisCycle);
     this.setEnableControlButtons();
   }
 
@@ -190,16 +170,13 @@ export class PlantGlucoseSimulation {
   }
 
   private setInputControls(enable: boolean): void {
-    this.lightSwitch.setEnableUserInput(enable);
-    if (this.waterSwitch) {
-      this.waterSwitch.setEnableUserInput(enable);
-    }
+    this.inputControlsEnabledEvent.next(enable);
   }
 
   private setInputValues(day: any): void {
     if (day) {
-      this.handleLightChangeRequest(day.light);
-      this.handleWaterChangeRequest(day.water);
+      this.lightChangedRequest.next(day.light);
+      this.waterChangedRequest.next(day.water);
     }
   }
 
@@ -315,7 +292,6 @@ export class PlantGlucoseSimulation {
         this.numWaterNextCycle != this.numWaterThisCycle
       ) {
         this.updateNumWaterThisCycle(this.numWaterNextCycle);
-        this.waterSwitch.hideWaitImage();
       }
 
       if (
@@ -323,7 +299,6 @@ export class PlantGlucoseSimulation {
         this.numPhotonsNextCycle != this.numPhotonsThisCycle
       ) {
         this.updateNumPhotonsThisCycle(this.numPhotonsNextCycle);
-        this.lightSwitch.hideWaitImage();
       }
 
       if (
@@ -362,15 +337,16 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  private updateNumPhotonsThisCycle(numPhotonsThisCycle: number): void {
+  updateNumPhotonsThisCycle(numPhotonsThisCycle: number): void {
     this.numPhotonsThisCycle = numPhotonsThisCycle;
     this.numPhotonsChangedEvent.next(numPhotonsThisCycle);
     this.glucoseCreatedIncrement = this.calculateGlucoseCreatedIncrement();
     this.plantAnimationCorner.updateBackground(numPhotonsThisCycle);
   }
 
-  private updateNumWaterThisCycle(numWaterThisCycle: number): void {
+  updateNumWaterThisCycle(numWaterThisCycle: number): void {
     this.numWaterThisCycle = numWaterThisCycle;
+    this.numWaterChangedEvent.next(numWaterThisCycle);
     this.plantAnimationCorner.updateWatering(numWaterThisCycle);
   }
 
@@ -796,7 +772,7 @@ export class PlantGlucoseSimulation {
     this.glucosesInStorage = [];
   }
 
-  private isAnimationPlaying(): boolean {
+  isAnimationPlaying(): boolean {
     return this.currentAnimation != null;
   }
 
@@ -827,7 +803,6 @@ export class PlantGlucoseSimulation {
     this.totalGlucoseUsed = this.initialGlucoseUsed;
     this.totalGlucoseStored = this.initialGlucoseStored;
     this.feedback.hideFeedback();
-    this.lightSwitch.hideWaitImage();
     if (!this.settings.enableInputControls) {
       this.setInputValues(this.playSequence[0]);
     }
@@ -889,46 +864,6 @@ export class PlantGlucoseSimulation {
     this.animationDuration =
       DEFAULT_ANIMATION_DURATION * this.animationSpeedRatio;
     this.animationDelay = DEFAULT_ANIMATION_DELAY * this.animationSpeedRatio;
-  }
-
-  /**
-   * Updates the number of photons coming in from light source
-   *
-   * If the request comes during an animation cycle, set a variable flag and
-   * show a wait image so the user knows the change will take effect
-   * at the beginning of the next animation cycle.
-   *
-   * @param numPhotonsNextCycle the new photon count requested by
-   * the user. Possible values are 0, 1, 2, 3, or 4
-   */
-  handleLightChangeRequest(numPhotonsNextCycle: number): void {
-    if (this.isAnimationPlaying()) {
-      this.lightSwitch.showWaitImage();
-      this.numPhotonsNextCycle = numPhotonsNextCycle;
-    } else {
-      // animation is stopped, so update the light setting now
-      this.updateNumPhotonsThisCycle(numPhotonsNextCycle);
-    }
-  }
-
-  /**
-   * Updates the amount of water coming in from water source
-   *
-   * If the request comes during an animation cycle, set a variable flag and
-   * show a wait image so the user knows the change will take effect
-   * at the beginning of the next animation cycle.
-   *
-   * @param numWaterNextCycle the new water count requested by the user.
-   * Possible values are 0, 1
-   */
-  handleWaterChangeRequest(numWaterNextCycle: number): void {
-    if (this.isAnimationPlaying()) {
-      this.waterSwitch.showWaitImage();
-      this.numWaterNextCycle = numWaterNextCycle;
-    } else {
-      // animation is stopped, so update the water setting now
-      this.updateNumWaterThisCycle(numWaterNextCycle);
-    }
   }
 
   private calculateGlucoseCreatedIncrement(): number {
