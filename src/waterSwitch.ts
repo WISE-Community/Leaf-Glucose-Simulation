@@ -14,7 +14,7 @@ import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
  * @author Jonathan Lim-Breitbart
  */
 export class WaterSwitch extends LightSwitch {
-  constructor(simulation: PlantGlucoseSimulation) {
+  constructor(protected simulation: PlantGlucoseSimulation) {
     super(simulation);
     this.handleWaterChangeRequest(this.simulation.numWaterThisCycle);
     this.simulation.waterChangedRequest$.subscribe((numWater: number) => {
@@ -25,10 +25,16 @@ export class WaterSwitch extends LightSwitch {
     );
   }
 
-  setControls() {
-    this.waitImage = $('#waitImage');
-    this.switchControls = $('#waterSwitch');
-    this.switchInput = $('#waterSwitchInput');
+  protected getSwitchControlsId(): string {
+    return 'waterSwitch';
+  }
+
+  protected getSwitchInputId(): string {
+    return 'waterSwitchInput';
+  }
+
+  protected setControls(): void {
+    super.setControls();
     const waterLevelLabels = this.simulation.getSettings().waterLevelLabels;
     for (let i = 0; i < waterLevelLabels.length; i++) {
       $(`.waterLevelLabel${i}`).html(waterLevelLabels[i]);
@@ -57,7 +63,7 @@ export class WaterSwitch extends LightSwitch {
 
   listenForUserInput() {
     const thisSwitch = this;
-    this.switchInput.on('change', function () {
+    this.switchInput.on('change', () => {
       const switchValue = $(this).val();
       if (switchValue == thisSwitch.INPUT_VALUE_POWER_OFF) {
         thisSwitch.simulation.addEvent('turnWaterOffButtonClicked');

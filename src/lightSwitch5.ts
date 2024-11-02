@@ -22,10 +22,12 @@ export class LightSwitch5 extends LightSwitch {
   INPUT_VALUE_POWER_75 = 3;
   INPUT_VALUE_POWER_FULL = 4;
 
-  setControls() {
-    this.waitImage = $('#waitImage');
-    this.switchControls = $('#lightSwitch5');
-    this.switchInput = $('#lightSwitchInput5');
+  protected getSwitchControlsId(): string {
+    return 'lightSwitch5';
+  }
+
+  protected getSwitchInputId(): string {
+    return 'lightSwitchInput5';
   }
 
   listenForUserInput() {

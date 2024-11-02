@@ -18,15 +18,13 @@ export class LightSwitch {
   INPUT_VALUE_POWER_OFF = 0;
   INPUT_VALUE_POWER_ON = 1;
 
-  switchControls: any;
-  switchInput: any;
-  show: boolean;
-  simulation: PlantGlucoseSimulation;
-  waitImage: any;
+  private switchControls: any;
+  protected switchInput: any;
+  private show: boolean;
+  private waitImage: any;
 
-  constructor(simulation: PlantGlucoseSimulation) {
+  constructor(protected simulation: PlantGlucoseSimulation) {
     this.show = simulation.getSettings().enableInputControls;
-    this.simulation = simulation;
     this.setControls();
     this.setLabels();
     if (this.show) {
@@ -46,10 +44,18 @@ export class LightSwitch {
     this.handleLightChangeRequest(this.simulation.numPhotonsThisCycle);
   }
 
-  setControls() {
+  protected setControls(): void {
     this.waitImage = $('#waitImage');
-    this.switchControls = $('#lightSwitch');
-    this.switchInput = $('#lightSwitchInput');
+    this.switchControls = $(`#${this.getSwitchControlsId()}`);
+    this.switchInput = $(`#${this.getSwitchInputId()}`);
+  }
+
+  protected getSwitchControlsId(): string {
+    return 'lightSwitch';
+  }
+
+  protected getSwitchInputId(): string {
+    return 'lightSwitchInput';
   }
 
   private setLabels(): void {
@@ -93,11 +99,11 @@ export class LightSwitch {
     }
   }
 
-  hideWaitImage() {
+  protected hideWaitImage(): void {
     this.waitImage.fadeOut();
   }
 
-  protected showWaitImage() {
+  protected showWaitImage(): void {
     if (this.show) {
       this.waitImage.show();
     }
