@@ -77,9 +77,6 @@ export class PlantGlucoseSimulation {
   draw: SVG.Doc;
   private energyLeft: number = 100;
   feedback: Feedback;
-  glucoseCreatedData: any[] = [];
-  glucoseUsedData: any[] = [];
-  glucoseStoredData: any[] = [];
 
   // the amount of glucose to add/subtract each day
   private glucoseCreatedIncrement: number = 4;
@@ -113,12 +110,9 @@ export class PlantGlucoseSimulation {
   private simulationSpeedSwitch: SimulationSpeedSwitch;
   private simulationState: SimulationState = SimulationState.Stopped;
   private storage: Storage;
-
-  // the current total amount of glucose created/used/stored
-  totalGlucoseCreated = this.initialGlucoseCreated;
-  totalGlucoseUsed = this.initialGlucoseUsed;
-  totalGlucoseStored = this.initialGlucoseStored;
-
+  private totalGlucoseCreated = this.initialGlucoseCreated;
+  private totalGlucoseUsed = this.initialGlucoseUsed;
+  private totalGlucoseStored = this.initialGlucoseStored;
   private trials: any[] = []; // an array of trial data objects including the current trial
   private wiseAPI: WISEAPI;
 
