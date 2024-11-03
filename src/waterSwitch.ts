@@ -63,7 +63,7 @@ export class WaterSwitch extends LightSwitch {
 
   listenForUserInput() {
     const thisSwitch = this;
-    this.switchInput.on('change', () => {
+    this.switchInput.on('change', function () {
       const switchValue = $(this).val();
       if (switchValue == thisSwitch.INPUT_VALUE_POWER_OFF) {
         thisSwitch.simulation.addEvent('turnWaterOffButtonClicked');

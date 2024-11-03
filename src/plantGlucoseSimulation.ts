@@ -108,7 +108,7 @@ export class PlantGlucoseSimulation {
 
   private photonsGroup: Photons;
   private waterGroup: Waters;
-  plantAnimationCorner: PlantAnimationCorner;
+  private plantAnimationCorner: PlantAnimationCorner;
   private playSequence: any[] = [];
   private simulationSpeedSwitch: SimulationSpeedSwitch;
   private simulationState: SimulationState = SimulationState.Stopped;
@@ -341,23 +341,15 @@ export class PlantGlucoseSimulation {
     this.numPhotonsThisCycle = numPhotonsThisCycle;
     this.numPhotonsChangedEvent.next(numPhotonsThisCycle);
     this.glucoseCreatedIncrement = this.calculateGlucoseCreatedIncrement();
-    this.plantAnimationCorner.updateBackground(numPhotonsThisCycle);
   }
 
   updateNumWaterThisCycle(numWaterThisCycle: number): void {
     this.numWaterThisCycle = numWaterThisCycle;
     this.numWaterChangedEvent.next(numWaterThisCycle);
-    this.plantAnimationCorner.updateWatering(numWaterThisCycle);
   }
 
   private animationCallback(): void {
-    const isGlucoseCreated = true;
-    const isGlucoseUsed = true;
-    this.updateGlucoseValues(
-      this.currentDayNumber,
-      isGlucoseCreated,
-      isGlucoseUsed
-    );
+    this.updateGlucoseValues(this.currentDayNumber, true, true);
     this.notifyStudentDataChanged();
     this.loopAnimationAfterBriefPause();
   }

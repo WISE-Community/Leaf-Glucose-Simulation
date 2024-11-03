@@ -129,7 +129,12 @@ export class PlantAnimationCorner {
     if (!this.simulation.getSettings().showWater) {
       this.wateringCan.hide();
     }
-
+    this.simulation.numPhotonsChangedEvent$.subscribe((numPhotons: number) =>
+      this.updateBackground(numPhotons)
+    );
+    this.simulation.numWaterChangedEvent$.subscribe((numWater: number) =>
+      this.updateWatering(numWater)
+    );
     this.simulation.resetEvent$.subscribe(() =>
       this.showLeaf(this.GREEN_LEAF_INDEX)
     );
@@ -152,7 +157,7 @@ export class PlantAnimationCorner {
    * number of photons
    * @param numPhotonsThisCycle how many photons came in this day
    */
-  updateBackground(numPhotonsThisCycle: number) {
+  private updateBackground(numPhotonsThisCycle: number): void {
     if (numPhotonsThisCycle === 4) {
       this.turnLightOn();
       this.darknessOverlay.fill(BG_COLOR_LIGHT_100);
@@ -200,19 +205,11 @@ export class PlantAnimationCorner {
    * Updates the watering animation based on the water level
    * @param numWaterThisCycle how much water came in this day
    */
-  updateWatering(numWaterThisCycle: number) {
+  private updateWatering(numWaterThisCycle: number): void {
     if (numWaterThisCycle > 0) {
-      this.turnWaterOn();
+      this.wateringCan.show();
     } else {
-      this.turnWaterOff();
+      this.wateringCan.hide();
     }
-  }
-
-  turnWaterOn() {
-    this.wateringCan.show();
-  }
-
-  turnWaterOff() {
-    this.wateringCan.hide();
   }
 }
