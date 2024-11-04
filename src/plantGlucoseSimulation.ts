@@ -27,6 +27,7 @@ import {
 } from './constants';
 import { Settings } from './settings';
 import { Trial } from './trial';
+import { convertToHighchartsTrial } from './highchartsTrialConverter';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -333,10 +334,9 @@ export class PlantGlucoseSimulation {
         isAutoSave: false,
         isSubmit: false,
         studentData: {
-          trial: this.convertToHighchartsTrial(this.currentTrial),
+          trial: convertToHighchartsTrial(this.currentTrial),
         },
       };
-
       this.wiseAPI.sendMessage(state);
     }
   }
@@ -351,72 +351,8 @@ export class PlantGlucoseSimulation {
           trials: this.trials,
         },
       };
-
       this.wiseAPI.sendMessage(state);
     }
-  }
-
-  private convertToHighchartsTrial(trial: Trial): any {
-    let convertedTrial = {
-      id: trial.id,
-      name: trial.name,
-      series: [],
-    };
-
-    let glucoseCreatedSeries = this.convertToHighchartsSeries(
-      trial.id + '-glucoseMade',
-      'Total Glucose Made',
-      '#72ae2e',
-      'shortDot',
-      'circle',
-      trial.glucoseCreated
-    );
-
-    let glucoseUsedSeries = this.convertToHighchartsSeries(
-      trial.id + '-glucoseUsed',
-      'Total Glucose Used',
-      '#f17d00',
-      'shortDash',
-      'circle',
-      trial.glucoseUsed
-    );
-    let glucoseStoredSeries = this.convertToHighchartsSeries(
-      trial.id + '-glucoseStored',
-      'Total Glucose Stored',
-      '#459db6',
-      'dot',
-      'circle',
-      trial.glucoseStored
-    );
-    convertedTrial.series.push(glucoseCreatedSeries);
-    convertedTrial.series.push(glucoseUsedSeries);
-    convertedTrial.series.push(glucoseStoredSeries);
-    return convertedTrial;
-  }
-
-  private convertToHighchartsSeries(
-    seriesId,
-    seriesName,
-    seriesColor,
-    dashStyle,
-    markerSymbol,
-    seriesData
-  ): any {
-    let convertedSeries = {
-      id: seriesId,
-      name: seriesName,
-      color: seriesColor,
-      dashStyle: dashStyle,
-      marker: { symbol: markerSymbol },
-      data: [],
-    };
-    for (let seriesDataPoint of seriesData) {
-      convertedSeries.data.push({
-        x: seriesDataPoint[0],
-        y: seriesDataPoint[1],
-      });
-    }
-    return convertedSeries;
   }
 
   private loopAnimationAfterBriefPause(): void {
