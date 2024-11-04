@@ -208,11 +208,11 @@ export class Graph {
    * @param numPhotonsThisCycle number of photons that came in this day
    */
   private updateGraph(): void {
-    this.setSeriesData(0, this.simulation.currentTrialData.glucoseCreatedData);
-    this.setSeriesData(1, this.simulation.currentTrialData.glucoseUsedData);
-    this.setSeriesData(2, this.simulation.currentTrialData.glucoseStoredData);
-    this.setSeriesData(3, this.simulation.currentTrialData.lightLevel);
-    this.setSeriesData(4, this.simulation.currentTrialData.waterLevel);
+    this.setSeriesData(0, this.simulation.currentTrial.glucoseCreated);
+    this.setSeriesData(1, this.simulation.currentTrial.glucoseUsed);
+    this.setSeriesData(2, this.simulation.currentTrial.glucoseStored);
+    this.setSeriesData(3, this.simulation.currentTrial.lightLevel);
+    this.setSeriesData(4, this.simulation.currentTrial.waterLevel);
 
     if (this.simulation.getSettings().showGraphBackground) {
       this.chart.xAxis[0].addPlotBand({

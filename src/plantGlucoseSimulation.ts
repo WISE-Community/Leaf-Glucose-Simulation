@@ -26,6 +26,7 @@ import {
   DEFAULT_ANIMATION_DURATION,
 } from './constants';
 import { Settings } from './settings';
+import { Trial } from './trial';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -73,7 +74,7 @@ export class PlantGlucoseSimulation {
   private currentAnimation: SVG.Set;
   private waterAnimation: SVG.G;
   currentDayNumber: number = 0;
-  currentTrialData: any;
+  currentTrial: Trial;
   draw: SVG.Doc;
   private energyLeft: number = 100;
   feedback: Feedback;
@@ -199,32 +200,17 @@ export class PlantGlucoseSimulation {
     return this.simulationState === SimulationState.Running;
   }
 
-  /**
-   * Initialize and adds a new trial to all trials array
-   */
-  startNewTrial(): void {
-    this.currentTrialData = {
-      id: new Date().getTime(),
-      name: 'Trial ' + (this.trials.length + 1),
-      glucoseCreatedData: [[0, this.initialGlucoseCreated]],
-      glucoseUsedData: [[0, this.initialGlucoseUsed]],
-      glucoseStoredData: [[0, this.initialGlucoseStored]],
-      lightLevel: [[0, this.numPhotonsThisCycle]],
-      waterLevel: [[0, this.numWaterThisCycle]],
-      events: [],
-    };
-    this.trials.push(this.currentTrialData);
+  private startNewTrial(): void {
+    this.currentTrial = new Trial(
+      `Trial (${this.trials.length + 1})`,
+      this.numPhotonsThisCycle,
+      this.numWaterThisCycle
+    );
+    this.trials.push(this.currentTrial);
     this.notifyStudentDataChanged();
   }
 
-  /**
-   * Update the glucose values
-   * @param dayNumber which day to update values for
-   * @param glucoseCreated whether glucose was created
-   * @param glucoseUsed whether glucose was used
-   */
-  private updateGlucoseValues(
-    dayNumber: number,
+  private updateCurrentTrial(
     glucoseCreated: boolean,
     glucoseUsed: boolean
   ): void {
@@ -237,23 +223,14 @@ export class PlantGlucoseSimulation {
       this.updateGlucoseUsed();
     }
     this.totalGlucoseStored = this.totalGlucoseCreated - this.totalGlucoseUsed;
-    this.currentTrialData.glucoseCreatedData.push([
-      dayNumber,
+    this.currentTrial.addDayData(
+      this.currentDayNumber,
       this.totalGlucoseCreated,
-    ]);
-    this.currentTrialData.glucoseUsedData.push([
-      dayNumber,
       this.totalGlucoseUsed,
-    ]);
-    this.currentTrialData.glucoseStoredData.push([
-      dayNumber,
       this.totalGlucoseStored,
-    ]);
-    this.currentTrialData.lightLevel.push([
-      dayNumber,
       this.numPhotonsThisCycle,
-    ]);
-    this.currentTrialData.waterLevel.push([dayNumber, this.numWaterThisCycle]);
+      this.numWaterThisCycle
+    );
   }
 
   private updateGlucoseUsed(): void {
@@ -343,7 +320,7 @@ export class PlantGlucoseSimulation {
   }
 
   private animationCallback(): void {
-    this.updateGlucoseValues(this.currentDayNumber, true, true);
+    this.updateCurrentTrial(true, true);
     this.notifyStudentDataChanged();
     this.loopAnimationAfterBriefPause();
   }
@@ -356,7 +333,7 @@ export class PlantGlucoseSimulation {
         isAutoSave: false,
         isSubmit: false,
         studentData: {
-          trial: this.convertToHighchartsTrial(this.currentTrialData),
+          trial: this.convertToHighchartsTrial(this.currentTrial),
         },
       };
 
@@ -379,37 +356,37 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  private convertToHighchartsTrial(trialData: any): any {
+  private convertToHighchartsTrial(trial: Trial): any {
     let convertedTrial = {
-      id: trialData.id,
-      name: trialData.name,
+      id: trial.id,
+      name: trial.name,
       series: [],
     };
 
     let glucoseCreatedSeries = this.convertToHighchartsSeries(
-      trialData.id + '-glucoseMade',
+      trial.id + '-glucoseMade',
       'Total Glucose Made',
       '#72ae2e',
       'shortDot',
       'circle',
-      trialData.glucoseCreatedData
+      trial.glucoseCreated
     );
 
     let glucoseUsedSeries = this.convertToHighchartsSeries(
-      trialData.id + '-glucoseUsed',
+      trial.id + '-glucoseUsed',
       'Total Glucose Used',
       '#f17d00',
       'shortDash',
       'circle',
-      trialData.glucoseUsedData
+      trial.glucoseUsed
     );
     let glucoseStoredSeries = this.convertToHighchartsSeries(
-      trialData.id + '-glucoseStored',
+      trial.id + '-glucoseStored',
       'Total Glucose Stored',
       '#459db6',
       'dot',
       'circle',
-      trialData.glucoseStoredData
+      trial.glucoseStored
     );
     convertedTrial.series.push(glucoseCreatedSeries);
     convertedTrial.series.push(glucoseUsedSeries);
@@ -721,7 +698,7 @@ export class PlantGlucoseSimulation {
       .afterAll(() => {
         this.addEvent('plantDied');
         this.statusChangedEvent.next('died');
-        this.updateGlucoseValues(this.currentDayNumber, false, false);
+        this.updateCurrentTrial(false, false);
         this.notifyStudentDataChanged();
         this.saveStudentWork();
       });
@@ -828,7 +805,7 @@ export class PlantGlucoseSimulation {
       name: eventName,
       timestamp: new Date().getTime(),
     };
-    this.currentTrialData.events.push(event);
+    this.currentTrial.events.push(event);
   }
 
   pauseSimulation(): void {
