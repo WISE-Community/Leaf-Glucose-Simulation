@@ -96,7 +96,6 @@ export class PlantGlucoseSimulation {
   isControlEnabled: boolean = true;
   isLightOn: boolean = true;
   numDays: number = 20;
-  private targetDays: number = 20;
   private mitochondrion: Mitochondrion;
   private mitochondrionBattery1: Battery1;
   private mitochondrionBattery2: Battery2;
@@ -128,7 +127,7 @@ export class PlantGlucoseSimulation {
    */
   constructor(elementId: string, private settings: Settings) {
     this.draw = SVG(elementId);
-    this.numDays = this.targetDays = this.settings.numDays;
+    this.numDays = this.settings.numDays;
     if (!this.settings.showKey) {
       $('.key').hide();
     }
@@ -619,7 +618,7 @@ export class PlantGlucoseSimulation {
   private handleSimulationEnded(): void {
     this.addEvent('simulationEnded');
     this.pauseSimulation();
-    if (this.currentDayNumber === this.targetDays + 1) {
+    if (this.currentDayNumber === this.numDays + 1) {
       this.statusChangedEvent.next('survived');
     } else {
       this.statusChangedEvent.next('ended');
