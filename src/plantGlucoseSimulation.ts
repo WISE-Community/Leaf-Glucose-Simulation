@@ -214,10 +214,8 @@ export class PlantGlucoseSimulation {
     glucoseCreated: boolean,
     glucoseUsed: boolean
   ): void {
-    if (glucoseCreated) {
-      if (this.numWaterThisCycle > 0) {
-        this.totalGlucoseCreated += this.glucoseCreatedIncrement;
-      }
+    if (glucoseCreated && this.numWaterThisCycle > 0) {
+      this.totalGlucoseCreated += this.glucoseCreatedIncrement;
     }
     if (glucoseUsed) {
       this.updateGlucoseUsed();
@@ -245,11 +243,9 @@ export class PlantGlucoseSimulation {
 
   /**
    * Run the plant animation cycle once.
-   *
    * A cycle is one complete cycle, with light and water on or off.
-   *
    * Light and water can be switched on/off during the cycle, but it will not take
-   * effect until the next cycle
+   * effect until the next cycle.
    */
   private playAnimationCycle(): void {
     this.currentDayNumber++;
@@ -257,21 +253,12 @@ export class PlantGlucoseSimulation {
       this.handleSimulationEnded();
     } else {
       this.dayChangedEvent.next(this.currentDayNumber);
-
-      if (
-        this.numWaterNextCycle != null &&
-        this.numWaterNextCycle != this.numWaterThisCycle
-      ) {
+      if (this.shouldUpdateNumWaterThisCycle()) {
         this.updateNumWaterThisCycle(this.numWaterNextCycle);
       }
-
-      if (
-        this.numPhotonsNextCycle != null &&
-        this.numPhotonsNextCycle != this.numPhotonsThisCycle
-      ) {
+      if (this.shouldUpdateNumPhotonsThisCycle()) {
         this.updateNumPhotonsThisCycle(this.numPhotonsNextCycle);
       }
-
       if (
         this.glucosesInStorage.length === 0 &&
         (this.glucoseCreatedIncrement === 0 || this.numWaterThisCycle === 0)
@@ -306,6 +293,20 @@ export class PlantGlucoseSimulation {
         this.numWaterNextCycle = null;
       }
     }
+  }
+
+  private shouldUpdateNumWaterThisCycle(): boolean {
+    return (
+      this.numWaterNextCycle != null &&
+      this.numWaterNextCycle != this.numWaterThisCycle
+    );
+  }
+
+  private shouldUpdateNumPhotonsThisCycle(): boolean {
+    return (
+      this.numPhotonsNextCycle != null &&
+      this.numPhotonsNextCycle != this.numPhotonsThisCycle
+    );
   }
 
   updateNumPhotonsThisCycle(numPhotonsThisCycle: number): void {
