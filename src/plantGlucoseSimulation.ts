@@ -104,10 +104,6 @@ export class PlantGlucoseSimulation {
   constructor(elementId: string, private settings: Settings) {
     this.draw = SVG(elementId);
     this.numDays = this.settings.numDays;
-    if (!this.settings.showKey) {
-      $('.key').hide();
-    }
-
     this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.plantAnimationCorner = new PlantAnimationCorner(this);
     this.chloroplast = new Chloroplast(this);

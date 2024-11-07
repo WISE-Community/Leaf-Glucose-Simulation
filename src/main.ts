@@ -44,4 +44,7 @@ $(document).ready(function () {
   if (settings.showGraph) {
     new Graph(simulation, settings);
   }
+  if (!settings.showKey) {
+    $('.key').hide();
+  }
 });
