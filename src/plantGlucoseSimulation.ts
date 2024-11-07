@@ -43,8 +43,6 @@ export class PlantGlucoseSimulation {
     this.inputControlsEnabledEvent.asObservable();
   private numWaterChangedEvent: Subject<number> = new Subject<number>();
   public numWaterChangedEvent$ = this.numWaterChangedEvent.asObservable();
-  private lightChangedRequest: Subject<number> = new Subject<number>();
-  public lightChangedRequest$ = this.lightChangedRequest.asObservable();
   private resetEvent: Subject<void> = new Subject<void>();
   public resetEvent$ = this.resetEvent.asObservable();
   private waterChangedRequest: Subject<number> = new Subject<number>();
@@ -159,7 +157,7 @@ export class PlantGlucoseSimulation {
 
   private setInputValues(day: any): void {
     if (day) {
-      this.lightChangedRequest.next(day.light);
+      eventBus.emit('lightChanged', day.light);
       this.waterChangedRequest.next(day.water);
     }
   }

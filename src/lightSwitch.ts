@@ -34,9 +34,9 @@ export class LightSwitch {
     this.simulation.inputControlsEnabledEvent$.subscribe((enable: boolean) => {
       this.setEnableUserInput(enable);
     });
-    this.simulation.lightChangedRequest$.subscribe((numPhotons: number) => {
-      this.handleLightChangeRequest(numPhotons);
-    });
+    eventBus
+      .on('lightChanged')
+      .subscribe((numPhotons) => this.handleLightChangeRequest(numPhotons));
     eventBus.on('numPhotonsChanged').subscribe(() => this.hideWaitImage());
     this.simulation.resetEvent$.subscribe(() => this.hideWaitImage());
     this.listenForUserInput();
