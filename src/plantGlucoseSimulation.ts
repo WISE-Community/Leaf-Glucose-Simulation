@@ -38,9 +38,6 @@ import { eventBus } from './eventBus';
  * @author Jonathan Lim-Breitbart
  */
 export class PlantGlucoseSimulation {
-  private inputControlsEnabledEvent: Subject<boolean> = new Subject<boolean>();
-  public inputControlsEnabledEvent$ =
-    this.inputControlsEnabledEvent.asObservable();
   private waterChangedRequest: Subject<number> = new Subject<number>();
   public waterChangedRequest$ = this.waterChangedRequest.asObservable();
 
@@ -145,10 +142,6 @@ export class PlantGlucoseSimulation {
       });
       this.numDays++;
     }
-  }
-
-  private setInputControls(enable: boolean): void {
-    this.inputControlsEnabledEvent.next(enable);
   }
 
   private setInputValues(day: any): void {
@@ -695,7 +688,7 @@ export class PlantGlucoseSimulation {
 
   private disableControlButtons(): void {
     this.isControlEnabled = false;
-    this.setInputControls(false);
+    eventBus.emit('inputControlsEnabled', false);
     this.simulationSpeedSwitch.disableUserInput();
     $('#playPause').css('opacity', 0.3);
   }
@@ -710,7 +703,7 @@ export class PlantGlucoseSimulation {
 
   private enableControlButtons(): void {
     this.isControlEnabled = true;
-    this.setInputControls(this.settings.enableInputControls);
+    eventBus.emit('inputControlsEnabled', this.settings.enableInputControls);
     this.simulationSpeedSwitch.enableUserInput();
     $('#playPause').css('opacity', 1);
   }
