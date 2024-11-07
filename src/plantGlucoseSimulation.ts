@@ -28,6 +28,7 @@ import {
 import { Settings } from './settings';
 import { Trial } from './trial';
 import { convertToHighchartsTrial } from './highchartsTrialConverter';
+import { eventBus } from './eventBus';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -37,8 +38,6 @@ import { convertToHighchartsTrial } from './highchartsTrialConverter';
  * @author Jonathan Lim-Breitbart
  */
 export class PlantGlucoseSimulation {
-  private dayChangedEvent: Subject<number> = new Subject<number>();
-  public dayChangedEvent$ = this.dayChangedEvent.asObservable();
   private energyLeftEvent: Subject<number> = new Subject<number>();
   public energyLeftEvent$ = this.energyLeftEvent.asObservable();
   private inputControlsEnabledEvent: Subject<boolean> = new Subject<boolean>();
@@ -252,7 +251,7 @@ export class PlantGlucoseSimulation {
     if (this.currentDayNumber > this.numDays) {
       this.handleSimulationEnded();
     } else {
-      this.dayChangedEvent.next(this.currentDayNumber);
+      eventBus.emit('dayChanged', this.currentDayNumber);
       if (this.shouldUpdateNumWaterThisCycle()) {
         this.updateNumWaterThisCycle(this.numWaterNextCycle);
       }
@@ -694,7 +693,7 @@ export class PlantGlucoseSimulation {
     this.removeGlucoses();
     this.removeMitochondrionBatteries();
     this.resetEnergyToFull();
-    this.dayChangedEvent.next(1);
+    eventBus.emit('dayChanged', 1);
 
     // re-initialize the variables
     this.currentDayNumber = 0;
