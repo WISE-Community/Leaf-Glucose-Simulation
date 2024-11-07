@@ -38,9 +38,6 @@ import { eventBus } from './eventBus';
  * @author Jonathan Lim-Breitbart
  */
 export class PlantGlucoseSimulation {
-  private waterChangedRequest: Subject<number> = new Subject<number>();
-  public waterChangedRequest$ = this.waterChangedRequest.asObservable();
-
   // ratio speed for each animation to complete. 0 = stop -> 1 = full speed
   animationSpeedRatio: number = 1;
 
@@ -147,7 +144,7 @@ export class PlantGlucoseSimulation {
   private setInputValues(day: any): void {
     if (day) {
       eventBus.emit('lightChanged', day.light);
-      this.waterChangedRequest.next(day.water);
+      eventBus.emit('waterChanged', day.water);
     }
   }
 

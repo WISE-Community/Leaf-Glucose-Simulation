@@ -18,9 +18,9 @@ export class WaterSwitch extends LightSwitch {
   constructor(protected simulation: PlantGlucoseSimulation) {
     super(simulation);
     this.handleWaterChangeRequest(this.simulation.numWaterThisCycle);
-    this.simulation.waterChangedRequest$.subscribe((numWater: number) => {
-      this.handleWaterChangeRequest(numWater);
-    });
+    eventBus
+      .on('waterChanged')
+      .subscribe((numWater) => this.handleWaterChangeRequest(numWater));
     eventBus.on('numWaterChanged').subscribe(() => this.hideWaitImage());
   }
 
