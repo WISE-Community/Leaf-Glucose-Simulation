@@ -1,6 +1,7 @@
 import * as $ from 'jquery';
 import { LightSwitch } from './lightSwitch';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
+import { eventBus } from './eventBus';
 
 /**
  * WaterSwitch --- Renders the water switch in on/off configuration
@@ -20,9 +21,7 @@ export class WaterSwitch extends LightSwitch {
     this.simulation.waterChangedRequest$.subscribe((numWater: number) => {
       this.handleWaterChangeRequest(numWater);
     });
-    this.simulation.numWaterChangedEvent$.subscribe((numWater: number) =>
-      this.hideWaitImage()
-    );
+    eventBus.on('numWaterChanged').subscribe(() => this.hideWaitImage());
   }
 
   protected getSwitchControlsId(): string {

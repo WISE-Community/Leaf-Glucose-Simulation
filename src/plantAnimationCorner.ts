@@ -133,9 +133,9 @@ export class PlantAnimationCorner {
     eventBus
       .on('numPhotonsChanged')
       .subscribe((numPhotons) => this.updateBackground(numPhotons));
-    this.simulation.numWaterChangedEvent$.subscribe((numWater: number) =>
-      this.updateWatering(numWater)
-    );
+    eventBus
+      .on('numWaterChanged')
+      .subscribe((numWater) => this.updateWatering(numWater));
     this.simulation.resetEvent$.subscribe(() =>
       this.showLeaf(this.GREEN_LEAF_INDEX)
     );
