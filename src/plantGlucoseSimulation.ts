@@ -51,8 +51,6 @@ export class PlantGlucoseSimulation {
   public readyToPlayEvent$ = this.readyToPlayEvent.asObservable();
   private resetEvent: Subject<void> = new Subject<void>();
   public resetEvent$ = this.resetEvent.asObservable();
-  private studentDataChangedEvent: Subject<void> = new Subject<void>();
-  public studentDataChangedEvent$ = this.studentDataChangedEvent.asObservable();
   private waterChangedRequest: Subject<number> = new Subject<number>();
   public waterChangedRequest$ = this.waterChangedRequest.asObservable();
 
@@ -322,7 +320,7 @@ export class PlantGlucoseSimulation {
   }
 
   private notifyStudentDataChanged(): void {
-    this.studentDataChangedEvent.next();
+    eventBus.emit('studentDataChanged');
     if (this.wiseAPI) {
       let state = {
         messageType: 'studentDataChanged',

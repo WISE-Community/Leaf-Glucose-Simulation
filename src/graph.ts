@@ -9,6 +9,7 @@ import {
   BG_COLOR_LIGHT_75,
 } from './constants';
 import { Settings } from './settings';
+import { eventBus } from './eventBus';
 
 /**
  * Graph --- Graphs glucose made, used, and stored over time
@@ -148,9 +149,7 @@ export class Graph {
     this.chart = new Highcharts.Chart(this.chartOptions);
     this.registerGraphLineToggleListener();
     this.simulation.resetEvent$.subscribe(() => this.resetGraph());
-    this.simulation.studentDataChangedEvent$.subscribe(() =>
-      this.updateGraph()
-    );
+    eventBus.on('studentDataChanged').subscribe(() => this.updateGraph());
   }
 
   /**
