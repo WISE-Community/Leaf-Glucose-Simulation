@@ -38,8 +38,6 @@ import { eventBus } from './eventBus';
  * @author Jonathan Lim-Breitbart
  */
 export class PlantGlucoseSimulation {
-  private energyLeftEvent: Subject<number> = new Subject<number>();
-  public energyLeftEvent$ = this.energyLeftEvent.asObservable();
   private inputControlsEnabledEvent: Subject<boolean> = new Subject<boolean>();
   public inputControlsEnabledEvent$ =
     this.inputControlsEnabledEvent.asObservable();
@@ -421,7 +419,7 @@ export class PlantGlucoseSimulation {
    */
   drainEnergy(from: number, to: number, ratio: number): void {
     this.energyLeft = from - (from - to) * ratio;
-    this.energyLeftEvent.next(this.energyLeft);
+    eventBus.emit('energyLeftChanged', this.energyLeft);
   }
 
   /**
@@ -604,7 +602,7 @@ export class PlantGlucoseSimulation {
 
   private resetEnergyToFull(): void {
     this.energyLeft = 100;
-    this.energyLeftEvent.next(this.energyLeft);
+    eventBus.emit('energyLeftChanged', this.energyLeft);
   }
 
   private handleSimulationEnded(): void {
