@@ -47,8 +47,6 @@ export class PlantGlucoseSimulation {
   public numWaterChangedEvent$ = this.numWaterChangedEvent.asObservable();
   private lightChangedRequest: Subject<number> = new Subject<number>();
   public lightChangedRequest$ = this.lightChangedRequest.asObservable();
-  private readyToPlayEvent: Subject<void> = new Subject<void>();
-  public readyToPlayEvent$ = this.readyToPlayEvent.asObservable();
   private resetEvent: Subject<void> = new Subject<void>();
   public resetEvent$ = this.resetEvent.asObservable();
   private waterChangedRequest: Subject<number> = new Subject<number>();
@@ -700,7 +698,7 @@ export class PlantGlucoseSimulation {
     }
     this.startNewTrial();
     this.setEnableControlButtons();
-    this.readyToPlayEvent.next();
+    eventBus.emit('readyToPlay');
   }
 
   private disableControlButtons(): void {
@@ -738,7 +736,7 @@ export class PlantGlucoseSimulation {
   }
 
   pauseSimulation(): void {
-    this.readyToPlayEvent.next();
+    eventBus.emit('readyToPlay');
     if (this.isAnimationPlaying()) {
       this.currentAnimation.pause();
     }

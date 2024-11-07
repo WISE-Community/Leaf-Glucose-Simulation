@@ -1,5 +1,6 @@
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import { ControlButton } from './controlButton';
+import { eventBus } from './eventBus';
 
 /**
  * Button to let the user play and pause the simulation
@@ -7,7 +8,7 @@ import { ControlButton } from './controlButton';
 export class PlayPauseButton extends ControlButton {
   constructor(simulation: PlantGlucoseSimulation) {
     super(simulation, '#playPause');
-    simulation.readyToPlayEvent$.subscribe(() => this.showPlayButton());
+    eventBus.on('readyToPlay').subscribe(() => this.showPlayButton());
   }
 
   onClickListener(): void {
