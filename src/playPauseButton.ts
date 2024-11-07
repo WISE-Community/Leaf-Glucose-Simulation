@@ -24,14 +24,16 @@ export class PlayPauseButton extends ControlButton {
   }
 
   private showPauseButton(): void {
-    this.button.attr('src', 'images/pauseCircle.png');
-    this.button.attr('alt', 'Pause');
-    this.button.attr('aria-label', 'Pause simulation');
+    this.updateButton('images/pauseCircle.png', 'Pause', 'Pause simulation');
   }
 
   private showPlayButton(): void {
-    this.button.attr('src', 'images/playCircle.png');
-    this.button.attr('alt', 'Play');
-    this.button.attr('aria-label', 'Play simulation');
+    this.updateButton('images/playCircle.png', 'Play', 'Play simulation');
+  }
+
+  private updateButton(src: string, alt: string, ariaLabel: string): void {
+    this.button.attr('src', src);
+    this.button.attr('alt', alt);
+    this.button.attr('aria-label', ariaLabel);
   }
 }
