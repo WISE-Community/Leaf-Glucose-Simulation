@@ -666,6 +666,7 @@ export class PlantGlucoseSimulation {
   resetSimulation(): void {
     eventBus.emit('simulationReset');
     this.simulationState = SimulationState.Stopped;
+    eventBus.emit('simulationStateChanged', SimulationState.Stopped);
 
     if (this.isAnimationPlaying()) {
       this.currentAnimation.stop();
@@ -695,14 +696,13 @@ export class PlantGlucoseSimulation {
     }
     this.startNewTrial();
     this.setEnableControlButtons();
-    eventBus.emit('readyToPlay');
   }
 
   private disableControlButtons(): void {
     this.isControlEnabled = false;
     eventBus.emit('inputControlsEnabled', false);
     this.simulationSpeedSwitch.disableUserInput();
-    $('#playPause').css('opacity', 0.3);
+    $('#playPauseButton').css('opacity', 0.3);
   }
 
   private setEnableControlButtons(): void {
@@ -717,7 +717,7 @@ export class PlantGlucoseSimulation {
     this.isControlEnabled = true;
     eventBus.emit('inputControlsEnabled', this.settings.enableInputControls);
     this.simulationSpeedSwitch.enableUserInput();
-    $('#playPause').css('opacity', 1);
+    $('#playPauseButton').css('opacity', 1);
   }
 
   /**
@@ -733,7 +733,6 @@ export class PlantGlucoseSimulation {
   }
 
   private pauseSimulation(): void {
-    eventBus.emit('readyToPlay');
     if (this.isAnimationPlaying()) {
       this.currentAnimation.pause();
     }

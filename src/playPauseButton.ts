@@ -9,12 +9,11 @@ import { SimulationState } from './simulationState';
 export class PlayPauseButton extends ControlButton {
   constructor(protected simulation: PlantGlucoseSimulation) {
     super(simulation, 'playPauseButton');
-    eventBus.on('readyToPlay').subscribe(() => this.showPlayButton());
     eventBus.on('simulationStateChanged').subscribe((state) => {
-      if (state === SimulationState.Paused) {
-        this.showPlayButton();
-      } else {
+      if (state === SimulationState.Running) {
         this.showPauseButton();
+      } else {
+        this.showPlayButton();
       }
     });
   }
