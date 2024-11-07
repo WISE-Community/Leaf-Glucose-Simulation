@@ -53,8 +53,6 @@ export class PlantGlucoseSimulation {
   public readyToPlayEvent$ = this.readyToPlayEvent.asObservable();
   private resetEvent: Subject<void> = new Subject<void>();
   public resetEvent$ = this.resetEvent.asObservable();
-  private statusChangedEvent: Subject<string> = new Subject<string>();
-  public statusChangedEvent$ = this.statusChangedEvent.asObservable();
   private studentDataChangedEvent: Subject<void> = new Subject<void>();
   public studentDataChangedEvent$ = this.studentDataChangedEvent.asObservable();
   private waterChangedRequest: Subject<number> = new Subject<number>();
@@ -619,9 +617,9 @@ export class PlantGlucoseSimulation {
     this.addEvent('simulationEnded');
     this.pauseSimulation();
     if (this.currentDayNumber === this.numDays + 1) {
-      this.statusChangedEvent.next('survived');
+      eventBus.emit('statusChanged', 'survived');
     } else {
-      this.statusChangedEvent.next('ended');
+      eventBus.emit('statusChanged', 'ended');
     }
     this.disableControlButtons();
     this.saveStudentWork();
@@ -632,7 +630,7 @@ export class PlantGlucoseSimulation {
       .playPlantDeathSequence()
       .afterAll(() => {
         this.addEvent('plantDied');
-        this.statusChangedEvent.next('died');
+        eventBus.emit('statusChanged', 'died');
         this.updateCurrentTrial(false, false);
         this.notifyStudentDataChanged();
         this.saveStudentWork();
