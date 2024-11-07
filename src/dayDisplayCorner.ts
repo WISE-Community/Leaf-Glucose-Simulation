@@ -5,6 +5,7 @@ import {
   BG_COLOR_LIGHT_50,
   BG_COLOR_LIGHT_75,
 } from './constants';
+import { eventBus } from './eventBus';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import * as SVG from 'svg.js';
 type SVG = typeof SVG;
@@ -34,10 +35,10 @@ export class DayDisplayCorner {
       .fill(BG_COLOR_LIGHT_100)
       .stroke({ width: 2 });
     this.dayText = simulation.draw.text('Day 1').x(775).y(0).font({ size: 64 });
-    simulation.dayChangedEvent$.subscribe((day) => this.updateDayText(day));
-    simulation.numPhotonsChangedEvent$.subscribe((numPhotons) =>
-      this.updateDayColor(numPhotons)
-    );
+    eventBus.on('dayChanged').subscribe((day) => this.updateDayText(day));
+    eventBus
+      .on('numPhotonsChanged')
+      .subscribe((numPhotons) => this.updateDayColor(numPhotons));
   }
 
   private updateDayText(currentDay: number): void {

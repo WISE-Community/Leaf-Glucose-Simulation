@@ -28,6 +28,7 @@ import {
 import { Settings } from './settings';
 import { Trial } from './trial';
 import { convertToHighchartsTrial } from './highchartsTrialConverter';
+import { eventBus } from './eventBus';
 
 /**
  * PlantGlucoseSimulation --- Simulation showing the inside of a plant
@@ -37,30 +38,6 @@ import { convertToHighchartsTrial } from './highchartsTrialConverter';
  * @author Jonathan Lim-Breitbart
  */
 export class PlantGlucoseSimulation {
-  private dayChangedEvent: Subject<number> = new Subject<number>();
-  public dayChangedEvent$ = this.dayChangedEvent.asObservable();
-  private energyLeftEvent: Subject<number> = new Subject<number>();
-  public energyLeftEvent$ = this.energyLeftEvent.asObservable();
-  private inputControlsEnabledEvent: Subject<boolean> = new Subject<boolean>();
-  public inputControlsEnabledEvent$ =
-    this.inputControlsEnabledEvent.asObservable();
-  private numPhotonsChangedEvent: Subject<number> = new Subject<number>();
-  public numPhotonsChangedEvent$ = this.numPhotonsChangedEvent.asObservable();
-  private numWaterChangedEvent: Subject<number> = new Subject<number>();
-  public numWaterChangedEvent$ = this.numWaterChangedEvent.asObservable();
-  private lightChangedRequest: Subject<number> = new Subject<number>();
-  public lightChangedRequest$ = this.lightChangedRequest.asObservable();
-  private readyToPlayEvent: Subject<void> = new Subject<void>();
-  public readyToPlayEvent$ = this.readyToPlayEvent.asObservable();
-  private resetEvent: Subject<void> = new Subject<void>();
-  public resetEvent$ = this.resetEvent.asObservable();
-  private statusChangedEvent: Subject<string> = new Subject<string>();
-  public statusChangedEvent$ = this.statusChangedEvent.asObservable();
-  private studentDataChangedEvent: Subject<void> = new Subject<void>();
-  public studentDataChangedEvent$ = this.studentDataChangedEvent.asObservable();
-  private waterChangedRequest: Subject<number> = new Subject<number>();
-  public waterChangedRequest$ = this.waterChangedRequest.asObservable();
-
   // ratio speed for each animation to complete. 0 = stop -> 1 = full speed
   animationSpeedRatio: number = 1;
 
@@ -164,14 +141,10 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  private setInputControls(enable: boolean): void {
-    this.inputControlsEnabledEvent.next(enable);
-  }
-
   private setInputValues(day: any): void {
     if (day) {
-      this.lightChangedRequest.next(day.light);
-      this.waterChangedRequest.next(day.water);
+      eventBus.emit('lightChanged', day.light);
+      eventBus.emit('waterChanged', day.water);
     }
   }
 
@@ -252,7 +225,7 @@ export class PlantGlucoseSimulation {
     if (this.currentDayNumber > this.numDays) {
       this.handleSimulationEnded();
     } else {
-      this.dayChangedEvent.next(this.currentDayNumber);
+      eventBus.emit('dayChanged', this.currentDayNumber);
       if (this.shouldUpdateNumWaterThisCycle()) {
         this.updateNumWaterThisCycle(this.numWaterNextCycle);
       }
@@ -311,13 +284,13 @@ export class PlantGlucoseSimulation {
 
   updateNumPhotonsThisCycle(numPhotonsThisCycle: number): void {
     this.numPhotonsThisCycle = numPhotonsThisCycle;
-    this.numPhotonsChangedEvent.next(numPhotonsThisCycle);
+    eventBus.emit('numPhotonsChanged', numPhotonsThisCycle);
     this.glucoseCreatedIncrement = this.calculateGlucoseCreatedIncrement();
   }
 
   updateNumWaterThisCycle(numWaterThisCycle: number): void {
     this.numWaterThisCycle = numWaterThisCycle;
-    this.numWaterChangedEvent.next(numWaterThisCycle);
+    eventBus.emit('numWaterChanged', numWaterThisCycle);
   }
 
   private animationCallback(): void {
@@ -327,7 +300,7 @@ export class PlantGlucoseSimulation {
   }
 
   private notifyStudentDataChanged(): void {
-    this.studentDataChangedEvent.next();
+    eventBus.emit('studentDataChanged');
     if (this.wiseAPI) {
       let state = {
         messageType: 'studentDataChanged',
@@ -430,7 +403,7 @@ export class PlantGlucoseSimulation {
    */
   drainEnergy(from: number, to: number, ratio: number): void {
     this.energyLeft = from - (from - to) * ratio;
-    this.energyLeftEvent.next(this.energyLeft);
+    eventBus.emit('energyLeftChanged', this.energyLeft);
   }
 
   /**
@@ -613,16 +586,16 @@ export class PlantGlucoseSimulation {
 
   private resetEnergyToFull(): void {
     this.energyLeft = 100;
-    this.energyLeftEvent.next(this.energyLeft);
+    eventBus.emit('energyLeftChanged', this.energyLeft);
   }
 
   private handleSimulationEnded(): void {
     this.addEvent('simulationEnded');
     this.pauseSimulation();
     if (this.currentDayNumber === this.numDays + 1) {
-      this.statusChangedEvent.next('survived');
+      eventBus.emit('statusChanged', 'survived');
     } else {
-      this.statusChangedEvent.next('ended');
+      eventBus.emit('statusChanged', 'ended');
     }
     this.disableControlButtons();
     this.saveStudentWork();
@@ -633,7 +606,7 @@ export class PlantGlucoseSimulation {
       .playPlantDeathSequence()
       .afterAll(() => {
         this.addEvent('plantDied');
-        this.statusChangedEvent.next('died');
+        eventBus.emit('statusChanged', 'died');
         this.updateCurrentTrial(false, false);
         this.notifyStudentDataChanged();
         this.saveStudentWork();
@@ -676,7 +649,7 @@ export class PlantGlucoseSimulation {
   }
 
   resetSimulation(): void {
-    this.resetEvent.next();
+    eventBus.emit('simulationReset');
     this.simulationState = SimulationState.Stopped;
 
     if (this.isAnimationPlaying()) {
@@ -694,7 +667,7 @@ export class PlantGlucoseSimulation {
     this.removeGlucoses();
     this.removeMitochondrionBatteries();
     this.resetEnergyToFull();
-    this.dayChangedEvent.next(1);
+    eventBus.emit('dayChanged', 1);
 
     // re-initialize the variables
     this.currentDayNumber = 0;
@@ -707,12 +680,12 @@ export class PlantGlucoseSimulation {
     }
     this.startNewTrial();
     this.setEnableControlButtons();
-    this.readyToPlayEvent.next();
+    eventBus.emit('readyToPlay');
   }
 
   private disableControlButtons(): void {
     this.isControlEnabled = false;
-    this.setInputControls(false);
+    eventBus.emit('inputControlsEnabled', false);
     this.simulationSpeedSwitch.disableUserInput();
     $('#playPause').css('opacity', 0.3);
   }
@@ -727,7 +700,7 @@ export class PlantGlucoseSimulation {
 
   private enableControlButtons(): void {
     this.isControlEnabled = true;
-    this.setInputControls(this.settings.enableInputControls);
+    eventBus.emit('inputControlsEnabled', this.settings.enableInputControls);
     this.simulationSpeedSwitch.enableUserInput();
     $('#playPause').css('opacity', 1);
   }
@@ -745,7 +718,7 @@ export class PlantGlucoseSimulation {
   }
 
   pauseSimulation(): void {
-    this.readyToPlayEvent.next();
+    eventBus.emit('readyToPlay');
     if (this.isAnimationPlaying()) {
       this.currentAnimation.pause();
     }

@@ -1,5 +1,6 @@
 import * as $ from 'jquery';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
+import { eventBus } from './eventBus';
 
 /**
  * LightSwitch2 --- Renders the light switch in on/off configuration
@@ -30,16 +31,14 @@ export class LightSwitch {
     if (this.show) {
       this.switchControls.show();
     }
-    this.simulation.inputControlsEnabledEvent$.subscribe((enable: boolean) => {
-      this.setEnableUserInput(enable);
-    });
-    this.simulation.lightChangedRequest$.subscribe((numPhotons: number) => {
-      this.handleLightChangeRequest(numPhotons);
-    });
-    this.simulation.numPhotonsChangedEvent$.subscribe(() =>
-      this.hideWaitImage()
-    );
-    this.simulation.resetEvent$.subscribe(() => this.hideWaitImage());
+    eventBus
+      .on('inputControlsEnabled')
+      .subscribe((enable: boolean) => this.setEnableUserInput(enable));
+    eventBus
+      .on('lightChanged')
+      .subscribe((numPhotons) => this.handleLightChangeRequest(numPhotons));
+    eventBus.on('numPhotonsChanged').subscribe(() => this.hideWaitImage());
+    eventBus.on('simulationReset').subscribe(() => this.hideWaitImage());
     this.listenForUserInput();
     this.handleLightChangeRequest(this.simulation.numPhotonsThisCycle);
   }

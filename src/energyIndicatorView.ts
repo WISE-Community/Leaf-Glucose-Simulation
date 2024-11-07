@@ -1,3 +1,4 @@
+import { eventBus } from './eventBus';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 
 /**
@@ -125,9 +126,9 @@ export class EnergyIndicatorView {
 
     this.showEnergyNeeds(100);
     this.showBatteryIndicator(100);
-    simulation.energyLeftEvent$.subscribe((energyLeft) =>
-      this.updateEnergyDisplay(energyLeft)
-    );
+    eventBus
+      .on('energyLeftChanged')
+      .subscribe((energyLeft) => this.updateEnergyDisplay(energyLeft));
   }
 
   /**

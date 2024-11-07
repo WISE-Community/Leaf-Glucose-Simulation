@@ -1,6 +1,7 @@
 import * as SVG from 'svg.js';
 type SVG = typeof SVG;
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
+import { eventBus } from './eventBus';
 
 /**
  * SimulationEndFeedback --- Shows feedback that the simulation has ended,
@@ -72,8 +73,8 @@ export class SimulationEndFeedback {
       .y(410)
       .font({ size: 48, fill: 'white' })
       .hide();
-    simulation.resetEvent$.subscribe(() => this.hideAll());
-    simulation.statusChangedEvent$.subscribe((status: string) => {
+    eventBus.on('simulationReset').subscribe(() => this.hideAll());
+    eventBus.on('statusChanged').subscribe((status: string) => {
       switch (status) {
         case 'died':
           this.showPlantDied();
