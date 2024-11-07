@@ -73,7 +73,7 @@ export class SimulationEndFeedback {
       .y(410)
       .font({ size: 48, fill: 'white' })
       .hide();
-    simulation.resetEvent$.subscribe(() => this.hideAll());
+    eventBus.on('simulationReset').subscribe(() => this.hideAll());
     eventBus.on('statusChanged').subscribe((status: string) => {
       switch (status) {
         case 'died':

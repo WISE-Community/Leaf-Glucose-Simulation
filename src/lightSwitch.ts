@@ -38,7 +38,7 @@ export class LightSwitch {
       .on('lightChanged')
       .subscribe((numPhotons) => this.handleLightChangeRequest(numPhotons));
     eventBus.on('numPhotonsChanged').subscribe(() => this.hideWaitImage());
-    this.simulation.resetEvent$.subscribe(() => this.hideWaitImage());
+    eventBus.on('simulationReset').subscribe(() => this.hideWaitImage());
     this.listenForUserInput();
     this.handleLightChangeRequest(this.simulation.numPhotonsThisCycle);
   }

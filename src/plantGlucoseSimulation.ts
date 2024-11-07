@@ -41,8 +41,6 @@ export class PlantGlucoseSimulation {
   private inputControlsEnabledEvent: Subject<boolean> = new Subject<boolean>();
   public inputControlsEnabledEvent$ =
     this.inputControlsEnabledEvent.asObservable();
-  private resetEvent: Subject<void> = new Subject<void>();
-  public resetEvent$ = this.resetEvent.asObservable();
   private waterChangedRequest: Subject<number> = new Subject<number>();
   public waterChangedRequest$ = this.waterChangedRequest.asObservable();
 
@@ -661,7 +659,7 @@ export class PlantGlucoseSimulation {
   }
 
   resetSimulation(): void {
-    this.resetEvent.next();
+    eventBus.emit('simulationReset');
     this.simulationState = SimulationState.Stopped;
 
     if (this.isAnimationPlaying()) {
