@@ -1,32 +1,26 @@
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import { ControlButton } from './controlButton';
 import { eventBus } from './eventBus';
+import { SimulationState } from './simulationState';
 
 /**
  * Button to let the user play and pause the simulation
  */
 export class PlayPauseButton extends ControlButton {
-  constructor(simulation: PlantGlucoseSimulation) {
+  constructor(protected simulation: PlantGlucoseSimulation) {
     super(simulation, '#playPause');
     eventBus.on('readyToPlay').subscribe(() => this.showPlayButton());
+    eventBus.on('simulationStateChanged').subscribe((state) => {
+      if (state === SimulationState.Paused) {
+        this.showPlayButton();
+      } else {
+        this.showPauseButton();
+      }
+    });
   }
 
-  onClickListener(): void {
-    if (this.simulation.isControlEnabled) {
-      if (this.simulation.isSimulationStopped()) {
-        this.simulation.addEvent('startButtonClicked');
-        this.simulation.startSimulation();
-        this.showPauseButton();
-      } else if (this.simulation.isSimulationPaused()) {
-        this.simulation.addEvent('resumeButtonClicked');
-        this.simulation.resumeSimulation();
-        this.showPauseButton();
-      } else if (this.simulation.isSimulationRunning()) {
-        this.simulation.addEvent('pauseButtonClicked');
-        this.simulation.pauseSimulation();
-        this.showPlayButton();
-      }
-    }
+  protected onClickListener(): void {
+    eventBus.emit('playPauseButtonClicked');
   }
 
   private showPauseButton(): void {

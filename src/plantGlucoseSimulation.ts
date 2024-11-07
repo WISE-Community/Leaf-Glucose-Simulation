@@ -16,7 +16,6 @@ import { GlucoseToMitochondrion1 } from './glucoseToMitochondrion1';
 import { GlucoseToMitochondrion2 } from './glucoseToMitochondrion2';
 import { Photons } from './photons';
 import { Waters } from './waters';
-import { Subject } from 'rxjs';
 import { Chloroplast } from './chloroplast';
 import { Storage } from './storage';
 import { Mitochondrion } from './mitochondrion';
@@ -118,6 +117,12 @@ export class PlantGlucoseSimulation {
     this.wiseAPI = new WISEAPI(this);
     this.startNewTrial();
     this.setEnableControlButtons();
+    eventBus
+      .on('resetButtonClicked')
+      .subscribe(() => this.handleResetButtonClicked());
+    eventBus
+      .on('playPauseButtonClicked')
+      .subscribe(() => this.handlePlayPauseButtonClicked());
   }
 
   loadInstructions(instructions: any[]): void {
@@ -148,29 +153,39 @@ export class PlantGlucoseSimulation {
     }
   }
 
-  startSimulation(): void {
+  private handleResetButtonClicked(): void {
+    this.addEvent('resetButtonClicked');
+    this.resetSimulation();
+  }
+
+  private handlePlayPauseButtonClicked(): void {
+    if (this.isControlEnabled) {
+      if (this.simulationState === SimulationState.Stopped) {
+        this.addEvent('startButtonClicked');
+        this.startSimulation();
+      } else if (this.simulationState === SimulationState.Paused) {
+        this.addEvent('resumeButtonClicked');
+        this.resumeSimulation();
+      } else if (this.simulationState === SimulationState.Running) {
+        this.addEvent('pauseButtonClicked');
+        this.pauseSimulation();
+      }
+    }
+  }
+
+  private startSimulation(): void {
     this.simulationState = SimulationState.Running;
+    eventBus.emit('simulationStateChanged', SimulationState.Running);
     this.playAnimationCycle();
   }
 
-  resumeSimulation(): void {
+  private resumeSimulation(): void {
     this.simulationState = SimulationState.Running;
+    eventBus.emit('simulationStateChanged', SimulationState.Running);
     this.currentAnimation.play();
     if (this.waterAnimation) {
       this.waterAnimation.play();
     }
-  }
-
-  isSimulationStopped(): boolean {
-    return this.simulationState === SimulationState.Stopped;
-  }
-
-  isSimulationPaused(): boolean {
-    return this.simulationState === SimulationState.Paused;
-  }
-
-  isSimulationRunning(): boolean {
-    return this.simulationState === SimulationState.Running;
   }
 
   private startNewTrial(): void {
@@ -717,7 +732,7 @@ export class PlantGlucoseSimulation {
     this.currentTrial.events.push(event);
   }
 
-  pauseSimulation(): void {
+  private pauseSimulation(): void {
     eventBus.emit('readyToPlay');
     if (this.isAnimationPlaying()) {
       this.currentAnimation.pause();
@@ -726,6 +741,7 @@ export class PlantGlucoseSimulation {
       this.waterAnimation.pause();
     }
     this.simulationState = SimulationState.Paused;
+    eventBus.emit('simulationStateChanged', SimulationState.Paused);
   }
 
   /**

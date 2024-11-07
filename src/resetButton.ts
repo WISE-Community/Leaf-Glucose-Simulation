@@ -1,16 +1,16 @@
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import { ControlButton } from './controlButton';
+import { eventBus } from './eventBus';
 
 /**
  * Button to let the user reset the simulation
  */
 export class ResetButton extends ControlButton {
-  constructor(simulation: PlantGlucoseSimulation) {
+  constructor(protected simulation: PlantGlucoseSimulation) {
     super(simulation, '#reset');
   }
 
-  onClickListener(): void {
-    this.simulation.addEvent('resetButtonClicked');
-    this.simulation.resetSimulation();
+  protected onClickListener(): void {
+    eventBus.emit('resetButtonClicked');
   }
 }
