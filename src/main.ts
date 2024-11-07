@@ -24,8 +24,8 @@ $(document).ready(function () {
   const parameters: any = parseURLParameters();
   const settings = new Settings(parameters);
   const simulation = new PlantGlucoseSimulation('model', settings);
-  new PlayPauseButton(simulation);
-  new ResetButton(simulation);
+  new PlayPauseButton();
+  new ResetButton();
   new SimulationEndFeedback(simulation);
   if (settings.numLightOptions === 2) {
     new LightSwitch(simulation);
