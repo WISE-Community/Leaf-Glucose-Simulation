@@ -36,9 +36,9 @@ export class DayDisplayCorner {
       .stroke({ width: 2 });
     this.dayText = simulation.draw.text('Day 1').x(775).y(0).font({ size: 64 });
     eventBus.on('dayChanged').subscribe((day) => this.updateDayText(day));
-    simulation.numPhotonsChangedEvent$.subscribe((numPhotons) =>
-      this.updateDayColor(numPhotons)
-    );
+    eventBus
+      .on('numPhotonsChanged')
+      .subscribe((numPhotons) => this.updateDayColor(numPhotons));
   }
 
   private updateDayText(currentDay: number): void {

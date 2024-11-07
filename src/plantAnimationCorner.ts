@@ -8,6 +8,7 @@ import {
   BG_COLOR_LIGHT_75,
 } from './constants';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
+import { eventBus } from './eventBus';
 
 /**
  * PlantAnimationCorner --- Displays the animation showing photons hitting the plant.
@@ -129,9 +130,9 @@ export class PlantAnimationCorner {
     if (!this.simulation.getSettings().showWater) {
       this.wateringCan.hide();
     }
-    this.simulation.numPhotonsChangedEvent$.subscribe((numPhotons: number) =>
-      this.updateBackground(numPhotons)
-    );
+    eventBus
+      .on('numPhotonsChanged')
+      .subscribe((numPhotons) => this.updateBackground(numPhotons));
     this.simulation.numWaterChangedEvent$.subscribe((numWater: number) =>
       this.updateWatering(numWater)
     );

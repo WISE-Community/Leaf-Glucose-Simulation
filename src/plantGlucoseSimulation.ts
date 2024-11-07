@@ -43,8 +43,6 @@ export class PlantGlucoseSimulation {
   private inputControlsEnabledEvent: Subject<boolean> = new Subject<boolean>();
   public inputControlsEnabledEvent$ =
     this.inputControlsEnabledEvent.asObservable();
-  private numPhotonsChangedEvent: Subject<number> = new Subject<number>();
-  public numPhotonsChangedEvent$ = this.numPhotonsChangedEvent.asObservable();
   private numWaterChangedEvent: Subject<number> = new Subject<number>();
   public numWaterChangedEvent$ = this.numWaterChangedEvent.asObservable();
   private lightChangedRequest: Subject<number> = new Subject<number>();
@@ -308,7 +306,7 @@ export class PlantGlucoseSimulation {
 
   updateNumPhotonsThisCycle(numPhotonsThisCycle: number): void {
     this.numPhotonsThisCycle = numPhotonsThisCycle;
-    this.numPhotonsChangedEvent.next(numPhotonsThisCycle);
+    eventBus.emit('numPhotonsChanged', numPhotonsThisCycle);
     this.glucoseCreatedIncrement = this.calculateGlucoseCreatedIncrement();
   }
 
