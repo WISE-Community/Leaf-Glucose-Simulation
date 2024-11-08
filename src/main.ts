@@ -12,6 +12,9 @@ import { LightSwitch } from './lightSwitch';
 import { LightSwitch3 } from './lightSwitch3';
 import { LightSwitch5 } from './lightSwitch5';
 import { WaterSwitch } from './waterSwitch';
+import { Waters } from './waters';
+import * as SVG from 'svg.js';
+type SVG = typeof SVG;
 
 /**
  * Entry point for the application. Initializes the simulation with parameters
@@ -36,6 +39,7 @@ $(document).ready(function () {
   }
   if (settings.showWater) {
     new WaterSwitch(simulation);
+    new Waters(SVG('model'), simulation, simulation.numWaterThisCycle);
   }
   if (settings.showEnergyNeeds) {
     new EnergyIndicatorView(simulation);

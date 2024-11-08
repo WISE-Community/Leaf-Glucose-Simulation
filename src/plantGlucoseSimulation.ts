@@ -15,7 +15,6 @@ import { GlucoseToStorage2 } from './glucoseToStorage2';
 import { GlucoseToMitochondrion1 } from './glucoseToMitochondrion1';
 import { GlucoseToMitochondrion2 } from './glucoseToMitochondrion2';
 import { Photons } from './photons';
-import { Waters } from './waters';
 import { Chloroplast } from './chloroplast';
 import { Storage } from './storage';
 import { Mitochondrion } from './mitochondrion';
@@ -49,7 +48,6 @@ export class PlantGlucoseSimulation {
 
   private chloroplast: Chloroplast;
   private currentAnimation: SVG.Set;
-  private waterAnimation: SVG.G;
   currentDayNumber: number = 0;
   currentTrial: Trial;
   draw: SVG.Doc;
@@ -81,7 +79,6 @@ export class PlantGlucoseSimulation {
   numWaterThisCycle: number = 4;
 
   private photonsGroup: Photons;
-  private waterGroup: Waters;
   private plantAnimationCorner: PlantAnimationCorner;
   private playSequence: any[] = [];
   private simulationSpeedSwitch: SimulationSpeedSwitch;
@@ -179,9 +176,6 @@ export class PlantGlucoseSimulation {
     this.simulationState = SimulationState.Running;
     eventBus.emit('simulationStateChanged', SimulationState.Running);
     this.currentAnimation.play();
-    if (this.waterAnimation) {
-      this.waterAnimation.play();
-    }
   }
 
   private startNewTrial(): void {
@@ -243,6 +237,7 @@ export class PlantGlucoseSimulation {
       if (this.shouldUpdateNumPhotonsThisCycle()) {
         this.updateNumPhotonsThisCycle(this.numPhotonsNextCycle);
       }
+      eventBus.emit('animationCyclePhase1Started');
       if (
         this.glucosesInStorage.length === 0 &&
         (this.glucoseCreatedIncrement === 0 || this.numWaterThisCycle === 0)
@@ -265,9 +260,6 @@ export class PlantGlucoseSimulation {
         this.moveGlucoseFromStorageToMitochondrion(
           this.animationCallback.bind(this)
         );
-      }
-      if (this.settings.showWater) {
-        this.moveWaterToPlantAndChloroplast();
       }
       const nextDay = this.playSequence[this.currentDayNumber];
       if (nextDay) {
@@ -358,16 +350,6 @@ export class PlantGlucoseSimulation {
       } else {
         this.moveGlucoseFromStorageToMitochondrion(animationCallback);
       }
-    });
-  }
-
-  private moveWaterToPlantAndChloroplast(): void {
-    this.waterGroup = new Waters(this);
-    this.waterAnimation = this.waterGroup.getGroup();
-    this.waterGroup.animate().afterAll(() => {
-      this.waterGroup.remove();
-      this.waterGroup = null;
-      this.waterAnimation = null;
     });
   }
 
@@ -671,11 +653,6 @@ export class PlantGlucoseSimulation {
     if (this.photonsGroup != null) {
       this.photonsGroup.remove();
     }
-    if (this.waterGroup != null) {
-      this.waterGroup.remove();
-      this.waterAnimation.stop();
-      this.waterAnimation = null;
-    }
     this.removeGlucoses();
     this.removeMitochondrionBatteries();
     this.resetEnergyToFull();
@@ -731,9 +708,6 @@ export class PlantGlucoseSimulation {
   private pauseSimulation(): void {
     if (this.isAnimationPlaying()) {
       this.currentAnimation.pause();
-    }
-    if (this.waterAnimation != null) {
-      this.waterAnimation.pause();
     }
     this.simulationState = SimulationState.Paused;
     eventBus.emit('simulationStateChanged', SimulationState.Paused);
