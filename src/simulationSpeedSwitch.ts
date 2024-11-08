@@ -1,5 +1,6 @@
 import * as $ from 'jquery';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
+import { eventBus } from './eventBus';
 
 /**
  * SimulationSpeedSwitch --- Controls the speed of the simulation
@@ -23,6 +24,9 @@ export class SimulationSpeedSwitch {
       $('#animationSpeedSwitch').hide();
       this.simulation.updateAnimationSpeedRatio(this.SPEED_RATIO_DOUBLE);
     }
+    eventBus
+      .on('inputControlsEnabled')
+      .subscribe((enabled: boolean) => this.setEnableUserInput(enabled));
   }
 
   /**
@@ -51,11 +55,7 @@ export class SimulationSpeedSwitch {
     });
   }
 
-  disableUserInput(): void {
-    $('#animationSpeedSwitchInput').prop('disabled', true);
-  }
-
-  enableUserInput(): void {
-    $('#animationSpeedSwitchInput').prop('disabled', false);
+  private setEnableUserInput(enable: boolean): void {
+    $('#animationSpeedSwitchInput').prop('disabled', !enable);
   }
 }

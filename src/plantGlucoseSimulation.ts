@@ -1,7 +1,6 @@
 import { Event } from './event';
 import { Feedback } from './feedback';
 import { PlantAnimationCorner } from './plantAnimationCorner';
-import { SimulationSpeedSwitch } from './simulationSpeedSwitch';
 import { SimulationState } from './simulationState';
 import * as SVG from 'svg.js';
 type SVG = typeof SVG;
@@ -81,7 +80,6 @@ export class PlantGlucoseSimulation {
   private photonsGroup: Photons;
   private plantAnimationCorner: PlantAnimationCorner;
   private playSequence: any[] = [];
-  private simulationSpeedSwitch: SimulationSpeedSwitch;
   private simulationState: SimulationState = SimulationState.Stopped;
   private storage: Storage;
   private totalGlucoseCreated = this.initialGlucoseCreated;
@@ -93,7 +91,7 @@ export class PlantGlucoseSimulation {
   /**
    * Instantiates variables with initial values for objects
    * within the simulation. Controlling the simulation (play/pause/reset)
-   * is done through the PlayPauseButton, ResetButton, and and SimulationSpeedSwitch class.
+   * is done through the PlayPauseButton, ResetButton, and and SimulationSpeedSwitch classes.
    * @param elementId A string containing the id of the DOM element where
    * the simulation should be displayed
    * @param settings initial settings for the simulation
@@ -101,7 +99,6 @@ export class PlantGlucoseSimulation {
   constructor(elementId: string, private settings: Settings) {
     this.draw = SVG(elementId);
     this.numDays = this.settings.numDays;
-    this.simulationSpeedSwitch = new SimulationSpeedSwitch(this);
     this.plantAnimationCorner = new PlantAnimationCorner(this);
     this.chloroplast = new Chloroplast(this);
     this.mitochondrion = new Mitochondrion(this);
@@ -674,7 +671,6 @@ export class PlantGlucoseSimulation {
   private disableControlButtons(): void {
     this.isControlEnabled = false;
     eventBus.emit('inputControlsEnabled', false);
-    this.simulationSpeedSwitch.disableUserInput();
     $('#playPauseButton').css('opacity', 0.3);
   }
 
@@ -689,7 +685,6 @@ export class PlantGlucoseSimulation {
   private enableControlButtons(): void {
     this.isControlEnabled = true;
     eventBus.emit('inputControlsEnabled', this.settings.enableInputControls);
-    this.simulationSpeedSwitch.enableUserInput();
     $('#playPauseButton').css('opacity', 1);
   }
 
