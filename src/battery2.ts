@@ -8,8 +8,8 @@ export class Battery2 extends Battery {
   animate(): any {
     return this.image
       .animate({
-        delay: this.animationDelay,
-        duration: this.animationDuration,
+        delay: this.simulation.animationDelay,
+        duration: this.simulation.animationDuration,
       })
       .move(
         BATTERY_EMPTY_TRANSPORT_NUTRIENTS_X,

@@ -8,8 +8,8 @@ export class Battery1 extends Battery {
   animate(): any {
     return this.image
       .animate({
-        delay: this.animationDelay,
-        duration: this.animationDuration,
+        delay: this.simulation.animationDelay,
+        duration: this.simulation.animationDuration,
       })
       .move(BATTERY_EMPTY_REPAIR_DAMAGE_X, BATTERY_EMPTY_REPAIR_DAMAGE_Y);
   }
