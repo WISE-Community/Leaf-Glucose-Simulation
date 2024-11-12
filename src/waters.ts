@@ -1,19 +1,16 @@
 import * as SVG from 'svg.js';
-import { WATER_COLOR } from './constants';
 import { eventBus } from './eventBus';
 import { SimulationState } from './simulationState';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 type SVG = typeof SVG.Doc;
 
-export class Waters {
+export abstract class Waters {
   private animation: SVG.G;
   private group: SVG.G;
+  private numWaterThisCycle: number;
 
-  constructor(
-    private svg: SVG,
-    private simulation: PlantGlucoseSimulation,
-    private numWaterThisCycle: number
-  ) {
+  constructor(protected svg: SVG, private simulation: PlantGlucoseSimulation) {
+    this.numWaterThisCycle = simulation.numWaterThisCycle;
     eventBus
       .on('animationCyclePhase1Started')
       .subscribe(() => this.startAnimation());
@@ -34,7 +31,7 @@ export class Waters {
     if (this.numWaterThisCycle === 4) {
       this.group = this.svg.group();
       this.addWaters();
-      this.animation = this.moveWaterToPlantAndChloroplast().afterAll(() => {
+      this.animation = this.moveWater().afterAll(() => {
         this.group?.remove();
         this.group = null;
       });
@@ -45,18 +42,13 @@ export class Waters {
     for (let i = 0; i < 4; i++) {
       const shiftX = i % 2 ? 0 : 25;
       const shiftY = i < 2 ? shiftX + 10 : shiftX + 25;
-      const waterPlant = this.svg
-        .ellipse(8, 12)
-        .fill(WATER_COLOR)
-        .attr({ cx: 194 + shiftX, cy: 94 + shiftY });
-      const waterChloroplast = this.svg
-        .image('./images/water.png', 70, 70)
-        .attr({ x: 580 + 2 * shiftX, y: 20 + 2 * shiftY });
-      this.group.add(waterPlant).add(waterChloroplast);
+      this.group.add(this.createWater(shiftX, shiftY));
     }
   }
 
-  private moveWaterToPlantAndChloroplast(): any {
+  protected abstract createWater(shiftX: number, shiftY: number): any;
+
+  private moveWater(): any {
     return this.group
       .animate({ duration: this.simulation.animationDuration })
       .move(0, 40)

@@ -12,11 +12,12 @@ import { LightSwitch } from './lightSwitch';
 import { LightSwitch3 } from './lightSwitch3';
 import { LightSwitch5 } from './lightSwitch5';
 import { WaterSwitch } from './waterSwitch';
-import { Waters } from './waters';
 import * as SVG from 'svg.js';
 import { SimulationSpeedSwitch } from './simulationSpeedSwitch';
 type SVG = typeof SVG;
 import { PlantAnimationCorner } from './plantAnimationCorner';
+import { WaterPlant } from './waterPlant';
+import { WaterChloroplast } from './waterChloroplast';
 
 /**
  * Entry point for the application. Initializes the simulation with parameters
@@ -48,7 +49,8 @@ $(document).ready(function () {
   }
   if (settings.showWater) {
     new WaterSwitch(simulation);
-    new Waters(SVG('model'), simulation, simulation.numWaterThisCycle);
+    new WaterPlant(SVG('plantAnimation'), simulation);
+    new WaterChloroplast(SVG('model'), simulation);
   }
   if (settings.showEnergyNeeds) {
     new EnergyIndicatorView(simulation);
