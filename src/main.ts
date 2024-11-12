@@ -16,6 +16,7 @@ import { Waters } from './waters';
 import * as SVG from 'svg.js';
 import { SimulationSpeedSwitch } from './simulationSpeedSwitch';
 type SVG = typeof SVG;
+import { PlantAnimationCorner } from './plantAnimationCorner';
 
 /**
  * Entry point for the application. Initializes the simulation with parameters
@@ -30,6 +31,7 @@ $(document).ready(function () {
   const simulation = new PlantGlucoseSimulation('model', settings);
   new PlayPauseButton();
   new ResetButton();
+  new PlantAnimationCorner(simulation);
   new SimulationEndFeedback(simulation);
   if (settings.showSpeedControls) {
     new SimulationSpeedSwitch(simulation);
