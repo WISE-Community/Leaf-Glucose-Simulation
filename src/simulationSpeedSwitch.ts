@@ -18,12 +18,7 @@ export class SimulationSpeedSwitch {
    * @param simulation A reference to the simulation
    */
   constructor(private simulation: PlantGlucoseSimulation) {
-    if (this.simulation.getSettings().showSpeedControls) {
-      this.listenForUserInput();
-    } else {
-      $('#animationSpeedSwitch').hide();
-      this.simulation.updateAnimationSpeedRatio(this.SPEED_RATIO_DOUBLE);
-    }
+    this.listenForUserInput();
     eventBus
       .on('inputControlsEnabled')
       .subscribe((enabled: boolean) => this.setEnableUserInput(enabled));

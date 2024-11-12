@@ -14,6 +14,7 @@ import { LightSwitch5 } from './lightSwitch5';
 import { WaterSwitch } from './waterSwitch';
 import { Waters } from './waters';
 import * as SVG from 'svg.js';
+import { SimulationSpeedSwitch } from './simulationSpeedSwitch';
 type SVG = typeof SVG;
 
 /**
@@ -30,6 +31,12 @@ $(document).ready(function () {
   new PlayPauseButton();
   new ResetButton();
   new SimulationEndFeedback(simulation);
+  if (settings.showSpeedControls) {
+    new SimulationSpeedSwitch(simulation);
+  } else {
+    $('#animationSpeedSwitch').hide();
+    simulation.updateAnimationSpeedRatio(0.5);
+  }
   if (settings.numLightOptions === 2) {
     new LightSwitch(simulation);
   } else if (settings.numLightOptions === 3) {
