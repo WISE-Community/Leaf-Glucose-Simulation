@@ -62,9 +62,6 @@ export class PlantGlucoseSimulation {
   private glucoseToStorage1: GlucoseToStorage1;
   private glucoseToStorage2: GlucoseToStorage2;
   glucosesInStorage: GlucoseToStorage[] = [];
-  private initialGlucoseCreated: number = 0;
-  private initialGlucoseUsed: number = 0;
-  private initialGlucoseStored: number = 0;
   instructions: any[] = [];
   isControlEnabled: boolean = true;
   isLightOn: boolean = true;
@@ -82,9 +79,9 @@ export class PlantGlucoseSimulation {
   private playSequence: any[] = [];
   private simulationState: SimulationState = SimulationState.Stopped;
   private storage: Storage;
-  private totalGlucoseCreated = this.initialGlucoseCreated;
-  private totalGlucoseUsed = this.initialGlucoseUsed;
-  private totalGlucoseStored = this.initialGlucoseStored;
+  private totalGlucoseCreated = 0;
+  private totalGlucoseUsed = 0;
+  private totalGlucoseStored = 0;
   private trials: any[] = []; // an array of trial data objects including the current trial
   private wiseAPI: WISEAPI;
 
@@ -655,11 +652,10 @@ export class PlantGlucoseSimulation {
     this.resetEnergyToFull();
     eventBus.emit('dayChanged', 1);
 
-    // re-initialize the variables
     this.currentDayNumber = 0;
-    this.totalGlucoseCreated = this.initialGlucoseCreated;
-    this.totalGlucoseUsed = this.initialGlucoseUsed;
-    this.totalGlucoseStored = this.initialGlucoseStored;
+    this.totalGlucoseCreated = 0;
+    this.totalGlucoseUsed = 0;
+    this.totalGlucoseStored = 0;
     this.feedback.hideFeedback();
     if (!this.settings.enableInputControls) {
       this.setInputValues(this.playSequence[0]);
