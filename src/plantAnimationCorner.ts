@@ -9,6 +9,7 @@ import {
 } from './constants';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import { eventBus } from './eventBus';
+import { PlantPhotons } from './plantPhotons';
 
 /**
  * PlantAnimationCorner --- Displays the animation showing photons hitting the plant.
@@ -129,6 +130,7 @@ export class PlantAnimationCorner {
     if (!this.simulation.getSettings().showWater) {
       this.wateringCan.hide();
     }
+    new PlantPhotons(this.simulation);
     eventBus
       .on('numPhotonsChanged')
       .subscribe((numPhotons) => this.updateBackground(numPhotons));
