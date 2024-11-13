@@ -9,6 +9,7 @@ import {
 } from './constants';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import { eventBus } from './eventBus';
+import { PlantPhotons } from './plantPhotons';
 
 /**
  * PlantAnimationCorner --- Displays the animation showing photons hitting the plant.
@@ -40,10 +41,9 @@ export class PlantAnimationCorner {
    * @param draw An SVG draw object to paint other elements on
    */
   constructor(private simulation: PlantGlucoseSimulation) {
-    this.draw = simulation.draw;
+    this.draw = SVG('plantAnimation');
     const plantImgSrc = simulation.getSettings().plantImgSrc;
 
-    // draw the outline in the upper-left corner
     this.draw.rect(300, 300).x(0).y(0).fill('white').stroke({ width: 2 });
 
     if (plantImgSrc) {
@@ -130,6 +130,7 @@ export class PlantAnimationCorner {
     if (!this.simulation.getSettings().showWater) {
       this.wateringCan.hide();
     }
+    new PlantPhotons(this.simulation);
     eventBus
       .on('numPhotonsChanged')
       .subscribe((numPhotons) => this.updateBackground(numPhotons));
@@ -139,6 +140,9 @@ export class PlantAnimationCorner {
     eventBus
       .on('simulationReset')
       .subscribe(() => this.showLeaf(this.GREEN_LEAF_INDEX));
+    eventBus.on('animationDeathSequenceStarted').subscribe(() => {
+      this.playPlantDeathSequence();
+    });
   }
 
   /**
@@ -177,8 +181,8 @@ export class PlantAnimationCorner {
     }
   }
 
-  playPlantDeathSequence(): any {
-    return this.draw
+  private playPlantDeathSequence(): any {
+    this.draw
       .animate(3000 * this.simulation.animationSpeedRatio)
       .during((pos, morph, eased, situation) => {
         // show the death sequence animation leaf based on time
@@ -189,6 +193,9 @@ export class PlantAnimationCorner {
         } else {
           this.showLeaf(this.DEAD_LEAF_INDEX);
         }
+      })
+      .afterAll(() => {
+        eventBus.emit('animationDeathSequenceEnded');
       });
   }
 

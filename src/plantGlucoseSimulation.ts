@@ -75,7 +75,6 @@ export class PlantGlucoseSimulation {
   numWaterThisCycle: number = 4;
 
   private photonsGroup: Photons;
-  private plantAnimationCorner: PlantAnimationCorner;
   private playSequence: any[] = [];
   private simulationState: SimulationState = SimulationState.Stopped;
   private storage: Storage;
@@ -96,7 +95,6 @@ export class PlantGlucoseSimulation {
   constructor(elementId: string, private settings: Settings) {
     this.draw = SVG(elementId);
     this.numDays = this.settings.numDays;
-    this.plantAnimationCorner = new PlantAnimationCorner(this);
     this.chloroplast = new Chloroplast(this);
     this.mitochondrion = new Mitochondrion(this);
     this.storage = new Storage(this);
@@ -110,6 +108,9 @@ export class PlantGlucoseSimulation {
     eventBus
       .on('playPauseButtonClicked')
       .subscribe(() => this.handlePlayPauseButtonClicked());
+    eventBus.on('animationDeathSequenceEnded').subscribe(() => {
+      this.handleAnimationDeathSequenceEnded();
+    });
   }
 
   loadInstructions(instructions: any[]): void {
@@ -170,6 +171,14 @@ export class PlantGlucoseSimulation {
     this.simulationState = SimulationState.Running;
     eventBus.emit('simulationStateChanged', SimulationState.Running);
     this.currentAnimation.play();
+  }
+
+  private handleAnimationDeathSequenceEnded(): void {
+    this.addEvent('plantDied');
+    eventBus.emit('statusChanged', 'died');
+    this.updateCurrentTrial(false, false);
+    this.notifyStudentDataChanged();
+    this.saveStudentWork();
   }
 
   private startNewTrial(): void {
@@ -244,7 +253,7 @@ export class PlantGlucoseSimulation {
           })
           .afterAll(() => {
             this.disableControlButtons();
-            this.startPlantDeathSequence();
+            eventBus.emit('animationDeathSequenceStarted');
           });
       } else if (this.numPhotonsThisCycle > 0) {
         this.movePhotonsToPlantAndChloroplast(
@@ -565,7 +574,7 @@ export class PlantGlucoseSimulation {
           }
         } else {
           this.disableControlButtons();
-          this.startPlantDeathSequence();
+          eventBus.emit('animationDeathSequenceStarted');
         }
       });
     this.currentAnimation.add(this.mitochondrionBattery1.getImage());
@@ -586,18 +595,6 @@ export class PlantGlucoseSimulation {
     }
     this.disableControlButtons();
     this.saveStudentWork();
-  }
-
-  private startPlantDeathSequence(): void {
-    this.currentAnimation = this.plantAnimationCorner
-      .playPlantDeathSequence()
-      .afterAll(() => {
-        this.addEvent('plantDied');
-        eventBus.emit('statusChanged', 'died');
-        this.updateCurrentTrial(false, false);
-        this.notifyStudentDataChanged();
-        this.saveStudentWork();
-      });
   }
 
   private removeMitochondrionBatteries(): void {
