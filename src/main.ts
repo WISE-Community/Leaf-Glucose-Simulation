@@ -32,7 +32,11 @@ $(document).ready(function () {
   const simulation = new PlantGlucoseSimulation('model', settings);
   new PlayPauseButton();
   new ResetButton();
-  new PlantAnimationCorner(simulation);
+  if (settings.showPlant) {
+    new PlantAnimationCorner(simulation);
+  } else {
+    $('#plantAnimation').hide();
+  }
   new SimulationEndFeedback(simulation);
   if (settings.showSpeedControls) {
     new SimulationSpeedSwitch(simulation);
