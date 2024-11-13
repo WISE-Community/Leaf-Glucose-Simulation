@@ -32,6 +32,9 @@ $(document).ready(function () {
   const simulation = new PlantGlucoseSimulation('model', settings);
   new PlayPauseButton();
   new ResetButton();
+  if (!settings.showOrganelles) {
+    $('#model').hide();
+  }
   if (settings.showPlant) {
     new PlantAnimationCorner(simulation);
   } else {

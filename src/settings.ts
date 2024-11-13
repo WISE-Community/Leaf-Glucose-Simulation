@@ -14,6 +14,7 @@ export class Settings {
   showLineGlucoseMade = true;
   showLineGlucoseUsed = true;
   showLineGlucoseStored = true;
+  showOrganelles = true;
   showPlant = true;
   showSpeedControls = false;
   showWater = false; // whether the water control should be displayed or not
@@ -26,6 +27,7 @@ export class Settings {
     this.showGraph = parameters['showGraph'] ?? true;
     this.showGraphBackground = parameters['showGraphBackground'] ?? false;
     this.showKey = parameters['showKey'] ?? true;
+    this.showOrganelles = parameters['showOrganelles'] ?? true;
     this.showLineGlucoseMade = parameters['showLineGlucoseMade'] ?? true;
     this.showLineGlucoseUsed = parameters['showLineGlucoseUsed'] ?? true;
     this.showLineGlucoseStored = parameters['showLineGlucoseStored'] ?? true;
