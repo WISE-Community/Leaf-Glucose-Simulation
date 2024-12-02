@@ -6,7 +6,6 @@ import {
   BG_COLOR_LIGHT_75,
 } from './constants';
 import { eventBus } from './eventBus';
-import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import * as SVG from 'svg.js';
 type SVG = typeof SVG;
 
@@ -20,21 +19,20 @@ export class DayDisplayCorner {
   private backgroundRect: SVG.Rect;
   private dayText: SVG.Text;
 
-  /**
-   * @param draw An SVG draw object to paint other elements on
-   * @param lightOnHex A String containing the default background color of this
-   * day display corner when the light is on
-   * @param lightOffHex A String containing the default background color of this
-   * day display corner when the light is off
-   */
-  constructor(simulation: PlantGlucoseSimulation) {
-    this.backgroundRect = simulation.draw
+  constructor(draw: SVG, showOrganelles: boolean) {
+    const x = showOrganelles ? 32 : 138;
+    const y = showOrganelles ? 0 : 20;
+    this.backgroundRect = draw
       .rect(250, 110)
-      .x(750)
-      .y(0)
+      .x(x)
+      .y(y)
       .fill(BG_COLOR_LIGHT_100)
       .stroke({ width: 2 });
-    this.dayText = simulation.draw.text('Day 1').x(775).y(0).font({ size: 64 });
+    this.dayText = draw
+      .text('Day 1')
+      .x(x + 25)
+      .y(y)
+      .font({ size: 64 });
     eventBus.on('dayChanged').subscribe((day) => this.updateDayText(day));
     eventBus
       .on('numPhotonsChanged')

@@ -40,7 +40,11 @@ $(document).ready(function () {
   } else {
     $('#plantAnimation').hide();
   }
-  new SimulationEndFeedback(simulation);
+  if (settings.showOrganelles) {
+    new SimulationEndFeedback(SVG('model'), true);
+  } else {
+    new SimulationEndFeedback(SVG('plantAnimation'), false);
+  }
   if (settings.showSpeedControls) {
     new SimulationSpeedSwitch(simulation);
   } else {
@@ -62,7 +66,11 @@ $(document).ready(function () {
   if (settings.showEnergyNeeds) {
     new EnergyIndicatorView(simulation);
   }
-  new DayDisplayCorner(simulation);
+  if (settings.showOrganelles) {
+    new DayDisplayCorner(SVG('model'), true);
+  } else {
+    new DayDisplayCorner(SVG('plantAnimation'), false);
+  }
   if (settings.showGraph) {
     new Graph(simulation, settings);
   }

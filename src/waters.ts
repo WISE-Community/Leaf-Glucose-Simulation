@@ -40,8 +40,8 @@ export abstract class Waters {
 
   private addWaters(): void {
     for (let i = 0; i < 4; i++) {
-      const shiftX = i % 2 ? 0 : 25;
-      const shiftY = i < 2 ? shiftX + 10 : shiftX + 25;
+      const shiftX = i % 2 ? 0 : 30;
+      const shiftY = i < 2 ? shiftX + 35 : shiftX + 50;
       this.group.add(this.createWater(shiftX, shiftY));
     }
   }
@@ -51,7 +51,7 @@ export abstract class Waters {
   private moveWater(): any {
     return this.group
       .animate({ duration: this.simulation.animationDuration })
-      .move(0, 40)
+      .move(0, 180)
       .animate({ duration: this.simulation.animationDuration })
       .attr({ opacity: 0 });
   }

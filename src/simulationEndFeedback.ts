@@ -1,6 +1,5 @@
 import * as SVG from 'svg.js';
 type SVG = typeof SVG;
-import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 import { eventBus } from './eventBus';
 
 /**
@@ -22,10 +21,11 @@ export class SimulationEndFeedback {
    * Instantiates variables with initial values for the feedback
    * @param draw the SVG object where the view will be drawn on
    */
-  constructor(simulation: PlantGlucoseSimulation) {
-    this.simulationEndedRect = simulation.draw
+  constructor(draw: SVG, showOragnelles: boolean) {
+    const x = showOragnelles ? 250 : 0;
+    this.simulationEndedRect = draw
       .rect(500, 100)
-      .x(250)
+      .x(x)
       .y(400)
       .fill('lightblue')
       .stroke({ width: 2 })
@@ -33,16 +33,16 @@ export class SimulationEndFeedback {
       .attr({ 'fill-opacity': 1 })
       .hide();
 
-    this.simulationEndedText = simulation.draw
+    this.simulationEndedText = draw
       .text('Simulation ended')
-      .x(315)
+      .x(x + 85)
       .y(410)
       .font({ size: 48 })
       .hide();
 
-    this.plantAliveRect = simulation.draw
+    this.plantAliveRect = draw
       .rect(500, 100)
-      .x(250)
+      .x(x)
       .y(400)
       .fill('#33FF00')
       .stroke({ width: 2 })
@@ -50,16 +50,16 @@ export class SimulationEndFeedback {
       .attr({ 'fill-opacity': 1 })
       .hide();
 
-    this.plantAliveText = simulation.draw
+    this.plantAliveText = draw
       .text('The plant is alive')
-      .x(315)
+      .x(x + 72)
       .y(410)
       .font({ size: 48 })
       .hide();
 
-    this.plantDiedRect = simulation.draw
+    this.plantDiedRect = draw
       .rect(500, 100)
-      .x(250)
+      .x(x)
       .y(400)
       .fill('#FF0000')
       .stroke({ width: 2 })
@@ -67,9 +67,9 @@ export class SimulationEndFeedback {
       .attr({ 'fill-opacity': 1 })
       .hide();
 
-    this.plantDiedText = simulation.draw
+    this.plantDiedText = draw
       .text('The plant has died')
-      .x(300)
+      .x(x + 50)
       .y(410)
       .font({ size: 48, fill: 'white' })
       .hide();

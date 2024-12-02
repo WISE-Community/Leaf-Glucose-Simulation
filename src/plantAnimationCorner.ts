@@ -46,51 +46,47 @@ export class PlantAnimationCorner {
     this.showLightBulb = simulation.getSettings().showLightBulb;
     const plantImgSrc = simulation.getSettings().plantImgSrc;
 
-    this.draw.rect(300, 300).x(0).y(0).fill('white').stroke({ width: 2 });
+    this.draw.rect(500, 700).x(0).y(150).fill('white').stroke({ width: 2 });
 
     if (plantImgSrc) {
-      this.leafGreen = this.draw.image(plantImgSrc, 280, 280).attr({
-        x: 10,
-        y: 50,
+      this.leafGreen = this.draw.image(plantImgSrc, 500, 500).attr({
+        y: 392,
       });
-      this.leafYellow = this.draw.image(plantImgSrc, 280, 280).attr({
-        x: 10,
-        y: 50,
+      this.leafYellow = this.draw.image(plantImgSrc, 500, 500).attr({
+        y: 392,
         opacity: 0.6,
       });
-      this.leafLightGreen = this.draw.image(plantImgSrc, 280, 280).attr({
-        x: 10,
-        y: 50,
+      this.leafLightGreen = this.draw.image(plantImgSrc, 500, 500).attr({
+        y: 392,
         opacity: 0.8,
       });
-      this.leafDead = this.draw.image(plantImgSrc, 280, 280).attr({
-        x: 10,
-        y: 50,
+      this.leafDead = this.draw.image(plantImgSrc, 500, 500).attr({
+        y: 392,
         opacity: 0.4,
       });
     } else {
       this.leafGreen = this.draw
-        .image('./images/leafGreen.png', 128, 128)
+        .image('./images/leafGreen.png', 250, 250)
         .attr({
-          x: 55,
-          y: 90,
+          x: 40,
+          y: 430,
         });
       this.leafYellow = this.draw
-        .image('./images/leafYellow.png', 128, 128)
+        .image('./images/leafYellow.png', 250, 250)
         .attr({
-          x: 20,
-          y: 150,
+          x: 40,
+          y: 530,
         });
       this.leafLightGreen = this.draw
-        .image('./images/leafLightGreen.png', 128, 128)
+        .image('./images/leafLightGreen.png', 250, 250)
         .attr({
-          x: 55,
-          y: 90,
+          x: 40,
+          y: 430,
         });
-      this.draw.image('./images/pot.png', 128, 128).attr({ x: 100, y: 160 });
-      this.leafDead = this.draw.image('./images/leafDead.png', 128, 128).attr({
-        x: 20,
-        y: 150,
+      this.draw.image('./images/pot.png', 250, 250).attr({ x: 125, y: 590 });
+      this.leafDead = this.draw.image('./images/leafDead.png', 250, 250).attr({
+        x: 80,
+        y: 580,
       });
     }
 
@@ -104,11 +100,17 @@ export class PlantAnimationCorner {
 
     this.showLeaf(this.GREEN_LEAF_INDEX);
 
+    this.darknessOverlay = this.draw.rect(500, 700).y(150).attr({
+      'fill-opacity': 0.3,
+      fill: BG_COLOR_LIGHT_100,
+    });
+
     // draw the ground below the pot
-    this.draw.rect(300, 40).x(0).y(270).fill('gray').stroke({ width: 2 });
+    this.draw.rect(500, 40).x(0).y(810).fill('gray').stroke({ width: 2 });
 
     this.lightBulbOn = this.draw
-      .image('./images/lightbulb20001.png', 40, 70)
+      .image('./images/lightbulb20001.png', 100, 135)
+      .y(150)
       .rotate(150)
       .hide();
 
@@ -117,21 +119,17 @@ export class PlantAnimationCorner {
     }
 
     this.lightBulbOff = this.draw
-      .image('./images/lightbulb20002.png', 40, 70)
+      .image('./images/lightbulb20002.png', 100, 135)
+      .y(150)
       .rotate(150)
       .hide();
 
-    this.darknessOverlay = this.draw.rect(300, 300).attr({
-      'fill-opacity': 0.3,
-      fill: BG_COLOR_LIGHT_100,
-    });
-
     // draw the watering can
     this.wateringCan = this.draw
-      .image('./images/wateringcan.png', 120, 101)
+      .image('./images/wateringcan.png', 186, 168)
       .attr({
-        x: 180,
-        y: 8,
+        x: 275,
+        y: 185,
       })
       .rotate(-40);
     if (!this.simulation.getSettings().showWater) {

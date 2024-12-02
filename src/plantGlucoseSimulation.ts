@@ -1,6 +1,5 @@
 import { Event } from './event';
 import { Feedback } from './feedback';
-import { PlantAnimationCorner } from './plantAnimationCorner';
 import { SimulationState } from './simulationState';
 import * as SVG from 'svg.js';
 type SVG = typeof SVG;
