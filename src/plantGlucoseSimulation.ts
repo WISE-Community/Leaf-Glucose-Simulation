@@ -77,9 +77,8 @@ export class PlantGlucoseSimulation {
   private playSequence: any[] = [];
   private simulationState: SimulationState = SimulationState.Stopped;
   private storage: Storage;
-  private totalGlucoseCreated = 0;
+  private totalGlucoseCreated: number;
   private totalGlucoseUsed = 0;
-  private totalGlucoseStored = 2;
   private trials: any[] = []; // an array of trial data objects including the current trial
   private wiseAPI: WISEAPI;
 
@@ -95,10 +94,10 @@ export class PlantGlucoseSimulation {
     this.draw = SVG(elementId);
     this.numDays = this.settings.numDays;
     this.chloroplast = new Chloroplast(this);
-    this.totalGlucoseStored = this.settings.initialGlucoseStored;
     this.mitochondrion = new Mitochondrion(this);
     this.storage = new Storage(this);
     this.addInitialGlucosesToStorage();
+    this.totalGlucoseCreated = this.settings.initialGlucoseStored;
     this.feedback = new Feedback(this.draw, this.settings.feedbackPolicy);
     this.wiseAPI = new WISEAPI(this);
     this.startNewTrial();
@@ -116,14 +115,10 @@ export class PlantGlucoseSimulation {
 
   private addInitialGlucosesToStorage() {
     const realAnimationDuration = this.animationDuration;
-    this.animationDuration = 1;
+    this.animationDuration = 500;
     for (let i = 0; i < this.settings.initialGlucoseStored; i++) {
       let glucose: GlucoseToStorage;
-      if (i % 2 === 0) {
-        glucose = new GlucoseToStorage1(this);
-      } else {
-        glucose = new GlucoseToStorage2(this);
-      }
+      glucose = new GlucoseToStorage1(this);
       this.glucosesInStorage.push(glucose);
       glucose.animate();
     }
@@ -165,15 +160,19 @@ export class PlantGlucoseSimulation {
 
   private handlePlayPauseButtonClicked(): void {
     if (this.isControlEnabled) {
-      if (this.simulationState === SimulationState.Stopped) {
-        this.addEvent('startButtonClicked');
-        this.startSimulation();
-      } else if (this.simulationState === SimulationState.Paused) {
-        this.addEvent('resumeButtonClicked');
-        this.resumeSimulation();
-      } else if (this.simulationState === SimulationState.Running) {
-        this.addEvent('pauseButtonClicked');
-        this.pauseSimulation();
+      switch (this.simulationState) {
+        case SimulationState.Stopped:
+          this.addEvent('startButtonClicked');
+          this.startSimulation();
+          break;
+        case SimulationState.Paused:
+          this.addEvent('resumeButtonClicked');
+          this.resumeSimulation();
+          break;
+        case SimulationState.Running:
+          this.addEvent('pauseButtonClicked');
+          this.pauseSimulation();
+          break;
       }
     }
   }
@@ -188,6 +187,14 @@ export class PlantGlucoseSimulation {
     this.simulationState = SimulationState.Running;
     eventBus.emit('simulationStateChanged', SimulationState.Running);
     this.currentAnimation.play();
+  }
+
+  private pauseSimulation(): void {
+    if (this.isAnimationPlaying()) {
+      this.currentAnimation.pause();
+    }
+    this.simulationState = SimulationState.Paused;
+    eventBus.emit('simulationStateChanged', SimulationState.Paused);
   }
 
   private handleAnimationDeathSequenceEnded(): void {
@@ -219,15 +226,11 @@ export class PlantGlucoseSimulation {
     if (glucoseUsed) {
       this.updateGlucoseUsed();
     }
-    this.totalGlucoseStored =
-      this.totalGlucoseCreated -
-      this.totalGlucoseUsed +
-      this.settings.initialGlucoseStored;
     this.currentTrial.addDayData(
       this.currentDayNumber,
       this.totalGlucoseCreated,
       this.totalGlucoseUsed,
-      this.totalGlucoseStored,
+      this.getTotalGlucoseStored(),
       this.numPhotonsThisCycle,
       this.numWaterThisCycle
     );
@@ -263,9 +266,8 @@ export class PlantGlucoseSimulation {
       }
       eventBus.emit('animationCyclePhase1Started');
       if (
-        this.glucosesInStorage.length === 0 &&
+        this.getTotalGlucoseStored() === 0 &&
         (this.glucoseCreatedIncrement === 0 || this.numWaterThisCycle === 0)
-        // this.totalGlucoseStored === 0
       ) {
         // there is no energy coming in or stored. The plant dies now.
         this.currentAnimation = this.draw
@@ -281,7 +283,7 @@ export class PlantGlucoseSimulation {
         this.movePhotonsToPlantAndChloroplast(
           this.animationCallback.bind(this)
         );
-      } else if (this.glucosesInStorage.length > 0) {
+      } else if (this.getTotalGlucoseStored() > 0) {
         this.moveGlucoseFromStorageToMitochondrion(
           this.animationCallback.bind(this)
         );
@@ -459,7 +461,9 @@ export class PlantGlucoseSimulation {
       this.glucosesInStorage.push(this.glucoseToStorage1.clone());
       this.glucoseToStorage1.remove();
       this.glucoseToStorage1 = null;
-      animationCallback();
+      if (this.glucoseCreatedIncrement !== 4) {
+        animationCallback();
+      }
     });
     this.currentAnimation.add(this.glucoseToStorage1.getImage());
     if (this.glucoseCreatedIncrement === 4) {
@@ -467,6 +471,7 @@ export class PlantGlucoseSimulation {
         this.glucosesInStorage.push(this.glucoseToStorage2.clone());
         this.glucoseToStorage2.remove();
         this.glucoseToStorage2 = null;
+        animationCallback();
       });
       this.currentAnimation.add(this.glucoseToStorage2.getImage());
     }
@@ -480,17 +485,17 @@ export class PlantGlucoseSimulation {
     animationCallback: () => {},
     requiresAssist: boolean = false
   ): void {
-    if (this.glucosesInStorage.length === 0) {
+    if (this.getTotalGlucoseStored() === 0) {
       animationCallback();
     } else {
       this.currentAnimation = this.draw.set();
       let glucose1InStorage =
-        this.glucosesInStorage[this.glucosesInStorage.length - 1];
+        this.glucosesInStorage[this.getTotalGlucoseStored() - 1];
       let glucose2InStorage: GlucoseToStorage = null;
 
-      if (this.glucosesInStorage.length >= 2 && !requiresAssist) {
+      if (this.getTotalGlucoseStored() >= 2 && !requiresAssist) {
         glucose2InStorage =
-          this.glucosesInStorage[this.glucosesInStorage.length - 2];
+          this.glucosesInStorage[this.getTotalGlucoseStored() - 2];
 
         if (glucose2InStorage != null) {
           if (
@@ -537,7 +542,7 @@ export class PlantGlucoseSimulation {
         })
         .afterAll(() => {
           // remove the last glucose from storage
-          this.glucosesInStorage.splice(this.glucosesInStorage.length - 1, 1);
+          this.glucosesInStorage.splice(this.getTotalGlucoseStored() - 1, 1);
           glucose1InStorage.remove();
           glucose1InStorage = null;
           if (
@@ -546,7 +551,7 @@ export class PlantGlucoseSimulation {
               this.numWaterThisCycle === 0) ||
               (this.numPhotonsThisCycle < 3 && !this.settings.isShadeTolerant))
           ) {
-            this.glucosesInStorage.splice(this.glucosesInStorage.length - 1, 1);
+            this.glucosesInStorage.splice(this.getTotalGlucoseStored() - 1, 1);
             glucose2InStorage.remove();
             glucose2InStorage = null;
           }
@@ -672,9 +677,8 @@ export class PlantGlucoseSimulation {
     eventBus.emit('dayChanged', 1);
 
     this.currentDayNumber = 0;
-    this.totalGlucoseCreated = 0;
+    this.totalGlucoseCreated = this.settings.initialGlucoseStored;
     this.totalGlucoseUsed = 0;
-    this.totalGlucoseStored = this.settings.initialGlucoseStored;
     this.glucosesInStorage = [];
     this.addInitialGlucosesToStorage();
     this.feedback.hideFeedback();
@@ -715,14 +719,6 @@ export class PlantGlucoseSimulation {
       timestamp: new Date().getTime(),
     };
     this.currentTrial.events.push(event);
-  }
-
-  private pauseSimulation(): void {
-    if (this.isAnimationPlaying()) {
-      this.currentAnimation.pause();
-    }
-    this.simulationState = SimulationState.Paused;
-    eventBus.emit('simulationStateChanged', SimulationState.Paused);
   }
 
   /**
@@ -779,5 +775,9 @@ export class PlantGlucoseSimulation {
 
   getSettings(): Settings {
     return this.settings;
+  }
+
+  getTotalGlucoseStored(): number {
+    return this.glucosesInStorage.length;
   }
 }

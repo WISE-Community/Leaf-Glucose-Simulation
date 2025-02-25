@@ -4,7 +4,7 @@ export class GlucoseToStorage2 extends GlucoseToStorage {
   protected moveX(): number {
     return (
       this.simulation.getStorage().getX() +
-      ((this.simulation.glucosesInStorage.length / 2) % 5) * 75 +
+      ((this.simulation.getTotalGlucoseStored() / 2) % 5) * 75 +
       this.buffer
     );
   }
@@ -12,7 +12,7 @@ export class GlucoseToStorage2 extends GlucoseToStorage {
   protected moveY(): number {
     return (
       this.simulation.getStorage().getY() +
-      Math.floor(this.simulation.glucosesInStorage.length / 2 / 5) * 75 +
+      Math.floor(this.simulation.getTotalGlucoseStored() / 2 / 5) * 75 +
       this.buffer
     );
   }
