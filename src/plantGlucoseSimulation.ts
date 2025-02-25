@@ -79,7 +79,7 @@ export class PlantGlucoseSimulation {
   private storage: Storage;
   private totalGlucoseCreated = 0;
   private totalGlucoseUsed = 0;
-  private totalGlucoseStored = 0;
+  private totalGlucoseStored = 2;
   private trials: any[] = []; // an array of trial data objects including the current trial
   private wiseAPI: WISEAPI;
 
@@ -95,8 +95,10 @@ export class PlantGlucoseSimulation {
     this.draw = SVG(elementId);
     this.numDays = this.settings.numDays;
     this.chloroplast = new Chloroplast(this);
+    this.totalGlucoseStored = this.settings.initialGlucoseStored;
     this.mitochondrion = new Mitochondrion(this);
     this.storage = new Storage(this);
+    this.addInitialGlucosesToStorage();
     this.feedback = new Feedback(this.draw, this.settings.feedbackPolicy);
     this.wiseAPI = new WISEAPI(this);
     this.startNewTrial();
@@ -110,6 +112,22 @@ export class PlantGlucoseSimulation {
     eventBus.on('animationDeathSequenceEnded').subscribe(() => {
       this.handleAnimationDeathSequenceEnded();
     });
+  }
+
+  private addInitialGlucosesToStorage() {
+    const realAnimationDuration = this.animationDuration;
+    this.animationDuration = 1;
+    for (let i = 0; i < this.settings.initialGlucoseStored; i++) {
+      let glucose: GlucoseToStorage;
+      if (i % 2 === 0) {
+        glucose = new GlucoseToStorage1(this);
+      } else {
+        glucose = new GlucoseToStorage2(this);
+      }
+      this.glucosesInStorage.push(glucose);
+      glucose.animate();
+    }
+    this.animationDuration = realAnimationDuration;
   }
 
   loadInstructions(instructions: any[]): void {
@@ -184,7 +202,8 @@ export class PlantGlucoseSimulation {
     this.currentTrial = new Trial(
       `Trial (${this.trials.length + 1})`,
       this.numPhotonsThisCycle,
-      this.numWaterThisCycle
+      this.numWaterThisCycle,
+      this.settings.initialGlucoseStored
     );
     this.trials.push(this.currentTrial);
     this.notifyStudentDataChanged();
@@ -200,7 +219,10 @@ export class PlantGlucoseSimulation {
     if (glucoseUsed) {
       this.updateGlucoseUsed();
     }
-    this.totalGlucoseStored = this.totalGlucoseCreated - this.totalGlucoseUsed;
+    this.totalGlucoseStored =
+      this.totalGlucoseCreated -
+      this.totalGlucoseUsed +
+      this.settings.initialGlucoseStored;
     this.currentTrial.addDayData(
       this.currentDayNumber,
       this.totalGlucoseCreated,
@@ -243,6 +265,7 @@ export class PlantGlucoseSimulation {
       if (
         this.glucosesInStorage.length === 0 &&
         (this.glucoseCreatedIncrement === 0 || this.numWaterThisCycle === 0)
+        // this.totalGlucoseStored === 0
       ) {
         // there is no energy coming in or stored. The plant dies now.
         this.currentAnimation = this.draw
@@ -651,7 +674,9 @@ export class PlantGlucoseSimulation {
     this.currentDayNumber = 0;
     this.totalGlucoseCreated = 0;
     this.totalGlucoseUsed = 0;
-    this.totalGlucoseStored = 0;
+    this.totalGlucoseStored = this.settings.initialGlucoseStored;
+    this.glucosesInStorage = [];
+    this.addInitialGlucosesToStorage();
     this.feedback.hideFeedback();
     if (!this.settings.enableInputControls) {
       this.setInputValues(this.playSequence[0]);

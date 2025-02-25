@@ -1,3 +1,5 @@
+import { Settings } from './settings';
+
 export class Trial {
   id: number;
   name: string;
@@ -8,11 +10,17 @@ export class Trial {
   waterLevel: number[][];
   events: any[] = [];
 
-  constructor(name: string, numPhotons: number, numWater: number) {
+  constructor(
+    name: string,
+    numPhotons: number,
+    numWater: number,
+    initialGlucoseStored: number
+  ) {
     this.id = new Date().getTime();
     this.name = name;
     this.lightLevel = [[0, numPhotons]];
     this.waterLevel = [[0, numWater]];
+    this.glucoseStored = [[0, initialGlucoseStored]];
   }
 
   addDayData(
