@@ -186,12 +186,24 @@ export class PlantGlucoseSimulation {
   private resumeSimulation(): void {
     this.simulationState = SimulationState.Running;
     eventBus.emit('simulationStateChanged', SimulationState.Running);
-    this.currentAnimation.play();
+    this.currentAnimation.members.forEach((glucose: any) => {
+      if (glucose instanceof GlucoseToStorage1) {
+        glucose.getImage().play();
+      } else {
+        glucose.play();
+      }
+    });
   }
 
   private pauseSimulation(): void {
     if (this.isAnimationPlaying()) {
-      this.currentAnimation.pause();
+      this.currentAnimation.members.forEach((glucose: any) => {
+        if (glucose instanceof GlucoseToStorage1) {
+          glucose.getImage().pause();
+        } else {
+          glucose.pause();
+        }
+      });
     }
     this.simulationState = SimulationState.Paused;
     eventBus.emit('simulationStateChanged', SimulationState.Paused);
