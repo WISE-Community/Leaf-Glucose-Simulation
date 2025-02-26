@@ -21,8 +21,8 @@ export abstract class GlucoseToStorage extends Glucose {
   protected moveY(): number {
     return (
       this.simulation.getStorage().getY() +
-      Math.floor(this.simulation.getTotalGlucoseStored() / 2 / 5) * 75 -
-      this.buffer
+      Math.floor(this.simulation.getTotalGlucoseStored() / 2 / 5) * 75 +
+      this.getBuffer()
     );
   }
 
