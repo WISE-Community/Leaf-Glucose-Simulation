@@ -186,27 +186,38 @@ export class PlantGlucoseSimulation {
   private resumeSimulation(): void {
     this.simulationState = SimulationState.Running;
     eventBus.emit('simulationStateChanged', SimulationState.Running);
-    this.currentAnimation.members.forEach((glucose: any) => {
-      if (glucose instanceof GlucoseToStorage1) {
-        glucose.getImage().play();
-      } else {
-        glucose.play();
-      }
-    });
+    this.playOrPauseAnimation(false);
   }
 
   private pauseSimulation(): void {
     if (this.isAnimationPlaying()) {
-      this.currentAnimation.members.forEach((glucose: any) => {
-        if (glucose instanceof GlucoseToStorage1) {
-          glucose.getImage().pause();
-        } else {
-          glucose.pause();
-        }
-      });
+      this.playOrPauseAnimation(true);
     }
     this.simulationState = SimulationState.Paused;
     eventBus.emit('simulationStateChanged', SimulationState.Paused);
+  }
+
+  private playOrPauseAnimation(isPausing: boolean): void {
+    if (this.currentAnimation.members) {
+      this.playOrPauseImages(isPausing);
+    } else {
+      this.playOrPause(this.currentAnimation, isPausing);
+    }
+  }
+
+  private playOrPauseImages(isPausing: boolean): void {
+    this.currentAnimation.members.forEach((animationObject: any) => {
+      if (animationObject instanceof GlucoseToStorage1) {
+        const glucoseImg = animationObject.getImage();
+        this.playOrPause(glucoseImg, isPausing);
+      } else {
+        this.playOrPause(animationObject, isPausing);
+      }
+    });
+  }
+
+  private playOrPause(playOrPauseObject: any, isPausing: boolean): void {
+    isPausing ? playOrPauseObject.pause() : playOrPauseObject.play();
   }
 
   private handleAnimationDeathSequenceEnded(): void {

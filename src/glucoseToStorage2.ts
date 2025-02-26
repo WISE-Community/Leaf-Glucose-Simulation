@@ -1,20 +1,8 @@
 import { GlucoseToStorage } from './glucoseToStorage';
 
 export class GlucoseToStorage2 extends GlucoseToStorage {
-  protected moveX(): number {
-    return (
-      this.simulation.getStorage().getX() +
-      ((this.simulation.getTotalGlucoseStored() / 2) % 5) * 75 +
-      this.buffer
-    );
-  }
-
-  protected moveY(): number {
-    return (
-      this.simulation.getStorage().getY() +
-      Math.floor(this.simulation.getTotalGlucoseStored() / 2 / 5) * 75 +
-      this.buffer
-    );
+  protected getBuffer(): number {
+    return this.buffer;
   }
 
   getStartX(): number {
