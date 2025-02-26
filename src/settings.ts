@@ -39,7 +39,7 @@ export class Settings {
     this.showWater = parameters['showWater'] ?? false;
     this.enableInputControls = parameters['enableInputControls'] ?? true;
     this.initialGlucoseStored = parameters['initialGlucoseStored'] ?? 2;
-    if (this.initialGlucoseStored < 0) {
+    if (this.initialGlucoseStored < 0 || this.initialGlucoseStored > 20) {
       this.initialGlucoseStored = 2;
     }
     this.isDroughtTolerant = parameters['isDroughtTolerant'] ?? false;
