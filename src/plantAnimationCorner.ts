@@ -94,7 +94,7 @@ export class PlantAnimationCorner {
       .on('numWaterChanged')
       .subscribe((numWater: number) => this.updateWatering(numWater));
     eventBus
-      .on('simulationReset')
+      .on('glucoseReset')
       .subscribe(() => this.updateImg(this.simulation.getTotalGlucoseStored()));
     eventBus
       .on('endOfDay')

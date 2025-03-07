@@ -511,6 +511,7 @@ export class PlantGlucoseSimulation {
       this.currentAnimation = this.draw.set();
       let glucose1InStorage =
         this.glucosesInStorage[this.getTotalGlucoseStored() - 1];
+      glucose1InStorage.rotate(0);
       let glucose2InStorage: SVG.Image = null;
 
       if (this.getTotalGlucoseStored() >= 2 && !requiresAssist) {
@@ -518,7 +519,6 @@ export class PlantGlucoseSimulation {
           this.glucosesInStorage[this.getTotalGlucoseStored() - 2];
 
         if (glucose2InStorage != null) {
-          glucose1InStorage.rotate(0);
           glucose2InStorage.rotate(0);
           if (
             (this.settings.isDroughtTolerant && this.numPhotonsThisCycle > 2) ||
@@ -704,6 +704,7 @@ export class PlantGlucoseSimulation {
     this.totalGlucoseUsed = 0;
     this.glucosesInStorage = [];
     this.addInitialGlucosesToStorage();
+    eventBus.emit('glucoseReset');
     this.feedback.hideFeedback();
     if (!this.settings.enableInputControls) {
       this.setInputValues(this.playSequence[0]);
