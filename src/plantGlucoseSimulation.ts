@@ -116,14 +116,13 @@ export class PlantGlucoseSimulation {
   }
 
   private addInitialGlucosesToStorage() {
-    const realAnimationDuration = this.animationDuration;
-    this.animationDuration = 500;
     for (let i = 0; i < this.settings.initialGlucoseStored; i++) {
       const glucose = new GlucoseToStorage1(this);
-      glucose.animate();
+      const coordinates = this.getNextGlucoseStoredCoordinates();
+      glucose.getImage().move(coordinates[0], coordinates[1]);
+      glucose.getImage().rotate(Math.random() * 360);
       this.glucosesInStorage.push(glucose.getImage());
     }
-    this.animationDuration = realAnimationDuration;
   }
 
   loadInstructions(instructions: any[]): void {
