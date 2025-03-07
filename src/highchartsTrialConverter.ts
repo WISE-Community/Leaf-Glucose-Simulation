@@ -14,20 +14,20 @@ export function convertToHighchartsTrial(trial: Trial): any {
         trial.glucoseCreated
       ),
       convertToHighchartsSeries(
-        trial.id + '-glucoseUsed',
-        'Total Glucose Used',
-        '#f17d00',
-        'shortDash',
-        'circle',
-        trial.glucoseUsed
-      ),
-      convertToHighchartsSeries(
         trial.id + '-glucoseStored',
         'Total Glucose Stored',
         '#459db6',
         'dot',
         'circle',
         trial.glucoseStored
+      ),
+      convertToHighchartsSeries(
+        trial.id + '-glucoseUsed',
+        'Total Glucose Used',
+        '#f17d00',
+        'shortDash',
+        'circle',
+        trial.glucoseUsed
       ),
     ],
   };

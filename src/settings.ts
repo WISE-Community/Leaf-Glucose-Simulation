@@ -1,6 +1,7 @@
 export class Settings {
   enableInputControls = true;
   feedbackPolicy: string = null; // contain the identifier of the feedback to use
+  initialGlucoseStored: number = 2;
   isDroughtTolerant = false;
   isShadeTolerant = false;
   lightLevelLabels = ['OFF', 'ON'];
@@ -37,6 +38,10 @@ export class Settings {
     this.showSpeedControls = parameters['showSpeedControls'] ?? false;
     this.showWater = parameters['showWater'] ?? false;
     this.enableInputControls = parameters['enableInputControls'] ?? true;
+    this.initialGlucoseStored = parameters['initialGlucoseStored'] ?? 2;
+    if (this.initialGlucoseStored < 0 || this.initialGlucoseStored > 20) {
+      this.initialGlucoseStored = 2;
+    }
     this.isDroughtTolerant = parameters['isDroughtTolerant'] ?? false;
     this.isShadeTolerant = parameters['isShadeTolerant'] ?? false;
     this.setPlantImgSrc(parameters['plantImgSrc']);

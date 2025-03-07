@@ -2,14 +2,13 @@ import { Glucose } from './glucose';
 
 export abstract class GlucoseToStorage extends Glucose {
   animate(): any {
+    const coordinates = this.simulation.getNextGlucoseStoredCoordinates();
     return this.image
       .animate({
         delay: this.simulation.animationDelay,
         duration: this.simulation.animationDuration,
       })
-      .move(this.moveX(), this.moveY());
+      .move(coordinates[0], coordinates[1])
+      .afterAll(() => this.image.rotate(Math.random() * 360));
   }
-
-  protected abstract moveX(): number;
-  protected abstract moveY(): number;
 }
