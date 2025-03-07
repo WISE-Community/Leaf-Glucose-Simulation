@@ -153,23 +153,23 @@ export class PlantAnimationCorner {
 
   private setPlantImages(plantImages: string[]) {
     this.deadImg = this.draw.image(plantImages.at(0), 500, 500).attr({
-      y: 392,
+      y: 340,
       opacity: 0.4,
     });
     this.unhealthyImg = this.draw.image(plantImages.at(1), 500, 500).attr({
-      y: 392,
+      y: 340,
       opacity: 0.6,
     });
     this.moderateImg = this.draw.image(plantImages.at(2), 500, 500).attr({
-      y: 392,
+      y: 340,
       opacity: 0.8,
     });
     this.healthyImg = this.draw.image(plantImages.at(3), 500, 500).attr({
-      y: 392,
+      y: 340,
       opacity: 1,
     });
     this.veryHealthyImg = this.draw.image(plantImages.at(4), 500, 500).attr({
-      y: 392,
+      y: 340,
       opacity: 1,
     });
   }
