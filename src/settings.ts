@@ -6,7 +6,7 @@ export class Settings {
   lightLevelLabels = ['OFF', 'ON'];
   numDays = 20;
   numLightOptions = 2; // 2 = On/Off, 3 = Full/Half/Off, 5 = 100%/75%/50%/25%/0%
-  plantImgSrc: string = null;
+  plantImgSrc: string[] = [];
   showEnergyNeeds = false; // whether to show the battery and energy needs animation
   showGraph = true;
   showGraphBackground = false;
@@ -39,7 +39,7 @@ export class Settings {
     this.enableInputControls = parameters['enableInputControls'] ?? true;
     this.isDroughtTolerant = parameters['isDroughtTolerant'] ?? false;
     this.isShadeTolerant = parameters['isShadeTolerant'] ?? false;
-    this.plantImgSrc = parameters['plantImgSrc'] ?? null;
+    this.setPlantImgSrc(parameters['plantImgSrc']);
     this.showEnergyNeeds = parameters['showEnergyNeeds'] ?? false;
     this.lightLevelLabels = parameters['lightLevelLabels']
       ? parameters['lightLevelLabels'].split(',')
@@ -47,5 +47,23 @@ export class Settings {
     this.waterLevelLabels = parameters['waterLevelLabels']
       ? parameters['waterLevelLabels'].split(',')
       : ['NO', 'YES'];
+  }
+
+  private setPlantImgSrc(imgParam: string): void {
+    if (imgParam) {
+      const imgParamTokens = imgParam.split(',');
+      let counter = 0;
+      imgParamTokens.forEach((token) => {
+        counter++;
+        if (counter <= 5) this.plantImgSrc.push(token);
+      });
+      if (counter < 5) {
+        for (let i = counter; i < 5; i++) {
+          this.plantImgSrc.push(imgParamTokens.at(imgParamTokens.length - 1));
+        }
+      }
+    } else {
+      this.plantImgSrc = null;
+    }
   }
 }

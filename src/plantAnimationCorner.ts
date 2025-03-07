@@ -18,23 +18,17 @@ import { PlantPhotons } from './plantPhotons';
  * @author Geoffrey Kwan
  */
 export class PlantAnimationCorner {
-  GREEN_LEAF_INDEX: number = 0;
-  LIGHT_GREEN_LEAF_INDEX: number = 1;
-  YELLOW_LEAF_INDEX: number = 2;
-  DEAD_LEAF_INDEX: number = 3;
-
-  draw: SVG.Doc;
-  lightBulbOn: SVG.Image;
-  lightBulbOff: SVG.Image;
-  allLeaves: SVG.Image[];
-  leafYellow: SVG.Image;
-  leafLightGreen: SVG.Image;
-  leafGreen: SVG.Image;
-  leafDead: SVG.Image;
-  darknessOverlay: SVG.Rect;
-  wateringCan: SVG.Image;
-  customPlant: SVG;
-  showLightBulb: boolean = false;
+  private draw: SVG.Doc;
+  private lightBulbOn: SVG.Image;
+  private lightBulbOff: SVG.Image;
+  private deadImg: SVG.Image;
+  private unhealthyImg: SVG.Image;
+  private moderateImg: SVG.Image;
+  private healthyImg: SVG.Image;
+  private veryHealthyImg: SVG.Image;
+  private darknessOverlay: SVG.Rect;
+  private wateringCan: SVG.Image;
+  private showLightBulb: boolean = false;
 
   /**
    * Instantiates variables with initial values for objects
@@ -49,56 +43,13 @@ export class PlantAnimationCorner {
     this.draw.rect(500, 700).x(0).y(150).fill('white').stroke({ width: 2 });
 
     if (plantImgSrc) {
-      this.leafGreen = this.draw.image(plantImgSrc, 500, 500).attr({
-        y: 392,
-      });
-      this.leafYellow = this.draw.image(plantImgSrc, 500, 500).attr({
-        y: 392,
-        opacity: 0.6,
-      });
-      this.leafLightGreen = this.draw.image(plantImgSrc, 500, 500).attr({
-        y: 392,
-        opacity: 0.8,
-      });
-      this.leafDead = this.draw.image(plantImgSrc, 500, 500).attr({
-        y: 392,
-        opacity: 0.4,
-      });
+      this.setPlantImages(plantImgSrc);
     } else {
-      this.leafGreen = this.draw
-        .image('./images/leafGreen.png', 250, 250)
-        .attr({
-          x: 40,
-          y: 430,
-        });
-      this.leafYellow = this.draw
-        .image('./images/leafYellow.png', 250, 250)
-        .attr({
-          x: 40,
-          y: 530,
-        });
-      this.leafLightGreen = this.draw
-        .image('./images/leafLightGreen.png', 250, 250)
-        .attr({
-          x: 40,
-          y: 430,
-        });
-      this.draw.image('./images/pot.png', 250, 250).attr({ x: 125, y: 590 });
-      this.leafDead = this.draw.image('./images/leafDead.png', 250, 250).attr({
-        x: 80,
-        y: 580,
-      });
+      const plantImages = new Array(5).fill('./images/leafGreen.png');
+      this.setPlantImages(plantImages);
     }
 
-    // store all the leaf images in an array from liveliest -> dead
-    this.allLeaves = [
-      this.leafGreen,
-      this.leafLightGreen,
-      this.leafYellow,
-      this.leafDead,
-    ];
-
-    this.showLeaf(this.GREEN_LEAF_INDEX);
+    this.updateImg(this.simulation.getTotalGlucoseStored());
 
     this.darknessOverlay = this.draw.rect(500, 700).y(150).attr({
       'fill-opacity': 0.3,
@@ -138,28 +89,16 @@ export class PlantAnimationCorner {
     new PlantPhotons(this.simulation);
     eventBus
       .on('numPhotonsChanged')
-      .subscribe((numPhotons) => this.updateBackground(numPhotons));
+      .subscribe((numPhotons: number) => this.updateBackground(numPhotons));
     eventBus
       .on('numWaterChanged')
-      .subscribe((numWater) => this.updateWatering(numWater));
+      .subscribe((numWater: number) => this.updateWatering(numWater));
     eventBus
       .on('simulationReset')
-      .subscribe(() => this.showLeaf(this.GREEN_LEAF_INDEX));
-    eventBus.on('animationDeathSequenceStarted').subscribe(() => {
-      this.playPlantDeathSequence();
-    });
-  }
-
-  /**
-   * Change the leaf that is displayed based on the leaf index specified.
-   * 0 = green, 1 = light green, 2 = yellow, 3 = brown
-   * @param leafIndex which leaf should be shown
-   */
-  private showLeaf(leafIndex: number): void {
-    this.allLeaves.map((leaf) => {
-      leaf.hide();
-    });
-    this.allLeaves[leafIndex].show();
+      .subscribe(() => this.updateImg(this.simulation.getTotalGlucoseStored()));
+    eventBus
+      .on('endOfDay')
+      .subscribe(() => this.updateImg(this.simulation.getTotalGlucoseStored()));
   }
 
   /**
@@ -186,24 +125,6 @@ export class PlantAnimationCorner {
     }
   }
 
-  private playPlantDeathSequence(): any {
-    this.draw
-      .animate(3000 * this.simulation.animationSpeedRatio)
-      .during((pos, morph, eased, situation) => {
-        // show the death sequence animation leaf based on time
-        if (pos < 0.33) {
-          this.showLeaf(this.LIGHT_GREEN_LEAF_INDEX);
-        } else if (pos < 0.66) {
-          this.showLeaf(this.YELLOW_LEAF_INDEX);
-        } else {
-          this.showLeaf(this.DEAD_LEAF_INDEX);
-        }
-      })
-      .afterAll(() => {
-        eventBus.emit('animationDeathSequenceEnded');
-      });
-  }
-
   turnLightOff() {
     if (this.showLightBulb) {
       this.lightBulbOn.hide();
@@ -227,6 +148,56 @@ export class PlantAnimationCorner {
       this.wateringCan.show();
     } else {
       this.wateringCan.hide();
+    }
+  }
+
+  private setPlantImages(plantImages: string[]) {
+    this.deadImg = this.draw.image(plantImages.at(0), 500, 500).attr({
+      y: 392,
+      opacity: 0.4,
+    });
+    this.unhealthyImg = this.draw.image(plantImages.at(1), 500, 500).attr({
+      y: 392,
+      opacity: 0.6,
+    });
+    this.moderateImg = this.draw.image(plantImages.at(2), 500, 500).attr({
+      y: 392,
+      opacity: 0.8,
+    });
+    this.healthyImg = this.draw.image(plantImages.at(3), 500, 500).attr({
+      y: 392,
+      opacity: 1,
+    });
+    this.veryHealthyImg = this.draw.image(plantImages.at(4), 500, 500).attr({
+      y: 392,
+      opacity: 1,
+    });
+  }
+
+  private updateImg(totalGlucoseStored: number) {
+    this.hideAllPlantImg();
+    this.showRelevantPlantImg(totalGlucoseStored);
+  }
+
+  private hideAllPlantImg() {
+    this.deadImg.hide();
+    this.unhealthyImg.hide();
+    this.moderateImg.hide();
+    this.healthyImg.hide();
+    this.veryHealthyImg.hide();
+  }
+
+  private showRelevantPlantImg(totalGlucoseStored: number) {
+    if (totalGlucoseStored === 0) {
+      this.deadImg.show();
+    } else if (totalGlucoseStored <= 4) {
+      this.unhealthyImg.show();
+    } else if (totalGlucoseStored <= 10) {
+      this.moderateImg.show();
+    } else if (totalGlucoseStored <= 15) {
+      this.healthyImg.show();
+    } else {
+      this.veryHealthyImg.show();
     }
   }
 }

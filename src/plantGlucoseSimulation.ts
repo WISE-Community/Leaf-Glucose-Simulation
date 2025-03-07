@@ -263,6 +263,7 @@ export class PlantGlucoseSimulation {
           this.animationCallback.bind(this)
         );
       }
+      eventBus.emit('endOfDay');
       const nextDay = this.playSequence[this.currentDayNumber];
       if (nextDay) {
         this.setInputValues(nextDay);
@@ -754,5 +755,9 @@ export class PlantGlucoseSimulation {
 
   getSettings(): Settings {
     return this.settings;
+  }
+
+  getTotalGlucoseStored(): number {
+    return this.totalGlucoseStored;
   }
 }
