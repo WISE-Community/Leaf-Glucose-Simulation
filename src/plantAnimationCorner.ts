@@ -152,25 +152,17 @@ export class PlantAnimationCorner {
   }
 
   private setPlantImages(plantImages: string[]) {
-    this.deadImg = this.draw.image(plantImages.at(0), 500, 500).attr({
-      y: 340,
-      opacity: 0.4,
-    });
-    this.unhealthyImg = this.draw.image(plantImages.at(1), 500, 500).attr({
-      y: 340,
-      opacity: 0.6,
-    });
-    this.moderateImg = this.draw.image(plantImages.at(2), 500, 500).attr({
-      y: 340,
-      opacity: 0.8,
-    });
-    this.healthyImg = this.draw.image(plantImages.at(3), 500, 500).attr({
-      y: 340,
-      opacity: 1,
-    });
-    this.veryHealthyImg = this.draw.image(plantImages.at(4), 500, 500).attr({
-      y: 340,
-      opacity: 1,
+    this.deadImg = this.drawMainImage(plantImages.at(0), 340, 0.6);
+    this.unhealthyImg = this.drawMainImage(plantImages.at(1), 340, 0.7);
+    this.moderateImg = this.drawMainImage(plantImages.at(2), 340, 0.8);
+    this.healthyImg = this.drawMainImage(plantImages.at(3), 340, 0.9);
+    this.veryHealthyImg = this.drawMainImage(plantImages.at(4), 340, 1);
+  }
+
+  private drawMainImage(img: string, y: number, opacity: number): any {
+    return this.draw.image(img, 500, 500).attr({
+      y: y,
+      opacity: opacity,
     });
   }
 
