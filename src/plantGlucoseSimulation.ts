@@ -119,8 +119,7 @@ export class PlantGlucoseSimulation {
     const realAnimationDuration = this.animationDuration;
     this.animationDuration = 500;
     for (let i = 0; i < this.settings.initialGlucoseStored; i++) {
-      let glucose: GlucoseToStorage;
-      glucose = new GlucoseToStorage1(this);
+      const glucose = new GlucoseToStorage1(this);
       glucose.animate();
       this.glucosesInStorage.push(glucose.getImage());
     }
