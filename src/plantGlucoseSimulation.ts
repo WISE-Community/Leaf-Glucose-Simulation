@@ -60,7 +60,7 @@ export class PlantGlucoseSimulation {
   private glucoseToMitochondrion2: GlucoseToMitochondrion2;
   private glucoseToStorage1: GlucoseToStorage1;
   private glucoseToStorage2: GlucoseToStorage2;
-  glucosesInStorage: GlucoseToStorage[] = [];
+  glucosesInStorage: SVG.Image[] = [];
   instructions: any[] = [];
   isControlEnabled: boolean = true;
   isLightOn: boolean = true;
@@ -77,11 +77,12 @@ export class PlantGlucoseSimulation {
   private playSequence: any[] = [];
   private simulationState: SimulationState = SimulationState.Stopped;
   private storage: Storage;
-  private totalGlucoseCreated = 0;
+  private totalGlucoseCreated: number;
   private totalGlucoseUsed = 0;
-  private totalGlucoseStored = 0;
   private trials: any[] = []; // an array of trial data objects including the current trial
   private wiseAPI: WISEAPI;
+
+  private blobCircleRadius = 10;
 
   /**
    * Instantiates variables with initial values for objects
@@ -97,6 +98,8 @@ export class PlantGlucoseSimulation {
     this.chloroplast = new Chloroplast(this);
     this.mitochondrion = new Mitochondrion(this);
     this.storage = new Storage(this);
+    this.addInitialGlucosesToStorage();
+    this.totalGlucoseCreated = this.settings.initialGlucoseStored;
     this.feedback = new Feedback(this.draw, this.settings.feedbackPolicy);
     this.wiseAPI = new WISEAPI(this);
     this.startNewTrial();
@@ -110,6 +113,16 @@ export class PlantGlucoseSimulation {
     eventBus.on('animationDeathSequenceEnded').subscribe(() => {
       this.handleAnimationDeathSequenceEnded();
     });
+  }
+
+  private addInitialGlucosesToStorage() {
+    for (let i = 0; i < this.settings.initialGlucoseStored; i++) {
+      const glucose = new GlucoseToStorage1(this);
+      const coordinates = this.getNextGlucoseStoredCoordinates();
+      glucose.getImage().move(coordinates[0], coordinates[1]);
+      glucose.getImage().rotate(Math.random() * 360);
+      this.glucosesInStorage.push(glucose.getImage());
+    }
   }
 
   loadInstructions(instructions: any[]): void {
@@ -147,15 +160,19 @@ export class PlantGlucoseSimulation {
 
   private handlePlayPauseButtonClicked(): void {
     if (this.isControlEnabled) {
-      if (this.simulationState === SimulationState.Stopped) {
-        this.addEvent('startButtonClicked');
-        this.startSimulation();
-      } else if (this.simulationState === SimulationState.Paused) {
-        this.addEvent('resumeButtonClicked');
-        this.resumeSimulation();
-      } else if (this.simulationState === SimulationState.Running) {
-        this.addEvent('pauseButtonClicked');
-        this.pauseSimulation();
+      switch (this.simulationState) {
+        case SimulationState.Stopped:
+          this.addEvent('startButtonClicked');
+          this.startSimulation();
+          break;
+        case SimulationState.Paused:
+          this.addEvent('resumeButtonClicked');
+          this.resumeSimulation();
+          break;
+        case SimulationState.Running:
+          this.addEvent('pauseButtonClicked');
+          this.pauseSimulation();
+          break;
       }
     }
   }
@@ -169,7 +186,38 @@ export class PlantGlucoseSimulation {
   private resumeSimulation(): void {
     this.simulationState = SimulationState.Running;
     eventBus.emit('simulationStateChanged', SimulationState.Running);
-    this.currentAnimation.play();
+    this.playOrPauseAnimation(false);
+  }
+
+  private pauseSimulation(): void {
+    if (this.isAnimationPlaying()) {
+      this.playOrPauseAnimation(true);
+    }
+    this.simulationState = SimulationState.Paused;
+    eventBus.emit('simulationStateChanged', SimulationState.Paused);
+  }
+
+  private playOrPauseAnimation(isPausing: boolean): void {
+    if (this.currentAnimation.members) {
+      this.playOrPauseImages(isPausing);
+    } else {
+      this.playOrPause(this.currentAnimation, isPausing);
+    }
+  }
+
+  private playOrPauseImages(isPausing: boolean): void {
+    this.currentAnimation.members.forEach((animationObject: any) => {
+      if (animationObject instanceof GlucoseToStorage1) {
+        const glucoseImg = animationObject.getImage();
+        this.playOrPause(glucoseImg, isPausing);
+      } else {
+        this.playOrPause(animationObject, isPausing);
+      }
+    });
+  }
+
+  private playOrPause(playOrPauseObject: any, isPausing: boolean): void {
+    isPausing ? playOrPauseObject.pause() : playOrPauseObject.play();
   }
 
   private handleAnimationDeathSequenceEnded(): void {
@@ -184,7 +232,8 @@ export class PlantGlucoseSimulation {
     this.currentTrial = new Trial(
       `Trial (${this.trials.length + 1})`,
       this.numPhotonsThisCycle,
-      this.numWaterThisCycle
+      this.numWaterThisCycle,
+      this.settings.initialGlucoseStored
     );
     this.trials.push(this.currentTrial);
     this.notifyStudentDataChanged();
@@ -200,12 +249,11 @@ export class PlantGlucoseSimulation {
     if (glucoseUsed) {
       this.updateGlucoseUsed();
     }
-    this.totalGlucoseStored = this.totalGlucoseCreated - this.totalGlucoseUsed;
     this.currentTrial.addDayData(
       this.currentDayNumber,
       this.totalGlucoseCreated,
       this.totalGlucoseUsed,
-      this.totalGlucoseStored,
+      this.getTotalGlucoseStored(),
       this.numPhotonsThisCycle,
       this.numWaterThisCycle
     );
@@ -241,7 +289,7 @@ export class PlantGlucoseSimulation {
       }
       eventBus.emit('animationCyclePhase1Started');
       if (
-        this.glucosesInStorage.length === 0 &&
+        this.getTotalGlucoseStored() === 0 &&
         (this.glucoseCreatedIncrement === 0 || this.numWaterThisCycle === 0)
       ) {
         // there is no energy coming in or stored. The plant dies now.
@@ -258,7 +306,7 @@ export class PlantGlucoseSimulation {
         this.movePhotonsToPlantAndChloroplast(
           this.animationCallback.bind(this)
         );
-      } else if (this.glucosesInStorage.length > 0) {
+      } else if (this.getTotalGlucoseStored() > 0) {
         this.moveGlucoseFromStorageToMitochondrion(
           this.animationCallback.bind(this)
         );
@@ -436,17 +484,19 @@ export class PlantGlucoseSimulation {
       this.glucosesInStorage.push(this.glucoseToStorage1.clone());
       this.glucoseToStorage1.remove();
       this.glucoseToStorage1 = null;
-      animationCallback();
+      if (this.glucoseCreatedIncrement !== 4) {
+        animationCallback();
+      } else {
+        this.glucoseToStorage2.animate().afterAll(() => {
+          this.glucosesInStorage.push(this.glucoseToStorage2.clone());
+          this.glucoseToStorage2.remove();
+          this.glucoseToStorage2 = null;
+          animationCallback();
+        });
+        this.currentAnimation.add(this.glucoseToStorage2.getImage());
+      }
     });
     this.currentAnimation.add(this.glucoseToStorage1.getImage());
-    if (this.glucoseCreatedIncrement === 4) {
-      this.glucoseToStorage2.animate().afterAll(() => {
-        this.glucosesInStorage.push(this.glucoseToStorage2.clone());
-        this.glucoseToStorage2.remove();
-        this.glucoseToStorage2 = null;
-      });
-      this.currentAnimation.add(this.glucoseToStorage2.getImage());
-    }
   }
 
   /**
@@ -457,19 +507,21 @@ export class PlantGlucoseSimulation {
     animationCallback: () => {},
     requiresAssist: boolean = false
   ): void {
-    if (this.glucosesInStorage.length === 0) {
+    if (this.getTotalGlucoseStored() === 0) {
       animationCallback();
     } else {
       this.currentAnimation = this.draw.set();
       let glucose1InStorage =
-        this.glucosesInStorage[this.glucosesInStorage.length - 1];
-      let glucose2InStorage: GlucoseToStorage = null;
+        this.glucosesInStorage[this.getTotalGlucoseStored() - 1];
+      let glucose2InStorage: SVG.Image = null;
 
-      if (this.glucosesInStorage.length >= 2 && !requiresAssist) {
+      if (this.getTotalGlucoseStored() >= 2 && !requiresAssist) {
         glucose2InStorage =
-          this.glucosesInStorage[this.glucosesInStorage.length - 2];
+          this.glucosesInStorage[this.getTotalGlucoseStored() - 2];
 
         if (glucose2InStorage != null) {
+          glucose1InStorage.rotate(0);
+          glucose2InStorage.rotate(0);
           if (
             (this.settings.isDroughtTolerant && this.numPhotonsThisCycle > 2) ||
             (this.settings.isShadeTolerant && this.numWaterThisCycle > 0)
@@ -514,7 +566,7 @@ export class PlantGlucoseSimulation {
         })
         .afterAll(() => {
           // remove the last glucose from storage
-          this.glucosesInStorage.splice(this.glucosesInStorage.length - 1, 1);
+          this.glucosesInStorage.splice(this.getTotalGlucoseStored() - 1, 1);
           glucose1InStorage.remove();
           glucose1InStorage = null;
           if (
@@ -523,7 +575,7 @@ export class PlantGlucoseSimulation {
               this.numWaterThisCycle === 0) ||
               (this.numPhotonsThisCycle < 3 && !this.settings.isShadeTolerant))
           ) {
-            this.glucosesInStorage.splice(this.glucosesInStorage.length - 1, 1);
+            this.glucosesInStorage.splice(this.getTotalGlucoseStored() - 1, 1);
             glucose2InStorage.remove();
             glucose2InStorage = null;
           }
@@ -649,9 +701,11 @@ export class PlantGlucoseSimulation {
     eventBus.emit('dayChanged', 1);
 
     this.currentDayNumber = 0;
-    this.totalGlucoseCreated = 0;
+    this.blobCircleRadius = 10;
+    this.totalGlucoseCreated = this.settings.initialGlucoseStored;
     this.totalGlucoseUsed = 0;
-    this.totalGlucoseStored = 0;
+    this.glucosesInStorage = [];
+    this.addInitialGlucosesToStorage();
     this.feedback.hideFeedback();
     if (!this.settings.enableInputControls) {
       this.setInputValues(this.playSequence[0]);
@@ -690,14 +744,6 @@ export class PlantGlucoseSimulation {
       timestamp: new Date().getTime(),
     };
     this.currentTrial.events.push(event);
-  }
-
-  private pauseSimulation(): void {
-    if (this.isAnimationPlaying()) {
-      this.currentAnimation.pause();
-    }
-    this.simulationState = SimulationState.Paused;
-    eventBus.emit('simulationStateChanged', SimulationState.Paused);
   }
 
   /**
@@ -754,5 +800,118 @@ export class PlantGlucoseSimulation {
 
   getSettings(): Settings {
     return this.settings;
+  }
+
+  getTotalGlucoseStored(): number {
+    return this.glucosesInStorage.length;
+  }
+
+  getNextGlucoseStoredCoordinates(): [number, number] {
+    const centerX = this.storage.getX() + 150;
+    const centerY = this.storage.getY() + 130;
+    const nextGlucoseNum = this.getTotalGlucoseStored() + 1;
+    this.blobCircleRadius -= 1 / nextGlucoseNum;
+    const groupNum = this.getGlucoseGroupNumber(nextGlucoseNum);
+    const positionInGroup = this.getGlucosePositionInGroup(nextGlucoseNum);
+    const isSquareGroup = this.isSquareGroup(groupNum);
+
+    return this.getAdjustedCoordinates(
+      centerX,
+      centerY,
+      groupNum,
+      positionInGroup,
+      isSquareGroup
+    );
+  }
+
+  /**
+   * Determines which group a glucose molecule is in where a group is a group
+   * of four glucoses that will be displayed in the same ring.
+   * @param glucoseNum number representing the glucose (the first glucose
+   *                   stored would be 1, second would be 2, etc)
+   */
+  private getGlucoseGroupNumber(glucoseNum: number): number {
+    let group = Math.ceil(glucoseNum / 4);
+    if (glucoseNum >= 41) group -= 10;
+    return group;
+  }
+
+  private getGlucosePositionInGroup(glucoseNum: number): number {
+    for (let i = 0; i < 4; i++) {
+      // The 4th member of the group is always a multiple of 4
+      if ((glucoseNum + i) % 4 === 0) {
+        return 4 - i;
+      }
+    }
+  }
+
+  /**
+   * Determines whether a glucose is in a group to be displayed as a square
+   * or a group to be displayed as a diamond.
+   * @param groupNum a group of four glucoses (the first four are group 1, the
+   *                 second four are group 2, etc)
+   */
+  private isSquareGroup(groupNum: number): boolean {
+    return groupNum % 2 !== 0;
+  }
+
+  private getAdjustedCoordinates(
+    centerX: number,
+    centerY: number,
+    groupNum: number,
+    positionInGroup: number,
+    isSquareGroup: boolean
+  ): [number, number] {
+    const groupRingRadius = this.getGroupRingRadius(groupNum, isSquareGroup);
+    const xModifier = this.getCoordinateModifier(
+      positionInGroup,
+      isSquareGroup,
+      true
+    );
+    const yModifier = this.getCoordinateModifier(
+      positionInGroup,
+      isSquareGroup,
+      false
+    );
+    const adjustedX = centerX + groupRingRadius * xModifier;
+    const adjustedY = centerY + groupRingRadius * yModifier;
+    return [adjustedX, adjustedY];
+  }
+
+  private getGroupRingRadius(groupNum: number, isSquareGroup: boolean): number {
+    return (
+      (this.blobCircleRadius * groupNum * Math.sqrt(2)) /
+      (isSquareGroup ? 2 : 1)
+    );
+  }
+
+  private getCoordinateModifier(
+    positionInGroup: number,
+    isSquareGroup: boolean,
+    isXCoord: boolean
+  ): number {
+    if (isXCoord) {
+      switch (positionInGroup) {
+        case 1:
+          return isSquareGroup ? 1 : 0;
+        case 2:
+          return 1;
+        case 3:
+          return isSquareGroup ? -1 : 0;
+        case 4:
+          return -1;
+      }
+    } else {
+      switch (positionInGroup) {
+        case 1:
+          return 1;
+        case 2:
+          return isSquareGroup ? -1 : 0;
+        case 3:
+          return -1;
+        case 4:
+          return isSquareGroup ? 1 : 0;
+      }
+    }
   }
 }

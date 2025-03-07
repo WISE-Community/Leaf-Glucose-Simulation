@@ -110,15 +110,6 @@ export class Graph {
           visible: this.settings.showLineGlucoseMade,
         },
         {
-          name: 'Total Glucose Used',
-          color: '#f17d00',
-          lineWidth: 3,
-          data: [],
-          dashStyle: 'shortDash',
-          showInLegend: this.settings.showLineGlucoseUsed,
-          visible: this.settings.showLineGlucoseUsed,
-        },
-        {
           name: 'Glucose in Storage',
           color: '#459db6',
           lineWidth: 3,
@@ -126,6 +117,15 @@ export class Graph {
           dashStyle: 'dot',
           showInLegend: this.settings.showLineGlucoseStored,
           visible: this.settings.showLineGlucoseStored,
+        },
+        {
+          name: 'Total Glucose Used',
+          color: '#f17d00',
+          lineWidth: 3,
+          data: [],
+          dashStyle: 'shortDash',
+          showInLegend: this.settings.showLineGlucoseUsed,
+          visible: this.settings.showLineGlucoseUsed,
         },
         {
           name: 'Light Level',
@@ -208,8 +208,8 @@ export class Graph {
    */
   private updateGraph(): void {
     this.setSeriesData(0, this.simulation.currentTrial.glucoseCreated);
-    this.setSeriesData(1, this.simulation.currentTrial.glucoseUsed);
-    this.setSeriesData(2, this.simulation.currentTrial.glucoseStored);
+    this.setSeriesData(1, this.simulation.currentTrial.glucoseStored);
+    this.setSeriesData(2, this.simulation.currentTrial.glucoseUsed);
     this.setSeriesData(3, this.simulation.currentTrial.lightLevel);
     this.setSeriesData(4, this.simulation.currentTrial.waterLevel);
 

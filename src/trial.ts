@@ -1,18 +1,25 @@
 export class Trial {
   id: number;
   name: string;
-  glucoseCreated: number[][] = [[0, 0]];
+  glucoseCreated: number[][];
   glucoseUsed: number[][] = [[0, 0]];
-  glucoseStored: number[][] = [[0, 0]];
+  glucoseStored: number[][];
   lightLevel: number[][];
   waterLevel: number[][];
   events: any[] = [];
 
-  constructor(name: string, numPhotons: number, numWater: number) {
+  constructor(
+    name: string,
+    numPhotons: number,
+    numWater: number,
+    initialGlucoseStored: number
+  ) {
     this.id = new Date().getTime();
     this.name = name;
     this.lightLevel = [[0, numPhotons]];
     this.waterLevel = [[0, numWater]];
+    this.glucoseCreated = [[0, initialGlucoseStored]];
+    this.glucoseStored = [[0, initialGlucoseStored]];
   }
 
   addDayData(

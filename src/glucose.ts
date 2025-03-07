@@ -3,7 +3,6 @@ import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
 type SVG = typeof SVG.Doc;
 
 export abstract class Glucose {
-  protected buffer = 25;
   protected image: SVG.Image;
   protected simulation: PlantGlucoseSimulation;
   constructor(simulation: PlantGlucoseSimulation) {
