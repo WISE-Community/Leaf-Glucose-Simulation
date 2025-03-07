@@ -60,7 +60,7 @@ export class PlantGlucoseSimulation {
   private glucoseToMitochondrion2: GlucoseToMitochondrion2;
   private glucoseToStorage1: GlucoseToStorage1;
   private glucoseToStorage2: GlucoseToStorage2;
-  glucosesInStorage: GlucoseToStorage[] = [];
+  glucosesInStorage: SVG.Image[] = [];
   instructions: any[] = [];
   isControlEnabled: boolean = true;
   isLightOn: boolean = true;
@@ -122,7 +122,7 @@ export class PlantGlucoseSimulation {
       let glucose: GlucoseToStorage;
       glucose = new GlucoseToStorage1(this);
       glucose.animate();
-      this.glucosesInStorage.push(glucose);
+      this.glucosesInStorage.push(glucose.getImage());
     }
     this.animationDuration = realAnimationDuration;
   }
@@ -515,13 +515,15 @@ export class PlantGlucoseSimulation {
       this.currentAnimation = this.draw.set();
       let glucose1InStorage =
         this.glucosesInStorage[this.getTotalGlucoseStored() - 1];
-      let glucose2InStorage: GlucoseToStorage = null;
+      let glucose2InStorage: SVG.Image = null;
 
       if (this.getTotalGlucoseStored() >= 2 && !requiresAssist) {
         glucose2InStorage =
           this.glucosesInStorage[this.getTotalGlucoseStored() - 2];
 
         if (glucose2InStorage != null) {
+          glucose1InStorage.rotate(0);
+          glucose2InStorage.rotate(0);
           if (
             (this.settings.isDroughtTolerant && this.numPhotonsThisCycle > 2) ||
             (this.settings.isShadeTolerant && this.numWaterThisCycle > 0)
@@ -701,6 +703,7 @@ export class PlantGlucoseSimulation {
     eventBus.emit('dayChanged', 1);
 
     this.currentDayNumber = 0;
+    this.blobCircleRadius = 10;
     this.totalGlucoseCreated = this.settings.initialGlucoseStored;
     this.totalGlucoseUsed = 0;
     this.glucosesInStorage = [];
@@ -809,6 +812,7 @@ export class PlantGlucoseSimulation {
     const centerX = this.storage.getX() + 150;
     const centerY = this.storage.getY() + 130;
     const nextGlucoseNum = this.getTotalGlucoseStored() + 1;
+    this.blobCircleRadius -= 1 / nextGlucoseNum;
     const groupNum = this.getGlucoseGroupNumber(nextGlucoseNum);
     const positionInGroup = this.getGlucosePositionInGroup(nextGlucoseNum);
     const isSquareGroup = this.isSquareGroup(groupNum);
@@ -829,7 +833,9 @@ export class PlantGlucoseSimulation {
    *                   stored would be 1, second would be 2, etc)
    */
   private getGlucoseGroupNumber(glucoseNum: number): number {
-    return Math.ceil(glucoseNum / 4);
+    let group = Math.ceil(glucoseNum / 4);
+    if (glucoseNum >= 41) group -= 10;
+    return group;
   }
 
   private getGlucosePositionInGroup(glucoseNum: number): number {

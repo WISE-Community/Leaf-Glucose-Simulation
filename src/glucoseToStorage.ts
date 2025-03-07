@@ -8,6 +8,7 @@ export abstract class GlucoseToStorage extends Glucose {
         delay: this.simulation.animationDelay,
         duration: this.simulation.animationDuration,
       })
-      .move(coordinates[0], coordinates[1]);
+      .move(coordinates[0], coordinates[1])
+      .afterAll(() => this.image.rotate(Math.random() * 360));
   }
 }
