@@ -82,6 +82,8 @@ export class PlantGlucoseSimulation {
   private trials: any[] = []; // an array of trial data objects including the current trial
   private wiseAPI: WISEAPI;
 
+  private blobCircleRadius = 10;
+
   /**
    * Instantiates variables with initial values for objects
    * within the simulation. Controlling the simulation (play/pause/reset)
@@ -119,8 +121,8 @@ export class PlantGlucoseSimulation {
     for (let i = 0; i < this.settings.initialGlucoseStored; i++) {
       let glucose: GlucoseToStorage;
       glucose = new GlucoseToStorage1(this);
-      this.glucosesInStorage.push(glucose);
       glucose.animate();
+      this.glucosesInStorage.push(glucose);
     }
     this.animationDuration = realAnimationDuration;
   }
@@ -486,18 +488,17 @@ export class PlantGlucoseSimulation {
       this.glucoseToStorage1 = null;
       if (this.glucoseCreatedIncrement !== 4) {
         animationCallback();
+      } else {
+        this.glucoseToStorage2.animate().afterAll(() => {
+          this.glucosesInStorage.push(this.glucoseToStorage2.clone());
+          this.glucoseToStorage2.remove();
+          this.glucoseToStorage2 = null;
+          animationCallback();
+        });
+        this.currentAnimation.add(this.glucoseToStorage2.getImage());
       }
     });
     this.currentAnimation.add(this.glucoseToStorage1.getImage());
-    if (this.glucoseCreatedIncrement === 4) {
-      this.glucoseToStorage2.animate().afterAll(() => {
-        this.glucosesInStorage.push(this.glucoseToStorage2.clone());
-        this.glucoseToStorage2.remove();
-        this.glucoseToStorage2 = null;
-        animationCallback();
-      });
-      this.currentAnimation.add(this.glucoseToStorage2.getImage());
-    }
   }
 
   /**
@@ -802,5 +803,111 @@ export class PlantGlucoseSimulation {
 
   getTotalGlucoseStored(): number {
     return this.glucosesInStorage.length;
+  }
+
+  getNextGlucoseStoredCoordinates(): [number, number] {
+    const centerX = this.storage.getX() + 150;
+    const centerY = this.storage.getY() + 130;
+    const nextGlucoseNum = this.getTotalGlucoseStored() + 1;
+    const groupNum = this.getGlucoseGroupNumber(nextGlucoseNum);
+    const positionInGroup = this.getGlucosePositionInGroup(nextGlucoseNum);
+    const isSquareGroup = this.isSquareGroup(groupNum);
+
+    return this.getAdjustedCoordinates(
+      centerX,
+      centerY,
+      groupNum,
+      positionInGroup,
+      isSquareGroup
+    );
+  }
+
+  /**
+   * Determines which group a glucose molecule is in where a group is a group
+   * of four glucoses that will be displayed in the same ring.
+   * @param glucoseNum number representing the glucose (the first glucose
+   *                   stored would be 1, second would be 2, etc)
+   */
+  private getGlucoseGroupNumber(glucoseNum: number): number {
+    return Math.ceil(glucoseNum / 4);
+  }
+
+  private getGlucosePositionInGroup(glucoseNum: number): number {
+    for (let i = 0; i < 4; i++) {
+      // The 4th member of the group is always a multiple of 4
+      if ((glucoseNum + i) % 4 === 0) {
+        return 4 - i;
+      }
+    }
+  }
+
+  /**
+   * Determines whether a glucose is in a group to be displayed as a square
+   * or a group to be displayed as a diamond.
+   * @param groupNum a group of four glucoses (the first four are group 1, the
+   *                 second four are group 2, etc)
+   */
+  private isSquareGroup(groupNum: number): boolean {
+    return groupNum % 2 !== 0;
+  }
+
+  private getAdjustedCoordinates(
+    centerX: number,
+    centerY: number,
+    groupNum: number,
+    positionInGroup: number,
+    isSquareGroup: boolean
+  ): [number, number] {
+    const groupRingRadius = this.getGroupRingRadius(groupNum, isSquareGroup);
+    const xModifier = this.getCoordinateModifier(
+      positionInGroup,
+      isSquareGroup,
+      true
+    );
+    const yModifier = this.getCoordinateModifier(
+      positionInGroup,
+      isSquareGroup,
+      false
+    );
+    const adjustedX = centerX + groupRingRadius * xModifier;
+    const adjustedY = centerY + groupRingRadius * yModifier;
+    return [adjustedX, adjustedY];
+  }
+
+  private getGroupRingRadius(groupNum: number, isSquareGroup: boolean): number {
+    return (
+      (this.blobCircleRadius * groupNum * Math.sqrt(2)) /
+      (isSquareGroup ? 2 : 1)
+    );
+  }
+
+  private getCoordinateModifier(
+    positionInGroup: number,
+    isSquareGroup: boolean,
+    isXCoord: boolean
+  ): number {
+    if (isXCoord) {
+      switch (positionInGroup) {
+        case 1:
+          return isSquareGroup ? 1 : 0;
+        case 2:
+          return 1;
+        case 3:
+          return isSquareGroup ? -1 : 0;
+        case 4:
+          return -1;
+      }
+    } else {
+      switch (positionInGroup) {
+        case 1:
+          return 1;
+        case 2:
+          return isSquareGroup ? -1 : 0;
+        case 3:
+          return -1;
+        case 4:
+          return isSquareGroup ? 1 : 0;
+      }
+    }
   }
 }
