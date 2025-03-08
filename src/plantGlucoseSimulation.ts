@@ -110,9 +110,6 @@ export class PlantGlucoseSimulation {
     eventBus
       .on('playPauseButtonClicked')
       .subscribe(() => this.handlePlayPauseButtonClicked());
-    eventBus.on('animationDeathSequenceEnded').subscribe(() => {
-      this.handleAnimationDeathSequenceEnded();
-    });
   }
 
   private addInitialGlucosesToStorage() {
@@ -220,7 +217,7 @@ export class PlantGlucoseSimulation {
     isPausing ? playOrPauseObject.pause() : playOrPauseObject.play();
   }
 
-  private handleAnimationDeathSequenceEnded(): void {
+  private animationDeathSequence(): void {
     this.addEvent('plantDied');
     eventBus.emit('statusChanged', 'died');
     this.updateCurrentTrial(false, false);
@@ -300,7 +297,7 @@ export class PlantGlucoseSimulation {
           })
           .afterAll(() => {
             this.disableControlButtons();
-            eventBus.emit('animationDeathSequenceStarted');
+            this.animationDeathSequence();
           });
       } else if (this.numPhotonsThisCycle > 0) {
         this.movePhotonsToPlantAndChloroplast(
@@ -311,6 +308,7 @@ export class PlantGlucoseSimulation {
           this.animationCallback.bind(this)
         );
       }
+      eventBus.emit('endOfDay');
       const nextDay = this.playSequence[this.currentDayNumber];
       if (nextDay) {
         this.setInputValues(nextDay);
@@ -513,6 +511,7 @@ export class PlantGlucoseSimulation {
       this.currentAnimation = this.draw.set();
       let glucose1InStorage =
         this.glucosesInStorage[this.getTotalGlucoseStored() - 1];
+      glucose1InStorage.rotate(0);
       let glucose2InStorage: SVG.Image = null;
 
       if (this.getTotalGlucoseStored() >= 2 && !requiresAssist) {
@@ -520,7 +519,6 @@ export class PlantGlucoseSimulation {
           this.glucosesInStorage[this.getTotalGlucoseStored() - 2];
 
         if (glucose2InStorage != null) {
-          glucose1InStorage.rotate(0);
           glucose2InStorage.rotate(0);
           if (
             (this.settings.isDroughtTolerant && this.numPhotonsThisCycle > 2) ||
@@ -625,7 +623,7 @@ export class PlantGlucoseSimulation {
           }
         } else {
           this.disableControlButtons();
-          eventBus.emit('animationDeathSequenceStarted');
+          this.animationDeathSequence();
         }
       });
     this.currentAnimation.add(this.mitochondrionBattery1.getImage());
@@ -706,6 +704,7 @@ export class PlantGlucoseSimulation {
     this.totalGlucoseUsed = 0;
     this.glucosesInStorage = [];
     this.addInitialGlucosesToStorage();
+    eventBus.emit('glucoseReset');
     this.feedback.hideFeedback();
     if (!this.settings.enableInputControls) {
       this.setInputValues(this.playSequence[0]);
