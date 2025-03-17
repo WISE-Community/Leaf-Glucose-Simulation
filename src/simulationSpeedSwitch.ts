@@ -19,9 +19,6 @@ export class SimulationSpeedSwitch {
    */
   constructor(private simulation: PlantGlucoseSimulation) {
     this.listenForUserInput();
-    eventBus
-      .on('inputControlsEnabled')
-      .subscribe((enabled: boolean) => this.setEnableUserInput(enabled));
   }
 
   /**
@@ -48,9 +45,5 @@ export class SimulationSpeedSwitch {
         );
       }
     });
-  }
-
-  private setEnableUserInput(enable: boolean): void {
-    $('#animationSpeedSwitchInput').prop('disabled', !enable);
   }
 }

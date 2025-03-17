@@ -506,6 +506,10 @@ export class PlantGlucoseSimulation {
     animationCallback: () => {},
     requiresAssist: boolean = false
   ): void {
+    const speedSettings = {
+      delay: this.animationDelay,
+      duration: this.animationDuration,
+    };
     if (this.getTotalGlucoseStored() === 0) {
       animationCallback();
     } else {
@@ -528,12 +532,12 @@ export class PlantGlucoseSimulation {
             this.mitochondrionBattery2 = new Battery2(this);
           } else {
             glucose2InStorage
-              .animate()
+              .animate(speedSettings)
               .move(
                 this.getMitochondrionBattery2StartPosition().x,
                 this.getMitochondrionBattery1StartPosition().y
               )
-              .animate()
+              .animate(speedSettings)
               .opacity(0)
               .afterAll(() => {
                 this.mitochondrionBattery2 = new Battery2(this);
@@ -549,14 +553,14 @@ export class PlantGlucoseSimulation {
         moveToY = this.getMitochondrionBattery2StartPosition().y;
       }
       glucose1InStorage
-        .animate()
+        .animate(speedSettings)
         .move(moveToX, moveToY)
         .during((pos, morph, eased, situation) => {
           if (!requiresAssist) {
             this.drainEnergy(100, 75, pos);
           }
         })
-        .animate()
+        .animate(speedSettings)
         .opacity(0)
         .during((pos, morph, eased, situation) => {
           if (!requiresAssist) {
