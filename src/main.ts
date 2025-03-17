@@ -13,6 +13,7 @@ import { LightSwitch3 } from './lightSwitch3';
 import { LightSwitch5 } from './lightSwitch5';
 import { WaterSwitch } from './waterSwitch';
 import * as SVG from 'svg.js';
+import { ScheduleChangedUpdate } from './scheduleChangedUpdate';
 import { SimulationSpeedSwitch } from './simulationSpeedSwitch';
 type SVG = typeof SVG;
 import { PlantAnimationCorner } from './plantAnimationCorner';
@@ -42,8 +43,10 @@ $(document).ready(function () {
   }
   if (settings.showOrganelles) {
     new SimulationEndFeedback(SVG('model'), true);
+    new ScheduleChangedUpdate(SVG('model'), true);
   } else {
     new SimulationEndFeedback(SVG('plantAnimation'), false);
+    new ScheduleChangedUpdate(SVG('plantAnimation'), false);
   }
   if (settings.showSpeedControls) {
     new SimulationSpeedSwitch(simulation);
