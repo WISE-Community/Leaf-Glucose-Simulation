@@ -19,6 +19,8 @@ export class SimulationSpeedSwitch {
    */
   constructor(private simulation: PlantGlucoseSimulation) {
     this.listenForUserInput();
+    $('#animationSpeedSwitchInput').attr('value', 2);
+    this.simulation.updateAnimationSpeedRatio(this.SPEED_RATIO_DOUBLE);
   }
 
   /**
