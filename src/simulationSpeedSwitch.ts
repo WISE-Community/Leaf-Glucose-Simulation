@@ -1,6 +1,5 @@
 import * as $ from 'jquery';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
-import { eventBus } from './eventBus';
 
 /**
  * SimulationSpeedSwitch --- Controls the speed of the simulation
