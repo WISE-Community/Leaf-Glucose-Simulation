@@ -5,13 +5,17 @@ import { DisplayStatusMessage } from './displayStatusMessage';
 
 export class ScheduleChangedUpdate {
   private scheduleUpdateMessage: DisplayStatusMessage;
+  private isShowing: boolean;
 
   constructor(draw: SVG, showOrganelles: boolean) {
     this.createMessage(draw, showOrganelles);
-    this.addEventListener();
+    this.isShowing = false;
+    eventBus.on('scheduleUpdated').subscribe(() => this.afterScheduleUpdated());
+    eventBus.on('playPauseButtonClicked').subscribe(() => this.hideMessage());
+    eventBus.on('resetButtonClicked').subscribe(() => this.hideMessage());
   }
 
-  private createMessage(draw: any, showOrganelles: boolean) {
+  private createMessage(draw: any, showOrganelles: boolean): void {
     this.scheduleUpdateMessage = new DisplayStatusMessage(
       draw,
       showOrganelles,
@@ -21,10 +25,18 @@ export class ScheduleChangedUpdate {
     );
   }
 
-  private addEventListener() {
-    eventBus.on('scheduleUpdated').subscribe(() => {
+  private afterScheduleUpdated(): void {
+    if (this.isShowing) {
+      this.scheduleUpdateMessage.hideMessage();
+      setTimeout(() => this.scheduleUpdateMessage.showMessage(), 500);
+    } else {
       this.scheduleUpdateMessage.showMessage();
-      setTimeout(() => this.scheduleUpdateMessage.hideMessage(), 2000);
-    });
+      this.isShowing = true;
+    }
+  }
+
+  private hideMessage() {
+    this.scheduleUpdateMessage.hideMessage();
+    this.isShowing = false;
   }
 }
