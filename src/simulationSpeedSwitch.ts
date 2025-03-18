@@ -1,6 +1,5 @@
 import * as $ from 'jquery';
 import { PlantGlucoseSimulation } from './plantGlucoseSimulation';
-import { eventBus } from './eventBus';
 
 /**
  * SimulationSpeedSwitch --- Controls the speed of the simulation
@@ -19,6 +18,8 @@ export class SimulationSpeedSwitch {
    */
   constructor(private simulation: PlantGlucoseSimulation) {
     this.listenForUserInput();
+    $('#animationSpeedSwitchInput').attr('value', 2);
+    this.simulation.updateAnimationSpeedRatio(this.SPEED_RATIO_DOUBLE);
   }
 
   /**
