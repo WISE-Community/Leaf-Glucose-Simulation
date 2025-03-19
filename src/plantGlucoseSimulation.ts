@@ -131,6 +131,7 @@ export class PlantGlucoseSimulation {
     this.resetSimulation();
     this.setInputValues(this.playSequence[0]);
     this.enableControlButtons();
+    eventBus.emit('scheduleUpdated');
   }
 
   private addDaysToPlaySequence(instruction: any): void {
